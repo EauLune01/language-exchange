@@ -1,0 +1,57 @@
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  application:
+    name: exchange
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/exchange?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Seoul
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2s
+          max-attempts: 3
+          multiplier: 2
+        default-requeue-rejected: false
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: INFO
+    language.exchange: DEBUG
+    org.hibernate.SQL: DEBUG
