@@ -266,6 +266,20 @@ function createMotifPair() {
     return pair;
 }
 
+/** 헤더 아래 진행바: 목표 횟수(goal) 중 지금까지 학습한 횟수(studiedCount). 이름은 사용자 내용이라 키와 값만 달아 둡니다. */
+function renderProgress(header, room) {
+    const [memberA, memberB] = room.members;
+    const journey = createElement('div', 'journey');
+    const title = i18nEl('span', 'journey-title', 'progress.title', { nameA: memberA.name, nameB: memberB.name });
+    title.id = 'journey-title';
+    journey.append(
+        title,
+        i18nEl('span', 'journey-count', 'progress.count', { count: room.studiedCount, goal: room.goal }),
+        // 목표를 넘겨도 <progress> 가 알아서 100% 로 막아 줍니다.
+        createElement('progress', 'journey-bar', { max: room.goal, value: room.studiedCount, 'aria-labelledby': 'journey-title' }));
+    header.append(journey);
+}
+
 /** 화면 언어 선택 칸: 사전이 있는 언어만, 각 언어의 이름으로 보여줍니다. */
 function fillLanguageSelect(select) {
     i18nUiLanguages().forEach((code) => {
@@ -292,11 +306,14 @@ const i18nReady = (async () => {
 
 /*
  * 메뉴가 있는 페이지(= 로그인이 필요한 페이지)에서는 열자마자 방 정보를 한 번 읽습니다.
- * roomReady 는 { loginId, members: [{ name, nationality, language, learningLanguage }, …] } 로 풀리고, 읽지 못하면 null 이에요.
+ * roomReady 는 { loginId, members: [{ name, nationality, language, learningLanguage }, …], goal, studiedCount } 로 풀리고,
+ * 읽지 못하면 null 이에요. 같은 값을 roomInfo 전역에도 담아 둡니다.
  */
+let roomInfo = null;
 const roomReady = siteHeader.dataset.nav ? apiGet('/api/rooms').catch(() => null) : Promise.resolve(null);
 
 roomReady.then((room) => {
+    roomInfo = room;
     if (room) {
         sheetLangStorageKey = `${LANG_STORAGE_KEY}:${room.loginId}`;
     }
@@ -307,6 +324,7 @@ if (siteHeader.dataset.nav) {
     Promise.all([i18nReady, roomReady]).then(([, room]) => {
         if (room) {
             applyMotifs(room.members.map((member) => member.language));
+            renderProgress(siteHeader, room);
         }
     });
 } else {

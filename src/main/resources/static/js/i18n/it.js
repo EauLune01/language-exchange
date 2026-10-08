@@ -93,4 +93,7 @@ i18nRegister('IT', {
     'register.success': "Richiesta ricevuta ({count}). Gli argomenti compariranno tra poco in Tutti gli argomenti.",
     'register.success.link': "Vedi tutti gli argomenti",
     'register.error.invalid': "Il server non ha accettato i dati. Controlla il nome dell'argomento e le 3 domande.",
+    'progress.title': "Il viaggio linguistico di {nameA} e {nameB}",
+    'progress.count': "{count} / {goal}",
+    'room.goal.label': "Obiettivo (sessioni)",
 });

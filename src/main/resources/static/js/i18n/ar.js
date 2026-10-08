@@ -93,4 +93,7 @@ i18nRegister('AR', {
     'register.success': "تم استلام الطلب ({count}). ستظهر المواضيع في «كل المواضيع» بعد قليل.",
     'register.success.link': "عرض كل المواضيع",
     'register.error.invalid': "لم يقبل الخادم البيانات المُدخلة. يُرجى مراجعة اسم الموضوع والأسئلة الثلاثة.",
+    'progress.title': "رحلة {nameA} و{nameB} في تبادل اللغات",
+    'progress.count': "{count} / {goal}",
+    'room.goal.label': "الهدف (عدد الجلسات)",
 });

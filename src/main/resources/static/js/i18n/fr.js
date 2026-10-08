@@ -93,4 +93,7 @@ i18nRegister('FR', {
     'register.success': "Demande reçue ({count}). Les sujets apparaîtront bientôt dans Tous les sujets.",
     'register.success.link': "Voir tous les sujets",
     'register.error.invalid': "Le serveur n'a pas accepté la saisie. Vérifiez le nom du sujet et les 3 questions.",
+    'progress.title': "Le voyage linguistique de {nameA} et {nameB}",
+    'progress.count': "{count} / {goal}",
+    'room.goal.label': "Objectif (séances)",
 });

@@ -93,4 +93,7 @@ i18nRegister('ZH', {
     'register.success': "已收到添加请求（{count} 个）。稍后可以在全部主题中查看。",
     'register.success.link': "查看全部主题",
     'register.error.invalid': "服务器没有接受输入的内容。请再次检查主题名称和 3 个问题。",
+    'progress.title': "{nameA}和{nameB}的语言交换之旅",
+    'progress.count': "{count} / {goal} 次",
+    'room.goal.label': "目标次数",
 });

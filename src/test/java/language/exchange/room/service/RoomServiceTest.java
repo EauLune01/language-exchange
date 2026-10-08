@@ -32,9 +32,14 @@ class RoomServiceTest {
     }
 
     private RoomCreateCommand command(Language learningLanguageA, Language learningLanguageB, String nationalityB) {
+        return command(learningLanguageA, learningLanguageB, nationalityB, 50);
+    }
+
+    private RoomCreateCommand command(Language learningLanguageA, Language learningLanguageB, String nationalityB,
+                                      Integer goal) {
         return RoomCreateCommand.of("our-room", "password123",
                 RoomMemberCommand.of("민수", "KR", learningLanguageA),
-                RoomMemberCommand.of("ゆい", nationalityB, learningLanguageB));
+                RoomMemberCommand.of("ゆい", nationalityB, learningLanguageB), goal);
     }
 
     @Test
@@ -84,6 +89,23 @@ class RoomServiceTest {
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_NATIONALITY);
         }
         verify(roomRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("목표 횟수는 25/50/75/100 중 하나여야 한다")
+    void createRoomRejectsInvalidGoal() {
+        for (Integer goal : new Integer[]{null, 0, 30, 101}) {
+            assertThatThrownBy(() -> roomService.createRoom(command(Language.JA, Language.KO, "JP", goal)))
+                    .isInstanceOf(BusinessException.class)
+                    .extracting("errorCode").isEqualTo(ErrorCode.INVALID_INPUT);
+        }
+        verify(roomRepository, never()).save(any());
+
+        when(roomRepository.save(any(Room.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        roomService.createRoom(command(Language.JA, Language.KO, "JP", 100));
+        ArgumentCaptor<Room> saved = ArgumentCaptor.forClass(Room.class);
+        verify(roomRepository).save(saved.capture());
+        assertThat(saved.getValue().getGoal()).isEqualTo(100);
     }
 
     @Test

@@ -30,7 +30,11 @@ public class RoomCreateRequest {
     @Size(min = 2, max = 2, message = "두 사람의 정보를 입력해야 합니다.")
     private List<@NotNull RoomMemberRequest> members;
 
+    // 25/50/75/100 중 하나인지는 서비스에서 확인
+    @NotNull(message = "목표 횟수는 필수입니다.")
+    private Integer goal;
+
     public RoomCreateCommand toCommand() {
-        return RoomCreateCommand.of(loginId, password, members.get(0).toCommand(), members.get(1).toCommand());
+        return RoomCreateCommand.of(loginId, password, members.get(0).toCommand(), members.get(1).toCommand(), goal);
     }
 }

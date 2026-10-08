@@ -22,6 +22,7 @@ public class RoomService {
 
     // ISO 3166-1 alpha-2 국가 코드 (KR, JP …)
     private static final Set<String> COUNTRY_CODES = Set.of(Locale.getISOCountries());
+    private static final Set<Integer> GOALS = Set.of(25, 50, 75, 100);
 
     private final RoomRepository roomRepository;
     private final PasswordEncoder passwordEncoder;
@@ -30,6 +31,10 @@ public class RoomService {
         RoomMemberCommand memberA = command.getMemberA();
         RoomMemberCommand memberB = command.getMemberB();
 
+        // Set.of 는 contains(null) 에서 NPE 를 던진다
+        if (command.getGoal() == null || !GOALS.contains(command.getGoal())) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT);
+        }
         if (!COUNTRY_CODES.contains(memberA.getNationality()) || !COUNTRY_CODES.contains(memberB.getNationality())) {
             throw new BusinessException(ErrorCode.INVALID_NATIONALITY);
         }
@@ -52,7 +57,8 @@ public class RoomService {
                 memberA.getName(),
                 memberA.getNationality(),
                 memberB.getName(),
-                memberB.getNationality()));
+                memberB.getNationality(),
+                command.getGoal()));
         return room.getId();
     }
 }

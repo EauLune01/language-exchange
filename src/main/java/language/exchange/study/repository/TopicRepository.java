@@ -14,6 +14,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, TopicReposi
 
     boolean existsByIdAndRoomId(Long id, Long roomId);
 
+    long countByRoomIdAndUsedDateIsNotNull(Long roomId);
+
     Optional<Topic> findFirstByRoomIdAndUsedDateBetweenOrderByUsedDateAscIdAsc(Long roomId, LocalDate start, LocalDate end);
 
     @Query(value = "SELECT * FROM topics WHERE room_id = :roomId AND used_date IS NULL ORDER BY RAND() LIMIT 1",

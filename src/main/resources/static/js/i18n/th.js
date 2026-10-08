@@ -93,4 +93,7 @@ i18nRegister('TH', {
     'register.success': "ได้รับคำขอแล้ว ({count}) อีกสักครู่หัวข้อจะแสดงในหัวข้อทั้งหมด",
     'register.success.link': "ดูหัวข้อทั้งหมด",
     'register.error.invalid': "เซิร์ฟเวอร์ไม่รับข้อมูลที่กรอก กรุณาตรวจสอบชื่อหัวข้อและคำถาม 3 ข้ออีกครั้ง",
+    'progress.title': "การเดินทางแลกเปลี่ยนภาษาของ {nameA} และ {nameB}",
+    'progress.count': "{count} / {goal} ครั้ง",
+    'room.goal.label': "เป้าหมาย (จำนวนครั้ง)",
 });

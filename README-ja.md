@@ -153,6 +153,7 @@ flowchart LR
 | `members[].name` | string | O | 50文字以下、空白のみは不可 |
 | `members[].nationality` | string | O | ISO 3166-1 alpha-2 国コード（`KR`, `JP` …）。実在するコードかどうかはサービス側でもう一度確認 |
 | `members[].learningLanguage` | string | O | その人が学びたい言語（`Language`の値） |
+| `goal` | number | O | 目標学習回数。`25`、`50`、`75`、`100` のいずれか |
 
 ```json
 {
@@ -161,7 +162,8 @@ flowchart LR
   "members": [
     { "name": "민수", "nationality": "KR", "learningLanguage": "JA" },
     { "name": "ゆい", "nationality": "JP", "learningLanguage": "KO" }
-  ]
+  ],
+  "goal": 50
 }
 ```
 
@@ -177,7 +179,7 @@ flowchart LR
 
 | errorCode | HTTP | 状況 |
 |---|---|---|
-| `INVALID_INPUT` | 400 | 必須値の欠落、形式エラー（ID・パスワードの規則、`members`が2つではない）、存在しない言語コード |
+| `INVALID_INPUT` | 400 | 必須値の欠落、形式エラー（ID・パスワードの規則、`members`が2つではない）、存在しない言語コード、`goal`が25/50/75/100以外 |
 | `SAME_LANGUAGE` | 400 | 2人が同じ言語を学ぶと選択した |
 | `INVALID_NATIONALITY` | 400 | 国籍が実在するISO国コードではない |
 | `DUPLICATE_ROOM_ID` | 409 | すでに存在するルームID |
@@ -186,7 +188,7 @@ flowchart LR
 
 ### 2. 現在のルーム情報 `GET /api/rooms`
 
-ログイン中のルームのIDと、2人の名前・国籍・使う言語（`language`）・学びたい言語（`learningLanguage`）を返します。`members`は常に[A, B]の順です。画面はこのレスポンスでルームの2言語とモチーフを決めます。
+ログイン中のルームのIDと、2人の名前・国籍・使う言語（`language`）・学びたい言語（`learningLanguage`）を返します。`members`は常に[A, B]の順です。`goal`は目標学習回数、`studiedCount`はこれまでに引いて使ったテーマの数です。画面はこのレスポンスでルームの2言語とモチーフを決めます。
 
 **Response `200 OK`**
 
@@ -200,7 +202,9 @@ flowchart LR
     "members": [
       { "name": "민수", "nationality": "KR", "language": "KO", "learningLanguage": "JA" },
       { "name": "ゆい", "nationality": "JP", "language": "JA", "learningLanguage": "KO" }
-    ]
+    ],
+    "goal": 50,
+    "studiedCount": 3
   }
 }
 ```

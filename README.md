@@ -153,6 +153,7 @@ flowchart LR
 | `members[].name` | string | O | 50자 이하, 공백만으로는 불가 |
 | `members[].nationality` | string | O | ISO 3166-1 alpha-2 국가 코드 (`KR`, `JP` …). 실제 코드인지 서비스에서 한 번 더 확인 |
 | `members[].learningLanguage` | string | O | 이 사람이 배우고 싶은 언어 (`Language` 값) |
+| `goal` | number | O | 목표 학습 횟수. `25`, `50`, `75`, `100` 중 하나 |
 
 ```json
 {
@@ -161,7 +162,8 @@ flowchart LR
   "members": [
     { "name": "민수", "nationality": "KR", "learningLanguage": "JA" },
     { "name": "ゆい", "nationality": "JP", "learningLanguage": "KO" }
-  ]
+  ],
+  "goal": 50
 }
 ```
 
@@ -177,7 +179,7 @@ flowchart LR
 
 | errorCode | HTTP | 상황 |
 |---|---|---|
-| `INVALID_INPUT` | 400 | 필수값 누락, 형식 오류(아이디·비밀번호 규칙, `members`가 2개가 아님), 없는 언어 코드 |
+| `INVALID_INPUT` | 400 | 필수값 누락, 형식 오류(아이디·비밀번호 규칙, `members`가 2개가 아님), 없는 언어 코드, `goal`이 25/50/75/100이 아님 |
 | `SAME_LANGUAGE` | 400 | 두 사람이 같은 언어를 배우겠다고 고름 |
 | `INVALID_NATIONALITY` | 400 | 국적이 실제 ISO 국가 코드가 아님 |
 | `DUPLICATE_ROOM_ID` | 409 | 이미 있는 방 아이디 |
@@ -186,7 +188,7 @@ flowchart LR
 
 ### 2. 현재 방 정보 `GET /api/rooms`
 
-로그인한 방의 아이디와 두 사람의 이름·국적·쓰는 언어(`language`)·배우고 싶은 언어(`learningLanguage`)를 돌려줍니다. `members`는 항상 [A, B] 순서입니다. 화면은 이 응답으로 방의 두 언어와 모티프를 정합니다.
+로그인한 방의 아이디와 두 사람의 이름·국적·쓰는 언어(`language`)·배우고 싶은 언어(`learningLanguage`)를 돌려줍니다. `members`는 항상 [A, B] 순서입니다. `goal`은 목표 학습 횟수, `studiedCount`는 지금까지 뽑아서 사용한 주제 수입니다. 화면은 이 응답으로 방의 두 언어와 모티프를 정합니다.
 
 **Response `200 OK`**
 
@@ -200,7 +202,9 @@ flowchart LR
     "members": [
       { "name": "민수", "nationality": "KR", "language": "KO", "learningLanguage": "JA" },
       { "name": "ゆい", "nationality": "JP", "language": "JA", "learningLanguage": "KO" }
-    ]
+    ],
+    "goal": 50,
+    "studiedCount": 3
   }
 }
 ```

@@ -177,7 +177,7 @@ class TopicRoomIsolationTest {
         String loginId = "t-" + UUID.randomUUID().toString().substring(0, 12);
         return roomService.createRoom(RoomCreateCommand.of(loginId, "password123",
                 RoomMemberCommand.of("first", "KR", learningA),
-                RoomMemberCommand.of("second", "JP", learningB)));
+                RoomMemberCommand.of("second", "JP", learningB), 50));
     }
 
     /** 질문은 "<주제명> 1", "<주제명> 2", "<주제명> 3" */
