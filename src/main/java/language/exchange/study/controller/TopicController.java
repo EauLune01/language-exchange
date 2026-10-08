@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import language.exchange.global.dto.response.ApiResponse;
 import language.exchange.global.dto.response.SliceResponse;
-import language.exchange.study.domain.Language;
+import language.exchange.room.domain.Language;
 import language.exchange.study.dto.request.TopicBulkCreateRequest;
 import language.exchange.study.dto.request.TopicCreateRequest;
 import language.exchange.study.dto.response.QuestionListResponse;

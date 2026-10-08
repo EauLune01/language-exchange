@@ -42,6 +42,13 @@ server:
     encoding:
       charset: UTF-8
       force: true
+    session:
+      # 일주일에 한 번 쓰는 앱이라 길게 둔다. 세션은 메모리에 있어서 서버를 재시작하면 다시 로그인해야 한다.
+      timeout: 30d
+      cookie:
+        http-only: true
+        same-site: lax
+        max-age: 30d
 
 springdoc:
   swagger-ui:

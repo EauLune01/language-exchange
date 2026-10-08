@@ -1,6 +1,6 @@
 package language.exchange.study.dto.response;
 
-import language.exchange.study.domain.Language;
+import language.exchange.room.domain.Language;
 import language.exchange.study.dto.result.QuestionResult;
 import lombok.Builder;
 import lombok.Getter;
