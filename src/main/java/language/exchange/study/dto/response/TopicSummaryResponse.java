@@ -5,20 +5,20 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Builder
 public class TopicSummaryResponse {
+
     private Long id;
-    private String nameKo;
-    private String nameJa;
+    private List<LocalizedTextResponse> names;
     private LocalDate usedDate;
 
     public static TopicSummaryResponse from(TopicSummaryResult result) {
         return TopicSummaryResponse.builder()
                 .id(result.getId())
-                .nameKo(result.getNameKo())
-                .nameJa(result.getNameJa())
+                .names(result.getNames().stream().map(LocalizedTextResponse::from).toList())
                 .usedDate(result.getUsedDate())
                 .build();
     }

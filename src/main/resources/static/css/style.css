@@ -1,6 +1,9 @@
 /* ==========================================================
    언어교환 / 言語交換
-   - 한국어 = 파랑, 일본어 = 빨강 (앱 전체에서 같은 규칙)
+   - 글자 색은 언어가 아니라 자리에 붙어요: 방의 첫 번째 언어(A) = 파랑, 두 번째 언어(B) = 빨강
+   - 장식 그림(모티프)은 언어마다 달라요. common.js 가 --motif-a/b(그림), --accent-a/b(보조 색) 변수로 내려주고
+     <html data-motifs="pair|single"> 로 표시합니다. 여기서는 어떤 언어인지 모르고 변수만 씁니다.
+   - 좌우 여백·위치는 논리 속성(inline-start/end)으로 써서 아랍어(dir="rtl")에서도 그대로 뒤집혀요
    - 두 원이 겹치는 모양(벤 다이어그램)이 앱의 상징: 두 언어가 만나는 곳
    ========================================================== */
 
@@ -11,12 +14,12 @@
     --surface: #ffffff;
     --line: #dde2ef;
 
-    --ko: #2c5bc4;
-    --ko-soft: #e5ecfb;
-    --ko-circle: #c9d9fa;
-    --ja: #c2354f;
-    --ja-soft: #fbe5ea;
-    --ja-circle: #f8cdd6;
+    --lang-a: #2c5bc4;
+    --lang-a-soft: #e5ecfb;
+    --lang-a-circle: #c9d9fa;
+    --lang-b: #c2354f;
+    --lang-b-soft: #fbe5ea;
+    --lang-b-circle: #f8cdd6;
 
     --radius-xl: 28px;
     --radius-lg: 22px;
@@ -28,6 +31,8 @@
 
     --font-ko: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --font-ja: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-zh: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-system: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 *,
@@ -72,6 +77,19 @@ body:has(dialog[open]) {
     word-break: auto-phrase;
 }
 
+/* 화면 언어(<html lang>)에 맞는 기본 글꼴. 한국어·일본어·중국어 말고는 기기 기본 글꼴을 씁니다. */
+html:lang(ja) body {
+    font-family: var(--font-ja);
+}
+
+html:lang(zh) body {
+    font-family: var(--font-zh);
+}
+
+html:not(:lang(ko), :lang(ja), :lang(zh)) body {
+    font-family: var(--font-system);
+}
+
 button {
     font: inherit;
     color: inherit;
@@ -83,7 +101,7 @@ a {
 }
 
 :focus-visible {
-    outline: 3px solid var(--ko);
+    outline: 3px solid var(--lang-a);
     outline-offset: 3px;
 }
 
@@ -104,16 +122,54 @@ a {
     }
 
     body::before {
-        right: 160px;
+        inset-inline-end: 160px;
         bottom: -300px;
-        background: var(--ko-circle);
+        background: var(--lang-a-circle);
     }
 
     body::after {
-        right: -130px;
+        inset-inline-end: -130px;
         bottom: -230px;
-        background: var(--ja-circle);
+        background: var(--lang-b-circle);
     }
+
+    /* 모티프가 정해지면 배경의 두 원도 그 언어들의 보조 색을 옅게 풀어서 씁니다 */
+    :root[data-motifs] body::before {
+        background: color-mix(in srgb, var(--accent-a) 42%, #ffffff);
+    }
+
+    :root[data-motifs] body::after {
+        background: color-mix(in srgb, var(--accent-b) 42%, #ffffff);
+    }
+}
+
+/* ---------- 언어별 모티프 (장식) ---------- */
+
+.motif {
+    display: block;
+    flex: none;
+    width: 84px;
+    height: 84px;
+    background: center / contain no-repeat;
+    mix-blend-mode: multiply;
+}
+
+.motif--a {
+    background-image: var(--motif-a);
+}
+
+.motif--b {
+    background-image: var(--motif-b);
+}
+
+/* 방의 두 모티프를 살짝 겹쳐 나란히 (빈 상태 화면) */
+.motif-pair {
+    display: flex;
+    margin-top: 8px;
+}
+
+.motif-pair .motif--b {
+    margin-inline-start: -18px;
 }
 
 /* ---------- 레이아웃 ---------- */
@@ -153,13 +209,34 @@ a {
     mix-blend-mode: multiply;
 }
 
-.logo-circle--ko {
+.logo-circle--a {
     background: #7d9ee6;
 }
 
-.logo-circle--ja {
-    margin-left: -10px;
+.logo-circle--b {
+    margin-inline-start: -10px;
     background: #ee8fa0;
+}
+
+/* 모티프가 정해지면 헤더 마크의 두 원이 그 언어들의 그림으로 바뀝니다 (정해지기 전에는 원 그대로) */
+:root[data-motifs] .logo-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 0;
+    background: center / contain no-repeat;
+}
+
+:root[data-motifs] .logo-circle--a {
+    background-image: var(--motif-a);
+}
+
+:root[data-motifs] .logo-circle--b {
+    background-image: var(--motif-b);
+}
+
+/* 방에 들어가기 전에는 화면 언어의 그림 하나만 */
+:root[data-motifs="single"] .logo-circle--b {
+    display: none;
 }
 
 .wordmark {
@@ -169,14 +246,6 @@ a {
     gap: 0 10px;
     font-size: 1.3rem;
     line-height: 1.3;
-}
-
-.wordmark-ko {
-    color: var(--ko);
-}
-
-.wordmark-ja {
-    color: var(--ja);
 }
 
 /* ---------- 메뉴 ---------- */
@@ -189,7 +258,8 @@ a {
     background: #e8ecf7;
 }
 
-.site-nav a {
+.site-nav a,
+.site-nav button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -198,21 +268,35 @@ a {
     padding: 4px 20px;
     border-radius: 999px;
     color: var(--ink);
+    font-size: 0.97rem;
     line-height: 1.25;
+    text-align: center;
     text-decoration: none;
     transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.site-nav a span:first-child {
-    font-size: 0.97rem;
+.site-nav button {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
 }
 
-.site-nav a span:last-child {
-    color: var(--muted);
-    font-size: 0.72rem;
+/* 화면 언어 선택 (common.js 가 헤더에 넣어요) */
+.lang-select {
+    min-height: 44px;
+    margin-inline-start: auto;
+    padding: 8px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.92rem;
+    cursor: pointer;
 }
 
-.site-nav a:hover {
+.site-nav a:hover,
+.site-nav button:hover {
     background: rgba(255, 255, 255, 0.75);
 }
 
@@ -221,16 +305,13 @@ a {
     color: #ffffff;
 }
 
-.site-nav a[aria-current="page"] span:last-child {
-    color: rgba(255, 255, 255, 0.78);
-}
-
 @media (max-width: 700px) {
     .site-nav {
         width: 100%;
     }
 
-    .site-nav a {
+    .site-nav a,
+    .site-nav button {
         flex: 1;
         padding: 4px 6px;
     }
@@ -263,25 +344,10 @@ a {
 
 .hero-title {
     margin: 0;
+    color: var(--lang-a);
+    font-size: clamp(2rem, 5.4vw, 3.3rem);
     font-weight: 400;
     line-height: 1.25;
-}
-
-.hero-title span {
-    display: block;
-}
-
-.hero-title span:first-child {
-    color: var(--ko);
-    font-size: clamp(2rem, 5.4vw, 3.3rem);
-    text-wrap: balance;
-    word-break: keep-all;
-}
-
-.hero-title span:last-child {
-    margin-top: 10px;
-    color: var(--ja);
-    font-size: clamp(1.3rem, 3vw, 1.9rem);
     text-wrap: balance;
 }
 
@@ -289,15 +355,6 @@ a {
     max-width: 32em;
     margin: 22px 0 0;
     color: var(--muted);
-}
-
-.hero-desc span {
-    display: block;
-}
-
-.hero-desc span + span {
-    margin-top: 4px;
-    font-size: 0.92rem;
 }
 
 @media (min-width: 900px) {
@@ -337,7 +394,7 @@ a {
     background: var(--surface);
     box-shadow: var(--shadow-card);
     overflow: hidden;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
     transition: transform 0.22s ease;
 }
@@ -362,7 +419,7 @@ a {
 .venn {
     position: absolute;
     top: 24px;
-    right: 20px;
+    inset-inline-end: 20px;
     width: calc(var(--d) * 1.7);
     height: var(--d);
     pointer-events: none;
@@ -371,11 +428,12 @@ a {
 @media (min-width: 900px) {
     .venn {
         top: 34px;
-        right: 34px;
+        inset-inline-end: 34px;
     }
 }
 
-/* 카드 안의 두 송이 꽃: 파랑 = 무궁화(한국), 빨강 = 벚꽃(일본). 둘 다 꽃잎이 5장이에요.
+/* 카드 안의 두 송이 꽃: 파랑(A)과 빨강(B). 둘 다 꽃잎이 5장이에요.
+   두 꽃이 서로를 향해 움직이는 그림이라 이 안의 left/right 와 translateX 는 글 방향과 상관없이 그대로 둡니다.
    뽑기 전에는 떨어져 있다가, 주제가 나오면 돌면서 서로 겹쳐요. (그림 파일 없이 CSS 안에서 그려요) */
 .venn-circle {
     position: absolute;
@@ -389,23 +447,23 @@ a {
     transition: transform 0.9s cubic-bezier(0.3, 1.25, 0.4, 1);
 }
 
-.venn-circle--ko {
+.venn-circle--a {
     left: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(0 100 100)'/%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(72 100 100)'/%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(144 100 100)'/%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(216 100 100)'/%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(288 100 100)'/%3E%3Ccircle cx='100' cy='100' r='13' fill='%237d9ee6'/%3E%3C/svg%3E");
+    background-image: var(--motif-a);
     transform: translateX(calc(var(--d) * 0.15)) rotate(-12deg);
 }
 
-.venn-circle--ja {
+.venn-circle--b {
     right: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(0 100 100)'/%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(72 100 100)'/%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(144 100 100)'/%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(216 100 100)'/%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(288 100 100)'/%3E%3Ccircle cx='100' cy='100' r='9' fill='%23ee8fa0'/%3E%3C/svg%3E");
+    background-image: var(--motif-b);
     transform: translateX(calc(var(--d) * -0.15)) rotate(14deg);
 }
 
-.weekly-card.is-empty .venn-circle--ko {
+.weekly-card.is-empty .venn-circle--a {
     transform: translateX(calc(var(--d) * -0.12)) rotate(-50deg);
 }
 
-.weekly-card.is-empty .venn-circle--ja {
+.weekly-card.is-empty .venn-circle--b {
     transform: translateX(calc(var(--d) * 0.12)) rotate(52deg);
 }
 
@@ -424,22 +482,21 @@ a {
     overflow-wrap: anywhere;
 }
 
-.card-name--ko {
-    color: var(--ko);
+.card-name--a {
+    color: var(--lang-a);
     font-size: clamp(2.1rem, 9vw, 3.5rem);
-    word-break: keep-all;
 }
 
-.card-name--ja {
-    color: var(--ja);
+.card-name--b {
+    color: var(--lang-b);
     font-size: clamp(1.6rem, 6.4vw, 2.4rem);
 }
 
-.weekly-card.is-empty .card-name--ko {
+.weekly-card.is-empty .card-name--a {
     font-size: clamp(1.3rem, 5vw, 1.7rem);
 }
 
-.weekly-card.is-empty .card-name--ja {
+.weekly-card.is-empty .card-name--b {
     font-size: clamp(1.05rem, 3.6vw, 1.2rem);
 }
 
@@ -451,10 +508,6 @@ a {
 
 .hero-actions .message {
     margin: 0 0 14px;
-}
-
-.hint span + span {
-    display: block;
 }
 
 /* ---------- 메인: 바로가기 ---------- */
@@ -469,7 +522,8 @@ a {
 .shortcut {
     position: relative;
     display: block;
-    padding: 24px 60px 24px 26px;
+    padding: 24px 26px;
+    padding-inline-end: 60px;
     border: 1.5px solid transparent;
     border-radius: var(--radius-lg);
     background: var(--surface);
@@ -487,28 +541,24 @@ a {
     content: "";
     position: absolute;
     top: 50%;
-    right: 26px;
+    inset-inline-end: 26px;
     width: 10px;
     height: 10px;
     border-top: 2px solid var(--muted);
-    border-right: 2px solid var(--muted);
+    border-inline-end: 2px solid var(--muted);
     transform: translateY(-50%) rotate(45deg);
 }
 
-.shortcut-title span,
-.shortcut-desc span {
+/* 오른쪽에서 왼쪽으로 쓰는 언어에서는 화살표도 반대쪽을 가리킵니다 */
+[dir="rtl"] .shortcut::after,
+[dir="rtl"] .topic-row::after {
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+.shortcut-title {
     display: block;
-}
-
-.shortcut-title span:first-child {
-    color: var(--ko);
+    color: var(--lang-a);
     font-size: 1.35rem;
-    line-height: 1.4;
-}
-
-.shortcut-title span:last-child {
-    color: var(--ja);
-    font-size: 1.05rem;
     line-height: 1.4;
 }
 
@@ -517,11 +567,6 @@ a {
     margin-top: 14px;
     color: var(--muted);
     font-size: 0.93rem;
-}
-
-.shortcut-desc span + span {
-    margin-top: 3px;
-    font-size: 0.86rem;
 }
 
 /* ---------- 버튼 ---------- */
@@ -561,11 +606,6 @@ a {
     line-height: 1.4;
 }
 
-.btn-line--sub {
-    font-size: 0.86rem;
-    opacity: 0.8;
-}
-
 .secondary {
     display: block;
     width: 100%;
@@ -594,7 +634,8 @@ a {
     place-items: center;
     width: 44px;
     height: 44px;
-    margin: -6px -8px 0 0;
+    margin: -6px 0 0;
+    margin-inline-end: -8px;
     padding: 0;
     border: 0;
     border-radius: 50%;
@@ -610,7 +651,7 @@ a {
     margin: 16px 0 0;
     padding: 13px 16px;
     border-radius: var(--radius-sm);
-    background: var(--ja-soft);
+    background: var(--lang-b-soft);
     color: #8a1f36;
     font-size: 0.95rem;
 }
@@ -618,10 +659,6 @@ a {
 .message--info {
     background: #e9ecf5;
     color: var(--muted);
-}
-
-.message span {
-    display: block;
 }
 
 /* ---------- 목록 페이지 공통 ---------- */
@@ -635,24 +672,23 @@ a {
     margin-bottom: clamp(24px, 3.5vw, 36px);
 }
 
+/* 제목 옆에 모티프를 두는 화면 (들어가기) */
+.page-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.page-heading .motif {
+    width: 72px;
+    height: 72px;
+}
+
 .page-title {
     margin: 0;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
     font-weight: 400;
     line-height: 1.3;
-}
-
-.page-title span {
-    display: block;
-}
-
-.page-title span:first-child {
-    font-size: clamp(1.9rem, 4vw, 2.6rem);
-}
-
-.page-title span:last-child {
-    margin-top: 2px;
-    color: var(--muted);
-    font-size: 1.1rem;
 }
 
 .page-note {
@@ -660,15 +696,6 @@ a {
     margin: 0;
     color: var(--muted);
     font-size: 0.93rem;
-}
-
-.page-note span {
-    display: block;
-}
-
-.page-note span + span {
-    margin-top: 3px;
-    font-size: 0.86rem;
 }
 
 .topic-list,
@@ -695,19 +722,11 @@ a {
     align-items: baseline;
     gap: 0 12px;
     margin-top: 18px;
+    font-size: 1.15rem;
 }
 
 .group-heading:first-child {
     margin-top: 0;
-}
-
-.group-heading-ko {
-    font-size: 1.15rem;
-}
-
-.group-heading-ja {
-    color: var(--muted);
-    font-size: 0.95rem;
 }
 
 .topic-row {
@@ -715,10 +734,11 @@ a {
     display: block;
     flex: 1;
     width: 100%;
-    padding: 18px 48px 18px 20px;
+    padding: 18px 20px;
+    padding-inline-end: 48px;
     border: 1.5px solid transparent;
     border-radius: var(--radius-md);
-    text-align: left;
+    text-align: start;
     cursor: pointer;
 }
 
@@ -737,11 +757,11 @@ a {
     content: "";
     position: absolute;
     top: 50%;
-    right: 20px;
+    inset-inline-end: 20px;
     width: 9px;
     height: 9px;
     border-top: 2px solid var(--muted);
-    border-right: 2px solid var(--muted);
+    border-inline-end: 2px solid var(--muted);
     transform: translateY(-50%) rotate(45deg);
 }
 
@@ -754,15 +774,14 @@ a {
     line-height: 1.45;
 }
 
-.topic-name--ko {
-    color: var(--ko);
+.topic-name--a {
+    color: var(--lang-a);
     font-size: 1.15rem;
-    word-break: keep-all;
 }
 
-.topic-name--ja {
+.topic-name--b {
     margin-top: 1px;
-    color: var(--ja);
+    color: var(--lang-b);
     font-size: 1rem;
 }
 
@@ -803,7 +822,7 @@ a {
     border-radius: var(--radius-lg);
     background: var(--surface);
     box-shadow: var(--shadow-soft);
-    text-align: left;
+    text-align: start;
     cursor: pointer;
     transition: border-color 0.18s ease;
 }
@@ -844,19 +863,10 @@ a {
     line-height: 1;
 }
 
-.round-label span {
-    display: block;
-    line-height: 1.25;
-}
-
-.round-label span:first-child {
-    color: var(--ko);
+.round-label {
+    color: var(--lang-a);
     font-size: 0.9rem;
-}
-
-.round-label span:last-child {
-    color: var(--ja);
-    font-size: 0.8rem;
+    line-height: 1.25;
 }
 
 .history-names {
@@ -892,27 +902,15 @@ a {
     border: 0;
     border-radius: 999px;
     background: transparent;
+    font-size: 0.97rem;
     line-height: 1.25;
     cursor: pointer;
     transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.mode-toggle button span:first-child {
-    font-size: 0.97rem;
-}
-
-.mode-toggle button span:last-child {
-    color: var(--muted);
-    font-size: 0.72rem;
-}
-
 .mode-toggle button[aria-pressed="true"] {
     background: var(--ink);
     color: #ffffff;
-}
-
-.mode-toggle button[aria-pressed="true"] span:last-child {
-    color: rgba(255, 255, 255, 0.78);
 }
 
 .topic-forms {
@@ -948,11 +946,6 @@ a {
     font-weight: 400;
 }
 
-.topic-form-no-ja {
-    color: var(--muted);
-    font-size: 0.95rem;
-}
-
 .text-button {
     padding: 6px 4px;
     border: 0;
@@ -965,7 +958,7 @@ a {
 }
 
 .text-button:hover {
-    color: var(--ja);
+    color: var(--lang-b);
 }
 
 .form-row {
@@ -976,8 +969,21 @@ a {
     border-top: 1px solid var(--line);
 }
 
-.topic-form-head + .form-row {
+.topic-form-head + .form-row,
+.topic-form > .form-row:first-child {
     border-top: 0;
+}
+
+.form-note {
+    margin-bottom: 16px;
+}
+
+/* 입력 줄 아래 한 줄 설명 (줄 전체 폭) */
+.form-row-hint {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.86rem;
 }
 
 @media (min-width: 760px) {
@@ -991,18 +997,8 @@ a {
     }
 }
 
-.form-row-name span {
-    display: block;
+.form-row-name {
     line-height: 1.35;
-}
-
-.form-row-name span:first-child {
-    font-size: 1rem;
-}
-
-.form-row-name span:last-child {
-    color: var(--muted);
-    font-size: 0.8rem;
 }
 
 .field {
@@ -1016,12 +1012,12 @@ a {
     line-height: 1.3;
 }
 
-.field-label--ko {
-    color: var(--ko);
+.field-label--a {
+    color: var(--lang-a);
 }
 
-.field-label--ja {
-    color: var(--ja);
+.field-label--b {
+    color: var(--lang-b);
 }
 
 .field-input {
@@ -1050,14 +1046,14 @@ textarea.field-input {
     outline: none;
 }
 
-.field-input--ko:focus {
-    border-color: var(--ko);
-    box-shadow: 0 0 0 3px var(--ko-soft);
+.field-input--a:focus {
+    border-color: var(--lang-a);
+    box-shadow: 0 0 0 3px var(--lang-a-soft);
 }
 
-.field-input--ja:focus {
-    border-color: var(--ja);
-    box-shadow: 0 0 0 3px var(--ja-soft);
+.field-input--b:focus {
+    border-color: var(--lang-b);
+    box-shadow: 0 0 0 3px var(--lang-b-soft);
 }
 
 .field-input[aria-invalid="true"] {
@@ -1099,15 +1095,12 @@ textarea.field-input {
 }
 
 .inline-link {
-    display: inline-block;
+    display: block;
+    width: fit-content;
     margin-top: 8px;
     color: inherit;
     font-weight: 500;
     text-underline-offset: 3px;
-}
-
-.inline-link span {
-    display: inline;
 }
 
 /* ---------- 질문 시트 ---------- */
@@ -1189,15 +1182,14 @@ textarea.field-input {
     line-height: 1.35;
 }
 
-.sheet-title--ko {
-    color: var(--ko);
+.sheet-title--a {
+    color: var(--lang-a);
     font-size: 1.55rem;
-    word-break: keep-all;
 }
 
-.sheet-title--ja {
+.sheet-title--b {
     margin-top: 2px;
-    color: var(--ja);
+    color: var(--lang-b);
     font-size: 1.2rem;
 }
 
@@ -1221,13 +1213,13 @@ textarea.field-input {
     transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.lang-toggle button[data-lang="KO"][aria-pressed="true"] {
-    background: var(--ko);
+.lang-toggle button[data-slot="a"][aria-pressed="true"] {
+    background: var(--lang-a);
     color: #ffffff;
 }
 
-.lang-toggle button[data-lang="JA"][aria-pressed="true"] {
-    background: var(--ja);
+.lang-toggle button[data-slot="b"][aria-pressed="true"] {
+    background: var(--lang-b);
     color: #ffffff;
 }
 
@@ -1263,17 +1255,17 @@ textarea.field-input {
     line-height: 1;
 }
 
-.question-list[data-lang="KO"] .question-no {
-    background: var(--ko-soft);
-    color: var(--ko);
+.question-list[data-slot="a"] .question-no {
+    background: var(--lang-a-soft);
+    color: var(--lang-a);
 }
 
-.question-list[data-lang="JA"] .question-no {
-    background: var(--ja-soft);
-    color: var(--ja);
+.question-list[data-slot="b"] .question-no {
+    background: var(--lang-b-soft);
+    color: var(--lang-b);
 }
 
-.question-list[data-lang="KO"] .question-text {
+.question-text {
     word-break: keep-all;
 }
 
@@ -1282,18 +1274,9 @@ textarea.field-input {
     text-wrap: pretty;
 }
 
-.question-list[data-lang="JA"] .question-text {
-    word-break: auto-phrase;
-    line-break: strict;
-}
-
 .question-status {
     margin: 22px 0 4px;
     color: var(--muted);
-}
-
-.question-status span {
-    display: block;
 }
 
 /* ---------- 움직임 줄이기 ---------- */

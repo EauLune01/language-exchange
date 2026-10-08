@@ -4,11 +4,6 @@
 
     const PAGE_SIZE = 20;
 
-    const GROUP_LABELS = {
-        new: { ko: '아직 안 쓴 주제', ja: 'まだ使っていないテーマ' },
-        used: { ko: '사용한 주제', ja: '使ったテーマ' },
-    };
-
     const els = {
         list: $('topic-list'),
         message: $('list-message'),
@@ -22,24 +17,10 @@
         lastGroup: null,
     };
 
-    function createGroupHeading(group) {
-        const item = document.createElement('li');
-        item.className = 'group-heading';
-        item.append(
-            textEl('span', 'group-heading-ko', GROUP_LABELS[group].ko, 'ko'),
-            textEl('span', 'group-heading-ja', GROUP_LABELS[group].ja, 'ja')
-        );
-        return item;
-    }
-
     function createPill(usedDate) {
-        const pill = document.createElement('span');
-        pill.className = usedDate ? 'pill pill--used' : 'pill pill--new';
-
-        const ko = usedDate ? `${formatShortDate(usedDate)} 사용` : '새 주제';
-        const ja = usedDate ? '使用済み' : '新テーマ';
-        pill.append(textEl('span', '', ko, 'ko'), document.createTextNode(' / '), textEl('span', '', ja, 'ja'));
-        return pill;
+        return usedDate
+            ? i18nEl('span', 'pill pill--used', 'topics.pill.used', { date: { date: usedDate, style: 'short' } })
+            : i18nEl('span', 'pill pill--new', 'topics.pill.new');
     }
 
     function createRow(topic) {
@@ -48,8 +29,8 @@
         button.type = 'button';
         button.className = topic.usedDate ? 'topic-row is-used' : 'topic-row is-new';
         button.append(
-            textEl('span', 'topic-name topic-name--ko', topic.nameKo, 'ko'),
-            textEl('span', 'topic-name topic-name--ja', topic.nameJa, 'ja'),
+            localizedEl('span', 'topic-name topic-name--a', topic.names[0]),
+            localizedEl('span', 'topic-name topic-name--b', topic.names[1]),
             createPill(topic.usedDate)
         );
         button.addEventListener('click', () => openQuestions(topic));
@@ -60,7 +41,7 @@
     function appendTopic(topic) {
         const group = topic.usedDate ? 'used' : 'new';
         if (group !== state.lastGroup) {
-            els.list.append(createGroupHeading(group));
+            els.list.append(i18nEl('li', 'group-heading', `topics.group.${group}`));
             state.lastGroup = group;
         }
         els.list.append(createRow(topic));
@@ -82,10 +63,11 @@
             state.hasNext = data.hasNext;
 
             if (els.list.children.length === 0) {
-                showMessage(els.message, MESSAGES.emptyTopics, 'info');
+                els.message.before(createMotifPair()); // 빈 화면에는 방의 두 모티프를 보여줍니다.
+                showI18nMessage(els.message, 'topics.empty', null, 'info');
             }
         } catch (error) {
-            showMessage(els.message, errorMessage(error));
+            showApiError(els.message, error);
             state.hasNext = true; // 실패하면 '더 보기' 버튼이 다시 시도 버튼 역할을 합니다.
         } finally {
             state.loading = false;
@@ -96,5 +78,5 @@
 
     els.loadMore.addEventListener('click', loadTopics);
 
-    loadTopics();
+    i18nReady.then(loadTopics); // 언어 목록(LANGUAGES)과 사전이 준비된 뒤에 시작합니다.
 })();

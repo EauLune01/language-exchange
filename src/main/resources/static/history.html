@@ -1,89 +1,53 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#f3f5fc">
-    <title>학습 기록 学習の記録</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title data-i18n="nav.history"></title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+SC:wght@400;500&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="page">
-    <header class="site-header">
-        <a class="brand" href="index.html" aria-label="홈 / ホーム">
-        <span class="logo" aria-hidden="true">
-          <span class="logo-circle logo-circle--ko"></span>
-          <span class="logo-circle logo-circle--ja"></span>
-        </span>
-            <span class="wordmark">
-          <span class="wordmark-ko" lang="ko">언어교환</span>
-          <span class="wordmark-ja" lang="ja">言語交換</span>
-        </span>
-        </a>
-
-        <nav class="site-nav" aria-label="메뉴 / メニュー">
-            <a href="index.html">
-                <span lang="ko">홈</span>
-                <span lang="ja">ホーム</span>
-            </a>
-            <a href="topics.html">
-                <span lang="ko">전체 주제</span>
-                <span lang="ja">テーマ一覧</span>
-            </a>
-            <a href="history.html" aria-current="page">
-                <span lang="ko">학습 기록</span>
-                <span lang="ja">学習の記録</span>
-            </a>
-            <a href="register.html">
-                <span lang="ko">주제 등록</span>
-                <span lang="ja">テーマ登録</span>
-            </a>
-        </nav>
-    </header>
+    <!-- 로고·메뉴·화면 언어 선택·로그아웃은 common.js 가 여기에 그립니다. 화면 문구는 data-i18n 키로만 씁니다. -->
+    <header class="site-header" data-nav="history"></header>
 
     <main>
         <div class="page-head">
-            <h1 class="page-title">
-                <span lang="ko">학습 기록</span>
-                <span lang="ja">学習の記録</span>
-            </h1>
-            <p class="page-note">
-                <span lang="ko">처음 뽑은 주제가 1회차예요. 주제를 누르면 그때의 질문을 다시 볼 수 있어요.</span>
-                <span lang="ja">最初に引いたテーマが第1回です。テーマをタップすると、そのときの質問をもう一度見られます。</span>
-            </p>
+            <h1 class="page-title" data-i18n="nav.history"></h1>
+            <p class="page-note" data-i18n="history.note"></p>
         </div>
 
         <ul id="history-list" class="history-list"></ul>
         <div id="list-message" class="message" hidden></div>
 
-        <button type="button" id="load-more" class="secondary load-more" hidden>
-            <span lang="ko">더 보기</span> / <span lang="ja">もっと見る</span>
-        </button>
+        <button type="button" id="load-more" class="secondary load-more" data-i18n="common.loadMore" hidden></button>
     </main>
 </div>
 
-<!-- 질문 보기 -->
-<dialog id="questions-dialog" class="sheet-dialog" aria-label="질문 / 質問">
+<!-- 질문 보기: 제목과 토글은 그 방의 두 언어(A, B 순서)로 sheet.js 가 채웁니다. -->
+<dialog id="questions-dialog" class="sheet-dialog" data-i18n-aria-label="sheet.label">
     <div class="sheet">
         <div class="sheet-head">
             <div class="sheet-titles">
-                <p id="dialog-ko" class="sheet-title sheet-title--ko" lang="ko"></p>
-                <p id="dialog-ja" class="sheet-title sheet-title--ja" lang="ja"></p>
+                <p id="dialog-a" class="sheet-title sheet-title--a"></p>
+                <p id="dialog-b" class="sheet-title sheet-title--b"></p>
             </div>
-            <button type="button" id="dialog-close" class="icon-button" aria-label="닫기 / 閉じる">
+            <button type="button" id="dialog-close" class="icon-button" data-i18n-aria-label="sheet.close">
                 <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
                     <path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
             </button>
         </div>
 
-        <div id="lang-toggle" class="lang-toggle" role="group" aria-label="언어 / 言語">
-            <button type="button" data-lang="KO" aria-pressed="true" lang="ko">한국어</button>
-            <button type="button" data-lang="JA" aria-pressed="false" lang="ja">日本語</button>
+        <div id="lang-toggle" class="lang-toggle" role="group" data-i18n-aria-label="sheet.language">
+            <button type="button" data-slot="a" aria-pressed="true"></button>
+            <button type="button" data-slot="b" aria-pressed="false"></button>
         </div>
 
         <div id="question-area" class="question-area" aria-live="polite"></div>

@@ -1,19 +1,18 @@
 package language.exchange.study.dto.command;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class QuestionCreateCommand {
 
-    private final String contentKo;
-    private final String contentJa;
+    private final List<LocalizedTextCommand> contents;
 
-    private QuestionCreateCommand(String contentKo, String contentJa) {
-        this.contentKo = contentKo;
-        this.contentJa = contentJa;
-    }
-
-    public static QuestionCreateCommand of(String contentKo, String contentJa) {
-        return new QuestionCreateCommand(contentKo, contentJa);
+    public static QuestionCreateCommand from(List<LocalizedTextCommand> contents) {
+        return new QuestionCreateCommand(contents);
     }
 }

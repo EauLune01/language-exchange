@@ -17,7 +17,7 @@ public class TopicCreateConsumer {
 
     @RabbitListener(queues = RabbitMQConstants.TOPIC_CREATE_QUEUE)
     public void consume(TopicCreateEvent event) {
-        log.info("[TopicCreateConsumer] nameKo={}", event.getNameKo());
-        topicService.createTopic(event.toCommand());
+        log.info("[TopicCreateConsumer] create topic - roomId: {}", event.getRoomId());
+        topicService.createTopic(event.getRoomId(), event.toCommand());
     }
 }

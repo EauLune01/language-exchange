@@ -3,8 +3,12 @@ package language.exchange.study.service;
 import language.exchange.global.exception.BusinessException;
 import language.exchange.global.exception.ErrorCode;
 import language.exchange.global.util.WeekUtils;
+import language.exchange.room.domain.Language;
+import language.exchange.room.dto.result.RoomLanguageResult;
+import language.exchange.room.service.RoomQueryService;
 import language.exchange.study.domain.Question;
 import language.exchange.study.domain.Topic;
+import language.exchange.study.dto.result.LocalizedTextResult;
 import language.exchange.study.dto.result.QuestionListResult;
 import language.exchange.study.dto.result.QuestionResult;
 import language.exchange.study.dto.result.TopicHistoryResult;
@@ -33,88 +37,94 @@ public class TopicQueryService {
     private final TopicRepository topicRepository;
     private final QuestionRepository questionRepository;
     private final TopicUsedPublisher topicUsedPublisher;
+    private final RoomQueryService roomQueryService;
 
-    public TopicResult getWeeklyTopic() {
+    public TopicResult getWeeklyTopic(Long roomId) {
+        RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
         LocalDate today = LocalDate.now();
 
-        Optional<TopicResult> current = findThisWeekTopic(today);
+        Optional<Topic> current = findThisWeekTopic(roomId, today);
         if (current.isPresent()) {
-            return current.get();
+            return toTopicResult(current.get(), languages);
         }
 
-        Topic picked = topicRepository.findRandomUnused()
+        Topic picked = topicRepository.findRandomUnused(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC));
 
         topicUsedPublisher.publish(picked.getId(), today);
-        return toTopicResult(picked);
+        return toTopicResult(picked, languages);
     }
 
     /** 이번 주에 이미 뽑힌 주제만 조회합니다. 뽑지도, 사용 처리도 하지 않습니다. */
-    public Optional<TopicResult> getThisWeekTopic() {
-        return findThisWeekTopic(LocalDate.now());
+    public Optional<TopicResult> getThisWeekTopic(Long roomId) {
+        RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
+        return findThisWeekTopic(roomId, LocalDate.now())
+                .map(topic -> toTopicResult(topic, languages));
     }
 
-    public Slice<TopicSummaryResult> getTopics(Pageable pageable) {
-        return topicRepository.findAllUnusedFirst(pageable)
-                .map(this::toTopicSummaryResult);
+    public Slice<TopicSummaryResult> getTopics(Long roomId, Pageable pageable) {
+        RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
+        return topicRepository.findAllUnusedFirst(roomId, pageable)
+                .map(topic -> TopicSummaryResult.of(topic.getId(), toNames(topic, languages), topic.getUsedDate()));
     }
 
-    public Slice<TopicHistoryResult> getTopicHistory(Pageable pageable) {
-        Slice<Topic> topics = topicRepository.findAllStudied(pageable);
+    public Slice<TopicHistoryResult> getTopicHistory(Long roomId, Pageable pageable) {
+        RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
+        Slice<Topic> topics = topicRepository.findAllStudied(roomId, pageable);
 
         // 오래된 순이므로 이 페이지 첫 항목의 회차 = 앞 페이지에서 이미 보낸 개수 + 1
         long firstRound = pageable.getOffset() + 1;
         List<Topic> content = topics.getContent();
 
         List<TopicHistoryResult> results = IntStream.range(0, content.size())
-                .mapToObj(i -> toTopicHistoryResult(content.get(i), firstRound + i))
+                .mapToObj(i -> TopicHistoryResult.of(
+                        content.get(i).getId(),
+                        firstRound + i,
+                        toNames(content.get(i), languages),
+                        content.get(i).getUsedDate()))
                 .toList();
         return new SliceImpl<>(results, pageable, topics.hasNext());
     }
 
-    public QuestionListResult getQuestions(Long topicId) {
-        if (!topicRepository.existsById(topicId)) {
+    public QuestionListResult getQuestions(Long roomId, Long topicId, Language language) {
+        RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
+        if (!languages.contains(language)) {
+            throw new BusinessException(ErrorCode.LANGUAGE_NOT_IN_ROOM);
+        }
+        // 다른 방의 주제는 없는 주제와 똑같이 404 (존재 여부를 숨긴다)
+        if (!topicRepository.existsByIdAndRoomId(topicId, roomId)) {
             throw new BusinessException(ErrorCode.TOPIC_NOT_FOUND);
         }
+
+        boolean isLanguageA = language == languages.getLanguageA();
         List<QuestionResult> questions = questionRepository
                 .findAllByTopicIdOrderBySequenceAsc(topicId).stream()
-                .map(this::toQuestionResult)
+                .map(question -> toQuestionResult(question, isLanguageA))
                 .toList();
-        return QuestionListResult.of(topicId, questions);
+        return QuestionListResult.of(topicId, language, questions);
     }
 
-    private Optional<TopicResult> findThisWeekTopic(LocalDate today) {
-        return topicRepository.findFirstByUsedDateBetween(
-                        WeekUtils.startOfWeek(today),
-                        WeekUtils.endOfWeek(today))
-                .map(this::toTopicResult);
+    private Optional<Topic> findThisWeekTopic(Long roomId, LocalDate today) {
+        return topicRepository.findFirstByRoomIdAndUsedDateBetweenOrderByUsedDateAscIdAsc(
+                roomId,
+                WeekUtils.startOfWeek(today),
+                WeekUtils.endOfWeek(today));
     }
 
-    private TopicResult toTopicResult(Topic topic) {
-        return TopicResult.of(topic.getId(), topic.getNameKo(), topic.getNameJa());
+    private TopicResult toTopicResult(Topic topic, RoomLanguageResult languages) {
+        return TopicResult.of(topic.getId(), toNames(topic, languages));
     }
 
-    private TopicSummaryResult toTopicSummaryResult(Topic topic) {
-        return TopicSummaryResult.of(
-                topic.getId(),
-                topic.getNameKo(),
-                topic.getNameJa(),
-                topic.getUsedDate());
+    // A/B 칸을 {lang, text}로 풀어서 내보낸다 (A, B 순서)
+    private List<LocalizedTextResult> toNames(Topic topic, RoomLanguageResult languages) {
+        return List.of(
+                LocalizedTextResult.of(languages.getLanguageA(), topic.getNameA()),
+                LocalizedTextResult.of(languages.getLanguageB(), topic.getNameB()));
     }
 
-    private TopicHistoryResult toTopicHistoryResult(Topic topic, long round) {
-        return TopicHistoryResult.of(
-                topic.getId(),
-                round,
-                topic.getNameKo(),
-                topic.getNameJa(),
-                topic.getUsedDate());
-    }
-
-    private QuestionResult toQuestionResult(Question question) {
+    private QuestionResult toQuestionResult(Question question, boolean isLanguageA) {
         return QuestionResult.of(
                 question.getSequence(),
-                question.getContentKo(),
-                question.getContentJa());
+                isLanguageA ? question.getContentA() : question.getContentB());
     }
 }

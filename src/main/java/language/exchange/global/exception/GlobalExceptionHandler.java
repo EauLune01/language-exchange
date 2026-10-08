@@ -2,11 +2,13 @@ package language.exchange.global.exception;
 
 import language.exchange.global.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
@@ -18,35 +20,41 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<List<String>>> handleValidationExceptions(MethodArgumentNotValidException e) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "입력 값이 유효하지 않습니다.", getErrorFields(e));
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT;
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(ApiResponse.fail(errorCode, errorCode.getMessage(), getErrorFields(e)));
+    }
+
+    // 읽을 수 없는 본문(잘못된 JSON·enum 값), 잘못된 타입이나 빠진 쿼리 파라미터(lang=XX 등)
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class,
+            MissingServletRequestParameterException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleUnreadableRequest(Exception e) {
+        return buildErrorResponse(ErrorCode.INVALID_INPUT, ErrorCode.INVALID_INPUT.getMessage());
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoResourceFoundException(NoResourceFoundException e) {
-        return buildErrorResponse(HttpStatus.NOT_FOUND, "요청한 주소를 찾을 수 없습니다.");
+        return buildErrorResponse(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.getMessage());
     }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException e) {
         ErrorCode errorCode = e.getErrorCode();
         log.warn("Business exception: {}", errorCode);
-        return buildErrorResponse(errorCode.getStatus(), e.getMessage());
+        return buildErrorResponse(errorCode, e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("Unexpected exception", e);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
+        return buildErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
     }
 
-    private ResponseEntity<ApiResponse<Void>> buildErrorResponse(HttpStatus status, String message) {
-        ApiResponse<Void> response = ApiResponse.fail(status.value(), message);
-        return ResponseEntity.status(status).body(response);
-    }
-
-    private <T> ResponseEntity<ApiResponse<T>> buildErrorResponse(HttpStatus status, String message, T data) {
-        ApiResponse<T> response = ApiResponse.fail(status.value(), message, data);
-        return ResponseEntity.status(status).body(response);
+    private ResponseEntity<ApiResponse<Void>> buildErrorResponse(ErrorCode errorCode, String message) {
+        return ResponseEntity.status(errorCode.getStatus()).body(ApiResponse.fail(errorCode, message));
     }
 
     private static List<String> getErrorFields(MethodArgumentNotValidException e) {

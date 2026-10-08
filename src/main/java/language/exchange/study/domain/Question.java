@@ -33,20 +33,20 @@ public class Question extends BaseTimeEntity {
     @Column(nullable = false)
     private int sequence;
 
-    @Column(nullable = false)
-    private String contentKo;
+    @Column(name = "content_a", nullable = false)
+    private String contentA;
 
-    @Column(nullable = false)
-    private String contentJa;
+    @Column(name = "content_b", nullable = false)
+    private String contentB;
 
-    private Question(Topic topic, int sequence, String contentKo, String contentJa) {
+    private Question(Topic topic, int sequence, String contentA, String contentB) {
         this.topic = topic;
         this.sequence = sequence;
-        this.contentKo = contentKo;
-        this.contentJa = contentJa;
+        this.contentA = contentA;
+        this.contentB = contentB;
     }
 
-    public static Question create(Topic topic, int sequence, String contentKo, String contentJa) {
-        return new Question(topic, sequence, contentKo, contentJa);
+    public static Question create(Topic topic, int sequence, String contentA, String contentB) {
+        return new Question(topic, sequence, contentA, contentB);
     }
 }

@@ -21,12 +21,13 @@ public class TopicRepositoryImpl implements TopicRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Topic> findAllUnusedFirst(Pageable pageable) {
+    public Slice<Topic> findAllUnusedFirst(Long roomId, Pageable pageable) {
         List<Topic> topics = queryFactory
                 .selectFrom(topic)
+                .where(roomEq(roomId))
                 .orderBy(
                         usedRank().asc(),
-                        topic.nameKo.asc(),
+                        topic.nameA.asc(),
                         topic.id.asc()
                 )
                 .offset(pageable.getOffset())
@@ -36,10 +37,10 @@ public class TopicRepositoryImpl implements TopicRepositoryCustom {
     }
 
     @Override
-    public Slice<Topic> findAllStudied(Pageable pageable) {
+    public Slice<Topic> findAllStudied(Long roomId, Pageable pageable) {
         List<Topic> topics = queryFactory
                 .selectFrom(topic)
-                .where(isUsed())
+                .where(roomEq(roomId), isUsed())
                 .orderBy(
                         topic.usedDate.asc(),
                         topic.id.asc()
@@ -48,6 +49,11 @@ public class TopicRepositoryImpl implements TopicRepositoryCustom {
                 .limit(pageable.getPageSize() + 1L)
                 .fetch();
         return SliceUtil.toSlice(topics, pageable);
+    }
+
+    // null을 돌려주면 조건이 사라져 다른 방 데이터가 보이므로 roomId가 null이면 여기서 예외가 난다
+    private BooleanExpression roomEq(Long roomId) {
+        return topic.roomId.eq(roomId);
     }
 
     // 안 쓴 주제(usedDate가 null) = 0, 쓴 주제 = 1

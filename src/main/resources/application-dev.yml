@@ -1,0 +1,16 @@
+# 개발용 (기본 프로파일). ./gradlew bootRun 으로 실행하면 적용된다.
+spring:
+  web:
+    resources:
+      cache:
+        period: 0   # 화면(HTML/CSS/JS)을 고치면 새로고침만으로 바로 보이게 정적 파일 캐시를 끈다
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    language.exchange: DEBUG
+    org.hibernate.SQL: DEBUG   # 실행되는 SQL 을 로그로 본다

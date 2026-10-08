@@ -1,21 +1,19 @@
 package language.exchange.study.dto.result;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class TopicResult {
 
     private final Long id;
-    private final String nameKo;
-    private final String nameJa;
+    private final List<LocalizedTextResult> names;
 
-    private TopicResult(Long id, String nameKo, String nameJa) {
-        this.id = id;
-        this.nameKo = nameKo;
-        this.nameJa = nameJa;
-    }
-
-    public static TopicResult of(Long id, String nameKo, String nameJa) {
-        return new TopicResult(id, nameKo, nameJa);
+    public static TopicResult of(Long id, List<LocalizedTextResult> names) {
+        return new TopicResult(id, names);
     }
 }

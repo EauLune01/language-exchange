@@ -1,21 +1,17 @@
 package language.exchange.study.dto.result;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class QuestionResult {
 
     private final int sequence;
-    private final String contentKo;
-    private final String contentJa;
+    private final String content;
 
-    private QuestionResult(int sequence, String contentKo, String contentJa) {
-        this.sequence = sequence;
-        this.contentKo = contentKo;
-        this.contentJa = contentJa;
-    }
-
-    public static QuestionResult of(int sequence, String contentKo, String contentJa) {
-        return new QuestionResult(sequence, contentKo, contentJa);
+    public static QuestionResult of(int sequence, String content) {
+        return new QuestionResult(sequence, content);
     }
 }
