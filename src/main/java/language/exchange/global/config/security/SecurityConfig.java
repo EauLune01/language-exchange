@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/*.html", "/css/**", "/js/**", "/img/**").permitAll()
+                        .requestMatchers("/", "/*.html", "/favicon.svg", "/css/**", "/js/**", "/img/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/rooms", "/api/auth/login").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
