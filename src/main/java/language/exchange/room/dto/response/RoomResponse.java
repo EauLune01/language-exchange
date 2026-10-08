@@ -12,11 +12,15 @@ public class RoomResponse {
 
     private String loginId;
     private List<RoomMemberResponse> members;
+    private Integer goal;
+    private long studiedCount;
 
     public static RoomResponse from(RoomResult result) {
         return RoomResponse.builder()
                 .loginId(result.getLoginId())
                 .members(result.getMembers().stream().map(RoomMemberResponse::from).toList())
+                .goal(result.getGoal())
+                .studiedCount(result.getStudiedCount())
                 .build();
     }
 }

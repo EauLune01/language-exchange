@@ -126,23 +126,25 @@ class TopicRoomIsolationTest {
     }
 
     @Test
-    @DisplayName("이번 주 주제와 학습 기록은 방끼리 섞이지 않는다")
-    void weeklyTopicAndHistoryAreScopedToRoom() {
+    @DisplayName("뽑은 주제와 학습 기록은 방끼리 섞이지 않는다")
+    void drawnTopicAndHistoryAreScopedToRoom() {
         LocalDate today = LocalDate.now();
 
-        TopicResult picked = topicQueryService.getWeeklyTopic(koJaRoomId);
+        TopicResult picked = topicQueryService.getTopic(koJaRoomId);
         assertThat(picked.getId()).isEqualTo(koJaTopicId);
         verify(topicUsedPublisher).publish(koJaTopicId, today);
         topicService.markAsUsed(koJaTopicId, today); // Consumer 가 하는 일
 
-        assertThat(topicQueryService.getThisWeekTopic(koJaRoomId)).map(TopicResult::getId).contains(koJaTopicId);
-        assertThat(topicQueryService.getThisWeekTopic(enFrRoomId)).isEmpty();
+        // 주에 한 번 제한은 없다: 바로 다시 뽑을 수 있지만, 이미 쓴 주제는 나오지 않는다
+        assertThatThrownBy(() -> topicQueryService.getTopic(koJaRoomId))
+                .isInstanceOf(BusinessException.class)
+                .extracting("errorCode").isEqualTo(ErrorCode.NO_AVAILABLE_TOPIC);
 
         assertThat(topicQueryService.getTopicHistory(koJaRoomId, FIRST_PAGE).getContent()).hasSize(1);
         assertThat(topicQueryService.getTopicHistory(enFrRoomId, FIRST_PAGE).getContent()).isEmpty();
 
         // 다른 방이 뽑으면 자기 방의 주제가 나온다
-        assertThat(topicQueryService.getWeeklyTopic(enFrRoomId).getId()).isEqualTo(enFrTopicId);
+        assertThat(topicQueryService.getTopic(enFrRoomId).getId()).isEqualTo(enFrTopicId);
     }
 
     @Test
@@ -150,7 +152,7 @@ class TopicRoomIsolationTest {
     void emptyRoomCannotDrawAnotherRoomsTopic() {
         Long emptyRoomId = createRoom(Language.ES, Language.IT);
 
-        assertThatThrownBy(() -> topicQueryService.getWeeklyTopic(emptyRoomId))
+        assertThatThrownBy(() -> topicQueryService.getTopic(emptyRoomId))
                 .isInstanceOf(BusinessException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.NO_AVAILABLE_TOPIC);
         assertThat(topicQueryService.getTopics(emptyRoomId, FIRST_PAGE).getContent()).isEmpty();
@@ -177,7 +179,7 @@ class TopicRoomIsolationTest {
         String loginId = "t-" + UUID.randomUUID().toString().substring(0, 12);
         return roomService.createRoom(RoomCreateCommand.of(loginId, "password123",
                 RoomMemberCommand.of("first", "KR", learningA),
-                RoomMemberCommand.of("second", "JP", learningB)));
+                RoomMemberCommand.of("second", "JP", learningB), 50));
     }
 
     /** 질문은 "<주제명> 1", "<주제명> 2", "<주제명> 3" */

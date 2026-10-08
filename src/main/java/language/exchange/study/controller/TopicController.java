@@ -74,30 +74,17 @@ public class TopicController {
                 .body(ApiResponse.success(202, "주제 일괄 등록 요청이 접수되었습니다."));
     }
 
-    @Operation(summary = "이번 주 주제 조회", description = "이번 주에 뽑힌 주제를 반환합니다. 없으면 로그인한 방의 사용하지 않은 주제 중 랜덤으로 1개를 뽑습니다. 주제명은 방의 두 언어로 names: [{lang, text}, {lang, text}] 형태입니다.")
+    @Operation(summary = "주제 뽑기", description = "로그인한 방의 사용하지 않은 주제 중 랜덤으로 1개를 뽑아 반환하고, 사용 날짜는 비동기로 기록합니다. 주제명은 방의 두 언어로 names: [{lang, text}, {lang, text}] 형태입니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용 가능한 주제 없음 (NO_AVAILABLE_TOPIC)")
     })
     @GetMapping("/weekly")
-    public ResponseEntity<ApiResponse<TopicResponse>> getWeeklyTopic(
+    public ResponseEntity<ApiResponse<TopicResponse>> getTopic(
             @AuthenticationPrincipal RoomPrincipal principal) {
-        TopicResult result = topicQueryService.getWeeklyTopic(principal.getRoomId());
+        TopicResult result = topicQueryService.getTopic(principal.getRoomId());
         return ResponseEntity.ok(
                 ApiResponse.success(200, "주제 조회 성공", TopicResponse.from(result)));
-    }
-
-    @Operation(summary = "이번 주에 이미 뽑은 주제 조회", description = "이번 주에 뽑힌 주제가 있으면 반환하고, 없으면 data가 null입니다. 주제를 뽑거나 사용 처리하지 않습니다.")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공 (뽑은 주제가 없으면 data는 null)")
-    })
-    @GetMapping("/this-week")
-    public ResponseEntity<ApiResponse<TopicResponse>> getThisWeekTopic(
-            @AuthenticationPrincipal RoomPrincipal principal) {
-        TopicResponse response = topicQueryService.getThisWeekTopic(principal.getRoomId())
-                .map(TopicResponse::from)
-                .orElse(null);
-        return ResponseEntity.ok(ApiResponse.success(200, "이번 주 주제 조회 성공", response));
     }
 
     @Operation(summary = "전체 주제 목록 조회", description = "사용 여부와 관계없이 전체 주제를 Slice 형태로 조회합니다. 정렬은 고정이며(아직 안 쓴 주제 먼저, 같은 그룹 안에서는 방의 첫 번째 언어(A) 주제명 순) sort 파라미터는 무시됩니다. usedDate가 null이면 아직 사용하지 않은 주제입니다.")

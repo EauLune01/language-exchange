@@ -2,7 +2,6 @@ package language.exchange.study.service;
 
 import language.exchange.global.exception.BusinessException;
 import language.exchange.global.exception.ErrorCode;
-import language.exchange.global.util.WeekUtils;
 import language.exchange.room.domain.Language;
 import language.exchange.room.dto.result.RoomLanguageResult;
 import language.exchange.room.service.RoomQueryService;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Service
@@ -39,27 +37,15 @@ public class TopicQueryService {
     private final TopicUsedPublisher topicUsedPublisher;
     private final RoomQueryService roomQueryService;
 
-    public TopicResult getWeeklyTopic(Long roomId) {
+    /** 아직 안 쓴 주제 중 하나를 무작위로 뽑습니다. 사용 날짜는 Consumer 가 비동기로 기록합니다. */
+    public TopicResult getTopic(Long roomId) {
         RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
-        LocalDate today = LocalDate.now();
-
-        Optional<Topic> current = findThisWeekTopic(roomId, today);
-        if (current.isPresent()) {
-            return toTopicResult(current.get(), languages);
-        }
 
         Topic picked = topicRepository.findRandomUnused(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC));
 
-        topicUsedPublisher.publish(picked.getId(), today);
+        topicUsedPublisher.publish(picked.getId(), LocalDate.now());
         return toTopicResult(picked, languages);
-    }
-
-    /** 이번 주에 이미 뽑힌 주제만 조회합니다. 뽑지도, 사용 처리도 하지 않습니다. */
-    public Optional<TopicResult> getThisWeekTopic(Long roomId) {
-        RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
-        return findThisWeekTopic(roomId, LocalDate.now())
-                .map(topic -> toTopicResult(topic, languages));
     }
 
     public Slice<TopicSummaryResult> getTopics(Long roomId, Pageable pageable) {
@@ -102,13 +88,6 @@ public class TopicQueryService {
                 .map(question -> toQuestionResult(question, isLanguageA))
                 .toList();
         return QuestionListResult.of(topicId, language, questions);
-    }
-
-    private Optional<Topic> findThisWeekTopic(Long roomId, LocalDate today) {
-        return topicRepository.findFirstByRoomIdAndUsedDateBetweenOrderByUsedDateAscIdAsc(
-                roomId,
-                WeekUtils.startOfWeek(today),
-                WeekUtils.endOfWeek(today));
     }
 
     private TopicResult toTopicResult(Topic topic, RoomLanguageResult languages) {

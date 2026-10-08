@@ -153,6 +153,7 @@
                     learningLanguage: fields.learningLanguageB.value,
                 },
             ],
+            goal: Number(fields.goal.value),
         }),
         // 이 화면에서 형식 오류는 방 아이디·비밀번호 규칙을 어긴 경우라서 규칙을 알려 줍니다.
         errorKeys: { INVALID_INPUT: 'enter.error.invalidRoomInput' },

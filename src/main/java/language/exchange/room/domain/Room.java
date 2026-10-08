@@ -12,6 +12,7 @@ import language.exchange.global.domain.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -55,8 +56,13 @@ public class Room extends BaseTimeEntity {
     @Column(name = "b_nationality", nullable = false, length = 2)
     private String nationalityB;
 
+    // 목표 학습 횟수 (25/50/75/100). 컬럼이 없던 때 만든 방은 DB 기본값 50으로 채워진다
+    @ColumnDefault("50")
+    @Column(nullable = false)
+    private Integer goal;
+
     private Room(String loginId, String passwordHash, Language languageA, Language languageB,
-                 String nameA, String nationalityA, String nameB, String nationalityB) {
+                 String nameA, String nationalityA, String nameB, String nationalityB, Integer goal) {
         this.loginId = loginId;
         this.passwordHash = passwordHash;
         this.languageA = languageA;
@@ -65,10 +71,11 @@ public class Room extends BaseTimeEntity {
         this.nationalityA = nationalityA;
         this.nameB = nameB;
         this.nationalityB = nationalityB;
+        this.goal = goal;
     }
 
     public static Room create(String loginId, String passwordHash, Language languageA, Language languageB,
-                              String nameA, String nationalityA, String nameB, String nationalityB) {
-        return new Room(loginId, passwordHash, languageA, languageB, nameA, nationalityA, nameB, nationalityB);
+                              String nameA, String nationalityA, String nameB, String nationalityB, Integer goal) {
+        return new Room(loginId, passwordHash, languageA, languageB, nameA, nationalityA, nameB, nationalityB, goal);
     }
 }
