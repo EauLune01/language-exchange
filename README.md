@@ -438,6 +438,8 @@ Docker 없이 실행됩니다. 방 격리(다른 방의 주제·기록·이번 �
 docker compose down -v && docker compose up -d
 ```
 
+> **이전 버전(방 계정이 없던 `main`)에서 넘어올 때도 한 번은 초기화해야 합니다.** 테이블 구조가 달라져서(`rooms` 추가, `topics.room_id`, `name_ko/name_ja` → `name_a/name_b` 등) 예전 DB로는 실행되지 않습니다. 위 명령은 저장된 주제·질문을 모두 지웁니다.
+
 ---
 
 ## 📝 Notes
