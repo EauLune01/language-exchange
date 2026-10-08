@@ -49,8 +49,7 @@ i18nRegister('JA', {
     'common.date': "{date}",
     'common.loadMore': "もっと見る",
     'home.hero.title': "今週はどんな話をしようか？",
-    'home.hero.desc': "ボタンを押すと、まだ使っていないテーマから一つ選ばれます。テーマを引けるのは週に一度だけです。",
-    'home.hero.drawn': "今週のテーマが決まりました。次のテーマは{date}から引けます。",
+    'home.hero.desc': "ボタンを押すと、まだ使っていないテーマから一つ選ばれます。",
     'home.card.emptyLabel': "まだ引いていないテーマ",
     'home.card.placeholder': "今週のテーマがここに出ます",
     'home.card.hint': "カードをタップして質問を見ましょう。",
@@ -93,6 +92,6 @@ i18nRegister('JA', {
     'register.success.link': "テーマ一覧を見る",
     'register.error.invalid': "サーバーが入力内容を受け付けませんでした。テーマ名と質問3つをもう一度確認してください。",
     'progress.title': "{nameA}と{nameB}の言語交換の旅",
-    'progress.count': "{count} / {goal}回",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "目標回数",
 });

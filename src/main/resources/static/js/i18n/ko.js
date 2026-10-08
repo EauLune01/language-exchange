@@ -49,8 +49,7 @@ i18nRegister('KO', {
     'common.date': "{date}",
     'common.loadMore': "더 보기",
     'home.hero.title': "이번 주엔 어떤 이야기를 나눠볼까요?",
-    'home.hero.desc': "버튼을 누르면 아직 안 쓴 주제 중 하나가 뽑혀요. 한 주에 한 번만 뽑을 수 있어요.",
-    'home.hero.drawn': "이번 주 주제가 정해졌어요. 다음 주제는 {date}부터 뽑을 수 있어요.",
+    'home.hero.desc': "버튼을 누르면 아직 안 쓴 주제 중 하나가 뽑혀요.",
     'home.card.emptyLabel': "아직 뽑지 않은 주제",
     'home.card.placeholder': "이번 주 주제가 여기에 나와요",
     'home.card.hint': "카드를 눌러 질문을 확인하세요.",
@@ -93,6 +92,6 @@ i18nRegister('KO', {
     'register.success.link': "전체 주제 보기",
     'register.error.invalid': "서버가 입력 내용을 받아주지 않았어요. 주제 이름과 질문 3개를 다시 확인해 주세요.",
     'progress.title': "{nameA}과 {nameB}의 언어교환 여정",
-    'progress.count': "{count} / {goal}회",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "목표 횟수",
 });

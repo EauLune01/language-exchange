@@ -49,8 +49,7 @@ i18nRegister('EN', {
     'common.date': "{date}",
     'common.loadMore': "Show more",
     'home.hero.title': "What shall we talk about this week?",
-    'home.hero.desc': "Press the button to draw one of the topics you have not used yet. You can draw only once a week.",
-    'home.hero.drawn': "This week's topic is set. You can draw the next one from {date}.",
+    'home.hero.desc': "Press the button to draw one of the topics you have not used yet.",
     'home.card.emptyLabel': "No topic drawn yet",
     'home.card.placeholder': "This week's topic will appear here",
     'home.card.hint': "Tap the card to see the questions.",
@@ -93,6 +92,6 @@ i18nRegister('EN', {
     'register.success.link': "See all topics",
     'register.error.invalid': "The server did not accept the input. Please check the topic name and the 3 questions.",
     'progress.title': "{nameA} & {nameB}'s language journey",
-    'progress.count': "{count} / {goal}",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "Goal (sessions)",
 });

@@ -50,8 +50,7 @@ i18nRegister('TH', {
     'common.date': "{date}",
     'common.loadMore': "ดูเพิ่มเติม",
     'home.hero.title': "สัปดาห์นี้เราจะคุยเรื่องอะไรกันดี",
-    'home.hero.desc': "กดปุ่มเพื่อสุ่มหัวข้อที่ยังไม่เคยใช้หนึ่งหัวข้อ สุ่มได้สัปดาห์ละหนึ่งครั้งเท่านั้น",
-    'home.hero.drawn': "กำหนดหัวข้อของสัปดาห์นี้แล้ว สุ่มหัวข้อถัดไปได้ตั้งแต่ {date}",
+    'home.hero.desc': "กดปุ่มเพื่อสุ่มหัวข้อที่ยังไม่เคยใช้หนึ่งหัวข้อ",
     'home.card.emptyLabel': "ยังไม่ได้สุ่มหัวข้อ",
     'home.card.placeholder': "หัวข้อของสัปดาห์นี้จะแสดงที่นี่",
     'home.card.hint': "แตะการ์ดเพื่อดูคำถาม",
@@ -94,6 +93,6 @@ i18nRegister('TH', {
     'register.success.link': "ดูหัวข้อทั้งหมด",
     'register.error.invalid': "เซิร์ฟเวอร์ไม่รับข้อมูลที่กรอก กรุณาตรวจสอบชื่อหัวข้อและคำถาม 3 ข้ออีกครั้ง",
     'progress.title': "การเดินทางแลกเปลี่ยนภาษาของ {nameA} และ {nameB}",
-    'progress.count': "{count} / {goal} ครั้ง",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "เป้าหมาย (จำนวนครั้ง)",
 });

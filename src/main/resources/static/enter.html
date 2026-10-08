@@ -115,14 +115,14 @@
                     <p class="form-row-hint" data-i18n="enter.create.learningLanguageHint"></p>
                 </div>
 
-                <div class="form-row">
-                    <label class="form-row-name" for="goal" data-i18n="room.goal.label"></label>
-                    <select id="goal" class="field-input field-input--a" name="goal">
-                        <option>25</option>
-                        <option selected>50</option>
-                        <option>75</option>
-                        <option>100</option>
-                    </select>
+                <div class="form-row form-row--goal" role="radiogroup" aria-labelledby="goal-label">
+                    <div id="goal-label" class="form-row-name" data-i18n="room.goal.label"></div>
+                    <div class="goal-options">
+                        <label><input type="radio" name="goal" value="25">25</label>
+                        <label><input type="radio" name="goal" value="50" checked>50</label>
+                        <label><input type="radio" name="goal" value="75">75</label>
+                        <label><input type="radio" name="goal" value="100">100</label>
+                    </div>
                 </div>
             </section>
 

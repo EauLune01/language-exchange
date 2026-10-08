@@ -50,8 +50,7 @@ i18nRegister('ES', {
     'common.date': "{date}",
     'common.loadMore': "Ver más",
     'home.hero.title': "¿De qué hablamos esta semana?",
-    'home.hero.desc': "Al pulsar el botón se elige uno de los temas que aún no se han usado. Solo se puede elegir una vez por semana.",
-    'home.hero.drawn': "El tema de esta semana ya está elegido. El siguiente se podrá elegir a partir del {date}.",
+    'home.hero.desc': "Al pulsar el botón se elige uno de los temas que aún no se han usado.",
     'home.card.emptyLabel': "Tema aún sin elegir",
     'home.card.placeholder': "Aquí aparecerá el tema de esta semana",
     'home.card.hint': "Toca la tarjeta para ver las preguntas.",
@@ -94,6 +93,6 @@ i18nRegister('ES', {
     'register.success.link': "Ver todos los temas",
     'register.error.invalid': "El servidor no ha aceptado los datos. Revisa el nombre del tema y las 3 preguntas.",
     'progress.title': "El viaje lingüístico de {nameA} y {nameB}",
-    'progress.count': "{count} / {goal}",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "Meta (sesiones)",
 });

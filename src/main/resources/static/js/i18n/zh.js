@@ -50,8 +50,7 @@ i18nRegister('ZH', {
     'common.date': "{date}",
     'common.loadMore': "查看更多",
     'home.hero.title': "这周我们聊点什么呢？",
-    'home.hero.desc': "点击按钮，会从还没用过的主题中抽出一个。每周只能抽一次。",
-    'home.hero.drawn': "本周主题已确定。下一个主题从{date}起可以抽取。",
+    'home.hero.desc': "点击按钮，会从还没用过的主题中抽出一个。",
     'home.card.emptyLabel': "尚未抽取的主题",
     'home.card.placeholder': "本周主题会显示在这里",
     'home.card.hint': "点击卡片查看问题。",
@@ -94,6 +93,6 @@ i18nRegister('ZH', {
     'register.success.link': "查看全部主题",
     'register.error.invalid': "服务器没有接受输入的内容。请再次检查主题名称和 3 个问题。",
     'progress.title': "{nameA}和{nameB}的语言交换之旅",
-    'progress.count': "{count} / {goal} 次",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "目标次数",
 });

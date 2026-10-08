@@ -50,8 +50,7 @@ i18nRegister('VI', {
     'common.date': "{date}",
     'common.loadMore': "Xem thêm",
     'home.hero.title': "Tuần này mình nói chuyện gì nhỉ?",
-    'home.hero.desc': "Nhấn nút để rút một chủ đề chưa dùng. Mỗi tuần chỉ rút được một lần.",
-    'home.hero.drawn': "Chủ đề tuần này đã được chọn. Có thể rút chủ đề tiếp theo từ {date}.",
+    'home.hero.desc': "Nhấn nút để rút một chủ đề chưa dùng.",
     'home.card.emptyLabel': "Chưa rút chủ đề",
     'home.card.placeholder': "Chủ đề tuần này sẽ hiện ở đây",
     'home.card.hint': "Chạm vào thẻ để xem câu hỏi.",
@@ -94,6 +93,6 @@ i18nRegister('VI', {
     'register.success.link': "Xem tất cả chủ đề",
     'register.error.invalid': "Máy chủ không chấp nhận nội dung đã nhập. Vui lòng kiểm tra lại tên chủ đề và 3 câu hỏi.",
     'progress.title': "Hành trình trao đổi ngôn ngữ của {nameA} và {nameB}",
-    'progress.count': "{count} / {goal}",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "Mục tiêu (số buổi)",
 });

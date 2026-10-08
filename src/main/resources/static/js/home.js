@@ -1,6 +1,6 @@
-/* 메인 페이지: 이번 주 주제 뽑기
- *  - 이번 주에 이미 뽑은 주제가 있으면 바로 보여주고 뽑기 버튼은 숨겨요.
- *  - 아직 안 뽑았으면 뽑기 버튼을 보여줘요.
+/* 메인 페이지: 주제 뽑기
+ *  - 뽑기 버튼을 누를 때마다 아직 안 쓴 주제 중 하나가 뽑혀요. (주에 한 번 제한은 없어요)
+ *  - 뽑으면 헤더의 진행바도 한 칸 올라가요.
  */
 (function () {
     'use strict';
@@ -14,19 +14,9 @@
         hint: $('weekly-hint'),
         message: $('weekly-message'),
         drawButton: $('draw-button'),
-        desc: $('hero-desc'),
     };
 
     let weeklyTopic = null;
-
-    /** 다음 주 월요일을 '2026-10-12' 형태로 (이번 주 주제를 뽑았다면, 새 주제는 이 날부터 뽑을 수 있어요) */
-    function nextMondayIso() {
-        const next = new Date();
-        const daysUntilMonday = ((8 - next.getDay()) % 7) || 7;
-        next.setDate(next.getDate() + daysUntilMonday);
-        const pad = (value) => String(value).padStart(2, '0');
-        return `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}`;
-    }
 
     function fillTopic(topic) {
         setLocalizedText(els.nameA, topic.names[0]);
@@ -36,8 +26,6 @@
         els.card.removeAttribute('aria-label');
         els.card.disabled = false;
         els.hint.hidden = false;
-        els.drawButton.hidden = true;
-        i18nSet(els.desc, 'home.hero.drawn', { date: { date: nextMondayIso(), style: 'weekday' } });
         weeklyTopic = topic;
     }
 
@@ -66,24 +54,15 @@
         try {
             const topic = await apiGet('/api/topics/weekly');
             await revealTopic(topic, true);
-        } catch (error) {
-            showApiError(els.message, error); // 남은 주제가 없으면 error.NO_AVAILABLE_TOPIC
-            els.drawButton.disabled = false;
-        }
-    }
-
-    /** 페이지를 열 때: 이번 주에 이미 뽑은 주제가 있는지 확인 (뽑지는 않아요) */
-    async function checkThisWeek() {
-        try {
-            const topic = await apiGet('/api/topics/this-week');
-            if (topic) {
-                await revealTopic(topic, false);
-                return;
+            // 사용 처리는 서버에서 비동기로 되므로, 진행바는 다시 읽지 않고 여기서 하나 올립니다.
+            if (roomInfo) {
+                roomInfo.studiedCount += 1;
+                applyProgress();
             }
         } catch (error) {
-            /* 확인에 실패해도 뽑기 버튼은 쓸 수 있게 합니다. */
+            showApiError(els.message, error); // 남은 주제가 없으면 error.NO_AVAILABLE_TOPIC
         }
-        els.drawButton.hidden = false;
+        els.drawButton.disabled = false;
     }
 
     els.drawButton.addEventListener('click', drawTopic);
@@ -94,5 +73,8 @@
         }
     });
 
-    i18nReady.then(checkThisWeek); // 언어 목록(LANGUAGES)과 사전이 준비된 뒤에 시작합니다.
+    // 언어 목록(LANGUAGES), 사전, 방 정보가 준비된 뒤에 뽑을 수 있게 합니다.
+    Promise.all([i18nReady, roomReady]).then(() => {
+        els.drawButton.hidden = false;
+    });
 })();

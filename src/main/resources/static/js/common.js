@@ -266,18 +266,27 @@ function createMotifPair() {
     return pair;
 }
 
-/** 헤더 아래 진행바: 목표 횟수(goal) 중 지금까지 학습한 횟수(studiedCount). 이름은 사용자 내용이라 키와 값만 달아 둡니다. */
-function renderProgress(header, room) {
-    const [memberA, memberB] = room.members;
+/**
+ * 헤더 아래 진행바: 목표 횟수(goal) 중 지금까지 학습한 횟수(studiedCount)를 roomInfo 의 지금 값으로 그립니다.
+ * 값이 바뀌면(주제를 뽑으면) 다시 부르면 돼요. 이름은 사용자 내용이라 키와 값만 달아 둡니다.
+ */
+function applyProgress() {
+    const [memberA, memberB] = roomInfo.members;
     const journey = createElement('div', 'journey');
     const title = i18nEl('span', 'journey-title', 'progress.title', { nameA: memberA.name, nameB: memberB.name });
     title.id = 'journey-title';
     journey.append(
         title,
-        i18nEl('span', 'journey-count', 'progress.count', { count: room.studiedCount, goal: room.goal }),
+        i18nEl('span', 'journey-total', 'progress.total', { studied: roomInfo.studiedCount, goal: roomInfo.goal }),
         // 목표를 넘겨도 <progress> 가 알아서 100% 로 막아 줍니다.
-        createElement('progress', 'journey-bar', { max: room.goal, value: room.studiedCount, 'aria-labelledby': 'journey-title' }));
-    header.append(journey);
+        createElement('progress', 'journey-bar', { max: roomInfo.goal, value: roomInfo.studiedCount, 'aria-labelledby': 'journey-title' }));
+
+    const previous = siteHeader.querySelector('.journey');
+    if (previous) {
+        previous.replaceWith(journey);
+    } else {
+        siteHeader.append(journey);
+    }
 }
 
 /** 화면 언어 선택 칸: 사전이 있는 언어만, 각 언어의 이름으로 보여줍니다. */
@@ -324,7 +333,7 @@ if (siteHeader.dataset.nav) {
     Promise.all([i18nReady, roomReady]).then(([, room]) => {
         if (room) {
             applyMotifs(room.members.map((member) => member.language));
-            renderProgress(siteHeader, room);
+            applyProgress();
         }
     });
 } else {

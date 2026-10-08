@@ -50,8 +50,7 @@ i18nRegister('AR', {
     'common.date': "{date}",
     'common.loadMore': "عرض المزيد",
     'home.hero.title': "عمَّ نتحدث هذا الأسبوع؟",
-    'home.hero.desc': "عند الضغط على الزر يُختار أحد المواضيع التي لم تُستخدم بعد. يمكن الاختيار مرة واحدة فقط في الأسبوع.",
-    'home.hero.drawn': "تم تحديد موضوع هذا الأسبوع. يمكن اختيار الموضوع التالي ابتداءً من {date}.",
+    'home.hero.desc': "عند الضغط على الزر يُختار أحد المواضيع التي لم تُستخدم بعد.",
     'home.card.emptyLabel': "لم يُختر موضوع بعد",
     'home.card.placeholder': "سيظهر موضوع هذا الأسبوع هنا",
     'home.card.hint': "اضغط على البطاقة لرؤية الأسئلة.",
@@ -94,6 +93,6 @@ i18nRegister('AR', {
     'register.success.link': "عرض كل المواضيع",
     'register.error.invalid': "لم يقبل الخادم البيانات المُدخلة. يُرجى مراجعة اسم الموضوع والأسئلة الثلاثة.",
     'progress.title': "رحلة {nameA} و{nameB} في تبادل اللغات",
-    'progress.count': "{count} / {goal}",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "الهدف (عدد الجلسات)",
 });

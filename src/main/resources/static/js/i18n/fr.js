@@ -50,8 +50,7 @@ i18nRegister('FR', {
     'common.date': "{date}",
     'common.loadMore': "Voir plus",
     'home.hero.title': "De quoi parle-t-on cette semaine ?",
-    'home.hero.desc': "Appuyez sur le bouton pour tirer au sort l'un des sujets pas encore utilisés. Un seul tirage par semaine.",
-    'home.hero.drawn': "Le sujet de cette semaine est choisi. Le prochain pourra être tiré à partir du {date}.",
+    'home.hero.desc': "Appuyez sur le bouton pour tirer au sort l'un des sujets pas encore utilisés.",
     'home.card.emptyLabel': "Sujet pas encore tiré",
     'home.card.placeholder': "Le sujet de cette semaine apparaîtra ici",
     'home.card.hint': "Touchez la carte pour voir les questions.",
@@ -94,6 +93,6 @@ i18nRegister('FR', {
     'register.success.link': "Voir tous les sujets",
     'register.error.invalid': "Le serveur n'a pas accepté la saisie. Vérifiez le nom du sujet et les 3 questions.",
     'progress.title': "Le voyage linguistique de {nameA} et {nameB}",
-    'progress.count': "{count} / {goal}",
+    'progress.total': "{studied} / {goal}",
     'room.goal.label': "Objectif (séances)",
 });
