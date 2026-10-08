@@ -243,6 +243,29 @@ function renderHeader(header) {
     return languageSelect;
 }
 
+/*
+ * 언어별 모티프(장식 그림)를 CSS 변수로 내려줍니다. CSS 는 --motif-a/b(그림)와 --accent-a/b(보조 색)만 보고,
+ * 어떤 언어인지는 몰라요. 그림과 색은 languages.js 의 motif, accent 에서 읽습니다.
+ *  - codes 가 둘이면 방의 두 언어(A, B): 두 문화가 만나는 방이라 두 그림을 나란히 씁니다.
+ *  - codes 가 하나면 화면 언어: 방에 들어가기 전에는 그림 하나만 씁니다.
+ */
+function applyMotifs(codes) {
+    const root = document.documentElement;
+    ['a', 'b'].forEach((slot, index) => {
+        const meta = LANGUAGES[codes[index] || codes[0]];
+        root.style.setProperty(`--motif-${slot}`, `url("${new URL(meta.motif, document.baseURI).href}")`);
+        root.style.setProperty(`--accent-${slot}`, meta.accent);
+    });
+    root.dataset.motifs = codes.length > 1 ? 'pair' : 'single';
+}
+
+/** 방의 두 모티프를 나란히 놓은 장식 (빈 상태 화면 등). 장식이라 화면 낭독기에는 숨깁니다. */
+function createMotifPair() {
+    const pair = createElement('div', 'motif-pair', { 'aria-hidden': 'true' });
+    pair.append(createElement('span', 'motif motif--a'), createElement('span', 'motif motif--b'));
+    return pair;
+}
+
 /** 화면 언어 선택 칸: 사전이 있는 언어만, 각 언어의 이름으로 보여줍니다. */
 function fillLanguageSelect(select) {
     i18nUiLanguages().forEach((code) => {
@@ -278,3 +301,17 @@ roomReady.then((room) => {
         sheetLangStorageKey = `${LANG_STORAGE_KEY}:${room.loginId}`;
     }
 });
+
+// 모티프: 방 안에서는 방의 두 언어, 방에 들어가기 전(메뉴가 없는 화면)에는 화면 언어를 따라갑니다.
+if (siteHeader.dataset.nav) {
+    Promise.all([i18nReady, roomReady]).then(([, room]) => {
+        if (room) {
+            applyMotifs(room.members.map((member) => member.language));
+        }
+    });
+} else {
+    i18nReady.then(() => {
+        applyMotifs([i18nLang]);
+        document.addEventListener('i18n:change', () => applyMotifs([i18nLang]));
+    });
+}
