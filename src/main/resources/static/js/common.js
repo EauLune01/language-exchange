@@ -3,7 +3,8 @@
 /*
  * 모든 페이지가 함께 쓰는 공통 코드
  *  - 서버 통신(GET/POST), 안내 메시지, 날짜 표시
- *  - 로그인 확인: 로그인이 안 돼 있으면(401) enter.html로 보내고, 메뉴에 로그아웃 버튼을 붙여요.
+ *  - 로그인 확인: 로그인이 안 돼 있으면(401) enter.html로 보내요.
+ *  - 화면 언어: languages.js, i18n.js, 사전을 불러오고 헤더에 화면 언어 선택과 로그아웃 버튼을 넣어요.
  *
  * 같은 서버(Spring Boot의 static 폴더)에서 열 때는 API_BASE를 빈 문자열로 두세요.
  * 프론트 파일을 따로 열 때만 'http://localhost:8080' 으로 바꾸고, 서버에 CORS 설정을 추가해야 해요.
@@ -57,29 +58,14 @@ const MESSAGES = {
         ko: '서버가 입력 내용을 받아주지 않았어요. 주제 이름과 질문 3개를 다시 확인해 주세요.',
         ja: 'サーバーが入力内容を受け付けませんでした。テーマ名と質問3つをもう一度確認してください。',
     },
-    invalidCredentials: {
-        ko: '방 아이디 또는 비밀번호가 맞지 않아요.',
-        ja: 'ルームIDまたはパスワードが正しくありません。',
-    },
-    duplicateRoomId: {
-        ko: '이미 사용 중인 방 아이디예요. 다른 아이디를 써 주세요.',
-        ja: 'このルームIDはすでに使われています。別のIDにしてください。',
-    },
-    sameLanguage: {
-        ko: '두 사람의 모국어는 서로 달라야 해요.',
-        ja: 'ふたりの母語は別の言語にしてください。',
-    },
-    invalidRoomInput: {
-        ko: '방 아이디는 영문 소문자·숫자 4~20자, 비밀번호는 영문·숫자·기호 8자 이상으로 적어 주세요.',
-        ja: 'ルームIDは英小文字・数字4〜20文字、パスワードは英数字・記号8文字以上で入力してください。',
-    },
 };
 
 class ApiError extends Error {
-    constructor(status, message) {
+    constructor(status, message, errorCode) {
         super(message);
         this.name = 'ApiError';
         this.status = status;
+        this.errorCode = errorCode || null; // 서버 ErrorCode 이름 (예: DUPLICATE_ROOM_ID)
     }
 }
 
@@ -207,7 +193,7 @@ async function apiRequest(path, options) {
     }
 
     if (!response.ok || !body || body.success !== true) {
-        throw new ApiError(response.status, body && body.message ? body.message : 'request failed');
+        throw new ApiError(response.status, body && body.message ? body.message : '', body && body.errorCode);
     }
     return body.data;
 }
@@ -224,12 +210,74 @@ function apiPost(path, payload) {
     });
 }
 
-/* ---------- 로그인한 방 ---------- */
+/* ---------- 화면 언어 · 공통 헤더 · 로그인한 방 ---------- */
+
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`failed to load ${src}`));
+        document.head.append(script);
+    });
+}
+
+/** 화면 언어로 메시지를 보여줍니다. data-i18n 을 달아 두어서 화면 언어를 바꾸면 같이 바뀌어요. */
+function showI18nMessage(target, key) {
+    target.className = 'message';
+    target.dataset.i18n = key;
+    target.textContent = t(key);
+    target.hidden = false;
+}
+
+/**
+ * 서버 오류를 화면 언어로 보여줍니다: error.<errorCode> 키 → 없으면 서버 message → 그것도 없으면 일반 문구.
+ * overrides = { 서버 errorCode: 이 화면에서 대신 쓸 사전 키 }
+ */
+function showApiError(target, error, overrides) {
+    const isApiError = error instanceof ApiError;
+    if (isApiError && error.status === 0) {
+        showI18nMessage(target, 'error.network');
+        return;
+    }
+
+    const errorCode = isApiError ? error.errorCode : null;
+    const key = (overrides && overrides[errorCode]) || `error.${errorCode}`;
+    if (errorCode && i18nHas(key)) {
+        showI18nMessage(target, key);
+    } else if (isApiError && error.message) {
+        target.className = 'message';
+        delete target.dataset.i18n;
+        target.textContent = error.message;
+        target.hidden = false;
+    } else {
+        showI18nMessage(target, 'error.generic');
+    }
+}
+
+function addLanguageSelect(header, nav) {
+    const select = document.createElement('select');
+    select.className = 'lang-select';
+    select.setAttribute('data-i18n-aria-label', 'header.language');
+    i18nUiLanguages().forEach((code) => {
+        const option = new Option(LANGUAGES[code].name, code);
+        option.lang = LANGUAGES[code].tag;
+        select.append(option);
+    });
+    select.value = i18nLang;
+    select.addEventListener('change', () => i18nSetLanguage(select.value, true));
+
+    if (nav) {
+        nav.before(select);
+    } else {
+        header.append(select);
+    }
+}
 
 function addLogoutButton(nav) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.append(textEl('span', '', '로그아웃', 'ko'), textEl('span', '', 'ログアウト', 'ja'));
+    button.dataset.i18n = 'header.logout';
     button.addEventListener('click', async () => {
         try {
             await apiPost('/api/auth/logout');
@@ -241,12 +289,29 @@ function addLogoutButton(nav) {
     nav.append(button);
 }
 
+const siteHeader = document.querySelector('.site-header');
+const siteNav = document.querySelector('.site-nav');
+
 /*
- * 메뉴가 있는 페이지(= 로그인이 필요한 페이지)에서는 열자마자 방 정보를 한 번 읽습니다.
+ * 화면 언어 준비: 언어 목록 → 엔진 → 사전 순서로 불러온 뒤, 모든 페이지 헤더에 화면 언어 선택을,
+ * 메뉴가 있는 페이지(= 로그인이 필요한 페이지)에는 로그아웃 버튼을 넣습니다.
+ * LANGUAGES 와 t() 는 이 약속이 끝난 뒤에 쓸 수 있어요.
+ */
+const i18nReady = (async () => {
+    await loadScript('js/languages.js');
+    await loadScript('js/i18n.js');
+    await i18nInit();
+    if (siteHeader) {
+        addLanguageSelect(siteHeader, siteNav);
+    }
+    if (siteNav) {
+        addLogoutButton(siteNav);
+    }
+    i18nApply();
+})();
+
+/*
+ * 메뉴가 있는 페이지에서는 열자마자 방 정보를 한 번 읽습니다.
  * roomReady 는 { loginId, members: [{ name, nationality, language }, …] } 로 풀리고, 읽지 못하면 null 이에요.
  */
-const siteNav = document.querySelector('.site-nav');
 const roomReady = siteNav ? apiGet('/api/rooms').catch(() => null) : Promise.resolve(null);
-if (siteNav) {
-    addLogoutButton(siteNav);
-}

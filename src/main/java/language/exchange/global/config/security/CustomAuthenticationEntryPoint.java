@@ -27,7 +27,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setStatus(errorCode.getStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        jsonMapper.writeValue(response.getWriter(),
-                ApiResponse.fail(errorCode.getStatus().value(), errorCode.getMessage()));
+        jsonMapper.writeValue(response.getWriter(), ApiResponse.fail(errorCode));
     }
 }

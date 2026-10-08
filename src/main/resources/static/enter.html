@@ -1,70 +1,53 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#f3f5fc">
-    <title>언어교환 言語交換</title>
+    <title data-i18n="app.name"></title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+SC:wght@400;500&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="page">
+    <!-- 화면 언어 선택은 common.js 가 헤더에 넣습니다. -->
     <header class="site-header">
-        <a class="brand" href="enter.html" aria-label="언어교환 / 言語交換">
+        <a class="brand" href="enter.html">
         <span class="logo" aria-hidden="true">
           <span class="logo-circle logo-circle--ko"></span>
           <span class="logo-circle logo-circle--ja"></span>
         </span>
-            <span class="wordmark">
-          <span class="wordmark-ko" lang="ko">언어교환</span>
-          <span class="wordmark-ja" lang="ja">言語交換</span>
-        </span>
+            <span class="wordmark" data-i18n="app.name"></span>
         </a>
     </header>
 
     <main>
         <div class="page-head">
-            <h1 class="page-title">
-                <span lang="ko">우리 방에 들어가기</span>
-                <span lang="ja">ふたりのルームに入る</span>
-            </h1>
-            <p class="page-note">
-                <span lang="ko">두 사람이 방 하나를 같이 써요. 방이 있으면 로그인하고, 없으면 새로 만들어 주세요.</span>
-                <span lang="ja">ふたりで一つのルームを使います。ルームがあればログインし、なければ新しく作ってください。</span>
-            </p>
+            <h1 class="page-title" data-i18n="enter.heading"></h1>
+            <p class="page-note" data-i18n="enter.note"></p>
         </div>
 
-        <div id="mode-toggle" class="mode-toggle" role="group" aria-label="로그인 또는 방 만들기 / ログインまたはルーム作成">
-            <button type="button" data-mode="login" aria-pressed="true">
-                <span lang="ko">로그인</span>
-                <span lang="ja">ログイン</span>
-            </button>
-            <button type="button" data-mode="create" aria-pressed="false">
-                <span lang="ko">방 만들기</span>
-                <span lang="ja">ルームを作る</span>
-            </button>
+        <div id="mode-toggle" class="mode-toggle" role="group" data-i18n-aria-label="enter.mode.label">
+            <button type="button" data-mode="login" aria-pressed="true" data-i18n="enter.mode.login"></button>
+            <button type="button" data-mode="create" aria-pressed="false" data-i18n="enter.mode.create"></button>
         </div>
 
         <!-- 로그인 -->
         <form id="login-form" novalidate>
             <section class="topic-form">
                 <div class="form-row">
-                    <div class="form-row-name">
-                        <span lang="ko">방 계정</span>
-                        <span lang="ja">ルームアカウント</span>
-                    </div>
+                    <div class="form-row-name" data-i18n="enter.account.title"></div>
                     <label class="field">
-                        <span class="field-label"><span lang="ko">방 아이디</span> / <span lang="ja">ルームID</span></span>
-                        <input type="text" class="field-input field-input--ko" name="loginId" maxlength="20"
+                        <span class="field-label" data-i18n="enter.account.loginId"></span>
+                        <input type="text" class="field-input field-input--ko" name="loginId" maxlength="20" dir="ltr"
                                autocomplete="username" autocapitalize="none" spellcheck="false">
                     </label>
                     <label class="field">
-                        <span class="field-label"><span lang="ko">비밀번호</span> / <span lang="ja">パスワード</span></span>
-                        <input type="password" class="field-input field-input--ko" name="password" maxlength="64"
+                        <span class="field-label" data-i18n="enter.account.password"></span>
+                        <input type="password" class="field-input field-input--ko" name="password" maxlength="64" dir="ltr"
                                autocomplete="current-password">
                     </label>
                 </div>
@@ -74,78 +57,62 @@
 
             <div class="form-actions">
                 <button type="submit" class="primary submit-button">
-                    <span class="btn-line" lang="ko">로그인</span>
-                    <span class="btn-line btn-line--sub" lang="ja">ログイン</span>
+                    <span class="btn-line" data-i18n="enter.mode.login"></span>
                 </button>
             </div>
         </form>
 
         <!-- 방 만들기 -->
         <form id="create-form" novalidate hidden>
-            <p class="page-note form-note">
-                <span lang="ko">방 아이디와 비밀번호는 두 사람이 같이 써요. 비밀번호를 잊으면 되찾을 방법이 없으니 꼭 적어 두세요.</span>
-                <span lang="ja">ルームIDとパスワードはふたりで共有します。パスワードを忘れると復元できないので、必ずメモしておいてください。</span>
-            </p>
+            <p class="page-note form-note" data-i18n="enter.create.note"></p>
 
             <section class="topic-form">
                 <div class="form-row">
-                    <div class="form-row-name">
-                        <span lang="ko">방 계정</span>
-                        <span lang="ja">ルームアカウント</span>
-                    </div>
+                    <div class="form-row-name" data-i18n="enter.account.title"></div>
                     <label class="field">
-                        <span class="field-label"><span lang="ko">방 아이디 (영문 소문자·숫자 4~20자)</span> / <span lang="ja">ルームID（英小文字・数字4〜20文字）</span></span>
-                        <input type="text" class="field-input field-input--ko" name="loginId" maxlength="20"
+                        <span class="field-label" data-i18n="enter.account.loginIdRule"></span>
+                        <input type="text" class="field-input field-input--ko" name="loginId" maxlength="20" dir="ltr"
                                autocomplete="username" autocapitalize="none" spellcheck="false">
                     </label>
                     <label class="field">
-                        <span class="field-label"><span lang="ko">비밀번호 (8자 이상)</span> / <span lang="ja">パスワード（8文字以上）</span></span>
-                        <input type="password" class="field-input field-input--ko" name="password" maxlength="64"
+                        <span class="field-label" data-i18n="enter.account.passwordRule"></span>
+                        <input type="password" class="field-input field-input--ko" name="password" maxlength="64" dir="ltr"
                                autocomplete="new-password">
                     </label>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-row-name">
-                        <span lang="ko">이름</span>
-                        <span lang="ja">名前</span>
-                    </div>
+                    <div class="form-row-name" data-i18n="enter.create.name"></div>
                     <label class="field">
-                        <span class="field-label field-label--ko"><span lang="ko">첫 번째 사람</span> / <span lang="ja">1人目</span></span>
-                        <input type="text" class="field-input field-input--ko" name="nameA" maxlength="50" autocomplete="off">
+                        <span class="field-label field-label--ko" data-i18n="enter.create.memberA"></span>
+                        <input type="text" class="field-input field-input--ko" name="nameA" maxlength="50" dir="auto" autocomplete="off">
                     </label>
                     <label class="field">
-                        <span class="field-label field-label--ja"><span lang="ko">두 번째 사람</span> / <span lang="ja">2人目</span></span>
-                        <input type="text" class="field-input field-input--ja" name="nameB" maxlength="50" autocomplete="off">
+                        <span class="field-label field-label--ja" data-i18n="enter.create.memberB"></span>
+                        <input type="text" class="field-input field-input--ja" name="nameB" maxlength="50" dir="auto" autocomplete="off">
                     </label>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-row-name">
-                        <span lang="ko">국적</span>
-                        <span lang="ja">国籍</span>
-                    </div>
+                    <div class="form-row-name" data-i18n="enter.create.nationality"></div>
                     <label class="field">
-                        <span class="field-label field-label--ko"><span lang="ko">첫 번째 사람</span> / <span lang="ja">1人目</span></span>
+                        <span class="field-label field-label--ko" data-i18n="enter.create.memberA"></span>
                         <select class="field-input field-input--ko" name="nationalityA"></select>
                     </label>
                     <label class="field">
-                        <span class="field-label field-label--ja"><span lang="ko">두 번째 사람</span> / <span lang="ja">2人目</span></span>
+                        <span class="field-label field-label--ja" data-i18n="enter.create.memberB"></span>
                         <select class="field-input field-input--ja" name="nationalityB"></select>
                     </label>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-row-name">
-                        <span lang="ko">모국어</span>
-                        <span lang="ja">母語</span>
-                    </div>
+                    <div class="form-row-name" data-i18n="enter.create.language"></div>
                     <label class="field">
-                        <span class="field-label field-label--ko"><span lang="ko">첫 번째 사람</span> / <span lang="ja">1人目</span></span>
+                        <span class="field-label field-label--ko" data-i18n="enter.create.memberA"></span>
                         <select class="field-input field-input--ko" name="languageA"></select>
                     </label>
                     <label class="field">
-                        <span class="field-label field-label--ja"><span lang="ko">두 번째 사람</span> / <span lang="ja">2人目</span></span>
+                        <span class="field-label field-label--ja" data-i18n="enter.create.memberB"></span>
                         <select class="field-input field-input--ja" name="languageB"></select>
                     </label>
                 </div>
@@ -155,16 +122,15 @@
 
             <div class="form-actions">
                 <button type="submit" class="primary submit-button">
-                    <span class="btn-line" lang="ko">방 만들고 시작하기</span>
-                    <span class="btn-line btn-line--sub" lang="ja">ルームを作って始める</span>
+                    <span class="btn-line" data-i18n="enter.create.submit"></span>
                 </button>
             </div>
         </form>
     </main>
 </div>
 
+<!-- languages.js, i18n.js, 사전은 common.js 가 불러옵니다. -->
 <script src="js/common.js"></script>
-<script src="js/languages.js"></script>
 <script src="js/enter.js"></script>
 </body>
 </html>

@@ -40,20 +40,12 @@
         return firstInvalid;
     }
 
-    function failureMessage(error, messageKeyByStatus) {
-        if (error instanceof ApiError) {
-            if (error.status === 0) {
-                return MESSAGES.network;
-            }
-            if (messageKeyByStatus[error.status]) {
-                return MESSAGES[messageKeyByStatus[error.status]];
-            }
-        }
-        return MESSAGES.generic;
-    }
-
     /**
-     * config = { path, payload(fields), validate?(fields) → MESSAGES 키 또는 null, errors: { 상태코드: MESSAGES 키 } }
+     * config = {
+     *   path, payload(fields),
+     *   validate?(fields) → 사전 키 또는 null,
+     *   errorKeys?: { 서버 errorCode: 이 화면에서 대신 보여줄 사전 키 }
+     * }
      * 성공하면 세션 쿠키가 생기므로 홈으로 이동합니다.
      */
     function bindForm(form, config) {
@@ -68,13 +60,13 @@
 
             const firstInvalid = markEmptyFields(form);
             if (firstInvalid) {
-                showMessage(message, MESSAGES.emptyFields);
+                showI18nMessage(message, 'enter.error.emptyFields');
                 firstInvalid.focus();
                 return;
             }
             const invalidKey = config.validate ? config.validate(form.elements) : null;
             if (invalidKey) {
-                showMessage(message, MESSAGES[invalidKey]);
+                showI18nMessage(message, invalidKey);
                 return;
             }
 
@@ -83,12 +75,13 @@
                 await apiPost(config.path, config.payload(form.elements));
                 window.location.replace('index.html');
             } catch (error) {
-                showMessage(message, failureMessage(error, config.errors));
+                showApiError(message, error, config.errorKeys);
                 submitButton.disabled = false;
             }
         });
     }
 
+    /** 모국어 목록: 화면 언어와 상관없이 각 언어를 그 언어의 이름으로 보여줍니다. */
     function fillLanguageSelects() {
         const fields = els.createForm.elements;
         [fields.languageA, fields.languageB].forEach((select, index) => {
@@ -101,19 +94,22 @@
         });
     }
 
+    /** 국적 목록: 나라 이름을 지금 화면 언어로 만들고 그 언어의 순서로 정렬합니다. 화면 언어가 바뀌면 다시 불러요. */
     function fillNationalitySelects() {
-        // 화면 언어 선택은 4단계에서 생겨요. 그때까지는 브라우저 선호 언어를 화면 언어로 봅니다.
-        const locales = navigator.languages;
-        const regionNames = new Intl.DisplayNames(locales, { type: 'region' });
-        const collator = new Intl.Collator(locales);
+        const locale = i18nLocale();
+        const regionNames = new Intl.DisplayNames([locale], { type: 'region' });
+        const collator = new Intl.Collator(locale);
         const countries = COUNTRY_CODES
             .map((code) => ({ code, name: regionNames.of(code) }))
             .sort((a, b) => collator.compare(a.name, b.name));
 
         const fields = els.createForm.elements;
         [fields.nationalityA, fields.nationalityB].forEach((select) => {
-            select.append(new Option('—', '')); // 고르지 않으면 빈 칸으로 처리돼요.
-            countries.forEach((country) => select.append(new Option(country.name, country.code)));
+            const selected = select.value;
+            const placeholder = new Option(t('enter.create.choose'), ''); // 고르지 않으면 빈 칸으로 처리돼요.
+            placeholder.dataset.i18n = 'enter.create.choose';
+            select.replaceChildren(placeholder, ...countries.map((country) => new Option(country.name, country.code)));
+            select.value = selected;
         });
     }
 
@@ -123,12 +119,11 @@
             loginId: fields.loginId.value.trim(),
             password: fields.password.value,
         }),
-        errors: { 401: 'invalidCredentials' },
     });
 
     bindForm(els.createForm, {
         path: '/api/rooms',
-        validate: (fields) => (fields.languageA.value === fields.languageB.value ? 'sameLanguage' : null),
+        validate: (fields) => (fields.languageA.value === fields.languageB.value ? 'error.SAME_LANGUAGE' : null),
         payload: (fields) => ({
             loginId: fields.loginId.value.trim(),
             password: fields.password.value,
@@ -145,7 +140,8 @@
                 },
             ],
         }),
-        errors: { 400: 'invalidRoomInput', 409: 'duplicateRoomId' },
+        // 이 화면에서 형식 오류는 방 아이디·비밀번호 규칙을 어긴 경우라서 규칙을 알려 줍니다.
+        errorKeys: { INVALID_INPUT: 'enter.error.invalidRoomInput' },
     });
 
     els.modeToggle.addEventListener('click', (event) => {
@@ -155,8 +151,12 @@
         }
     });
 
-    fillLanguageSelects();
-    fillNationalitySelects();
+    // 언어 목록과 화면 언어가 준비된 뒤에 선택 칸을 채웁니다.
+    i18nReady.then(() => {
+        fillLanguageSelects();
+        fillNationalitySelects();
+        document.addEventListener('i18n:change', fillNationalitySelects);
+    });
 
     // 이미 로그인한 상태면 바로 홈으로 보냅니다.
     apiGet('/api/rooms')

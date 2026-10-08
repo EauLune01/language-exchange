@@ -28,6 +28,8 @@
 
     --font-ko: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     --font-ja: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-zh: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-system: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 *,
@@ -72,6 +74,19 @@ body:has(dialog[open]) {
     word-break: auto-phrase;
 }
 
+/* 화면 언어(<html lang>)에 맞는 기본 글꼴. 한국어·일본어·중국어 말고는 기기 기본 글꼴을 씁니다. */
+html:lang(ja) body {
+    font-family: var(--font-ja);
+}
+
+html:lang(zh) body {
+    font-family: var(--font-zh);
+}
+
+html:not(:lang(ko), :lang(ja), :lang(zh)) body {
+    font-family: var(--font-system);
+}
+
 button {
     font: inherit;
     color: inherit;
@@ -104,13 +119,13 @@ a {
     }
 
     body::before {
-        right: 160px;
+        inset-inline-end: 160px;
         bottom: -300px;
         background: var(--ko-circle);
     }
 
     body::after {
-        right: -130px;
+        inset-inline-end: -130px;
         bottom: -230px;
         background: var(--ja-circle);
     }
@@ -158,7 +173,7 @@ a {
 }
 
 .logo-circle--ja {
-    margin-left: -10px;
+    margin-inline-start: -10px;
     background: #ee8fa0;
 }
 
@@ -204,13 +219,11 @@ a {
     transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.site-nav a span:first-child,
-.site-nav button span:first-child {
+.site-nav a span:first-child {
     font-size: 0.97rem;
 }
 
-.site-nav a span:last-child,
-.site-nav button span:last-child {
+.site-nav a span:last-child {
     color: var(--muted);
     font-size: 0.72rem;
 }
@@ -218,6 +231,21 @@ a {
 .site-nav button {
     border: 0;
     background: transparent;
+    font-size: 0.97rem;
+    cursor: pointer;
+}
+
+/* 화면 언어 선택 (common.js 가 헤더에 넣어요) */
+.lang-select {
+    min-height: 44px;
+    margin-inline-start: auto;
+    padding: 8px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.92rem;
     cursor: pointer;
 }
 
@@ -648,6 +676,7 @@ a {
 
 .page-title {
     margin: 0;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
     font-weight: 400;
     line-height: 1.3;
 }
