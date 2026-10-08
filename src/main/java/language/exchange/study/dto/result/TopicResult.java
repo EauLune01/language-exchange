@@ -1,21 +1,21 @@
 package language.exchange.study.dto.result;
 
-import language.exchange.study.domain.Topic;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class TopicResult {
-    private Long id;
-    private String nameKo;
-    private String nameJa;
 
-    public static TopicResult from(Topic topic) {
-        return TopicResult.builder()
-                .id(topic.getId())
-                .nameKo(topic.getNameKo())
-                .nameJa(topic.getNameJa())
-                .build();
+    private final Long id;
+    private final String nameKo;
+    private final String nameJa;
+
+    private TopicResult(Long id, String nameKo, String nameJa) {
+        this.id = id;
+        this.nameKo = nameKo;
+        this.nameJa = nameJa;
+    }
+
+    public static TopicResult of(Long id, String nameKo, String nameJa) {
+        return new TopicResult(id, nameKo, nameJa);
     }
 }

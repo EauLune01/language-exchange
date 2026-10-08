@@ -14,28 +14,50 @@
 <body>
 <div class="page">
     <header class="site-header">
-      <span class="logo" aria-hidden="true">
-        <span class="logo-circle logo-circle--ko"></span>
-        <span class="logo-circle logo-circle--ja"></span>
-      </span>
-        <h1 class="wordmark">
-            <span class="wordmark-ko" lang="ko">언어교환</span>
-            <span class="wordmark-ja" lang="ja">言語交換</span>
-        </h1>
-
-        <a class="header-link" href="topics.html">
-            <span lang="ko">전체 주제</span>
-            <span lang="ja">すべてのテーマ</span>
+        <a class="brand" href="index.html" aria-label="홈 / ホーム">
+        <span class="logo" aria-hidden="true">
+          <span class="logo-circle logo-circle--ko"></span>
+          <span class="logo-circle logo-circle--ja"></span>
+        </span>
+            <span class="wordmark">
+          <span class="wordmark-ko" lang="ko">언어교환</span>
+          <span class="wordmark-ja" lang="ja">言語交換</span>
+        </span>
         </a>
+
+        <nav class="site-nav" aria-label="메뉴 / メニュー">
+            <a href="index.html" aria-current="page">
+                <span lang="ko">홈</span>
+                <span lang="ja">ホーム</span>
+            </a>
+            <a href="topics.html">
+                <span lang="ko">전체 주제</span>
+                <span lang="ja">テーマ一覧</span>
+            </a>
+            <a href="history.html">
+                <span lang="ko">학습 기록</span>
+                <span lang="ja">学習の記録</span>
+            </a>
+            <a href="register.html">
+                <span lang="ko">주제 등록</span>
+                <span lang="ja">テーマ登録</span>
+            </a>
+        </nav>
     </header>
 
     <main>
-        <!-- 이번 주 주제 -->
-        <section class="weekly" aria-labelledby="weekly-title">
-            <h2 id="weekly-title" class="section-title">
-                <span lang="ko">이번 주 주제</span>
-                <span lang="ja">今週のテーマ</span>
-            </h2>
+        <!-- 이번 주 주제 뽑기 -->
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <h1 id="hero-title" class="hero-title">
+                    <span lang="ko">이번 주엔 어떤 이야기를 나눠볼까요?</span>
+                    <span lang="ja">今週はどんな話をしようか？</span>
+                </h1>
+                <p class="hero-desc">
+                    <span id="hero-desc-ko" lang="ko">버튼을 누르면 아직 안 쓴 주제 중 하나가 뽑혀요. 한 주에 한 번만 뽑을 수 있어요.</span>
+                    <span id="hero-desc-ja" lang="ja">ボタンを押すと、まだ使っていないテーマから一つ選ばれます。テーマを引けるのは週に一度だけです。</span>
+                </p>
+            </div>
 
             <div class="card-stage">
                 <button type="button" id="weekly-card" class="weekly-card is-empty" disabled
@@ -45,22 +67,60 @@
               <span class="venn-circle venn-circle--ja"></span>
             </span>
                     <span class="card-text">
-              <span id="weekly-ko" class="card-name card-name--ko" lang="ko">이번 주엔 어떤 주제가 나올까요?</span>
-              <span id="weekly-ja" class="card-name card-name--ja" lang="ja">今週はどんなテーマかな？</span>
+              <span id="weekly-ko" class="card-name card-name--ko" lang="ko">이번 주 주제가 여기에 나와요</span>
+              <span id="weekly-ja" class="card-name card-name--ja" lang="ja">今週のテーマがここに出ます</span>
             </span>
                 </button>
             </div>
 
-            <p id="weekly-hint" class="hint" hidden>
-                <span lang="ko">카드를 눌러 질문을 확인하세요.</span>
-                <span lang="ja">カードをタップして質問を見ましょう。</span>
-            </p>
-            <div id="weekly-message" class="message" role="alert" hidden></div>
+            <div class="hero-actions">
+                <p id="weekly-hint" class="hint" hidden>
+                    <span lang="ko">카드를 눌러 질문을 확인하세요.</span>
+                    <span lang="ja">カードをタップして質問を見ましょう。</span>
+                </p>
+                <div id="weekly-message" class="message" role="alert" hidden></div>
 
-            <button type="button" id="draw-button" class="primary">
-                <span class="btn-line" lang="ko">이번 주 주제 뽑기</span>
-                <span class="btn-line btn-line--sub" lang="ja">今週のテーマを引く</span>
-            </button>
+                <button type="button" id="draw-button" class="primary" hidden>
+                    <span class="btn-line" lang="ko">이번 주 주제 뽑기</span>
+                    <span class="btn-line btn-line--sub" lang="ja">今週のテーマを引く</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 바로가기 -->
+        <section class="shortcuts" aria-label="바로가기 / ショートカット">
+            <a class="shortcut" href="topics.html">
+          <span class="shortcut-title">
+            <span lang="ko">전체 주제</span>
+            <span lang="ja">すべてのテーマ</span>
+          </span>
+                <span class="shortcut-desc">
+            <span lang="ko">등록된 주제를 아직 안 쓴 것부터 가나다순으로 볼 수 있어요.</span>
+            <span lang="ja">登録されたテーマを、まだ使っていないものから順に見られます。</span>
+          </span>
+            </a>
+
+            <a class="shortcut" href="history.html">
+          <span class="shortcut-title">
+            <span lang="ko">학습 기록</span>
+            <span lang="ja">学習の記録</span>
+          </span>
+                <span class="shortcut-desc">
+            <span lang="ko">1회차부터 지금까지 어떤 주제로 이야기했는지 보고, 질문도 다시 볼 수 있어요.</span>
+            <span lang="ja">第1回から今まで、どんなテーマで話したかを見て、質問も確認できます。</span>
+          </span>
+            </a>
+
+            <a class="shortcut" href="register.html">
+          <span class="shortcut-title">
+            <span lang="ko">주제 등록</span>
+            <span lang="ja">テーマ登録</span>
+          </span>
+                <span class="shortcut-desc">
+            <span lang="ko">새 주제와 질문 3개를 한국어·일본어로 적어요. 하나씩도, 여러 개씩도 등록할 수 있어요.</span>
+            <span lang="ja">新しいテーマと質問3つを韓国語・日本語で入力します。1つずつでも、まとめてでも登録できます。</span>
+          </span>
+            </a>
         </section>
     </main>
 </div>
@@ -90,6 +150,7 @@
 </dialog>
 
 <script src="js/common.js"></script>
+<script src="js/sheet.js"></script>
 <script src="js/home.js"></script>
 </body>
 </html>

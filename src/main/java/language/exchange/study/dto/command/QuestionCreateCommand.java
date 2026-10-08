@@ -1,11 +1,19 @@
 package language.exchange.study.dto.command;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class QuestionCreateCommand {
-    private String contentKo;
-    private String contentJa;
+
+    private final String contentKo;
+    private final String contentJa;
+
+    private QuestionCreateCommand(String contentKo, String contentJa) {
+        this.contentKo = contentKo;
+        this.contentJa = contentJa;
+    }
+
+    public static QuestionCreateCommand of(String contentKo, String contentJa) {
+        return new QuestionCreateCommand(contentKo, contentJa);
+    }
 }

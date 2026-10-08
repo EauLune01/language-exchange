@@ -1,13 +1,12 @@
 package language.exchange.study.event;
 
 import language.exchange.study.dto.command.QuestionCreateCommand;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 public class QuestionCreateEvent {
 
@@ -19,6 +18,6 @@ public class QuestionCreateEvent {
     }
 
     public QuestionCreateCommand toCommand() {
-        return new QuestionCreateCommand(contentKo, contentJa);
+        return QuestionCreateCommand.of(contentKo, contentJa);
     }
 }

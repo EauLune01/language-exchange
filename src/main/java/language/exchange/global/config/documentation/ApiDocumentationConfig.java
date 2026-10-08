@@ -1,4 +1,4 @@
-package language.exchange.global.config;
+package language.exchange.global.config.documentation;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

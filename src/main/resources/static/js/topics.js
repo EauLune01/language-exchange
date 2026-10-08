@@ -1,8 +1,13 @@
-/* 전체 주제 페이지: 주제 목록 (Slice 페이징) */
+/* 전체 주제 페이지: 아직 안 쓴 주제 → 사용한 주제 (서버가 정렬해서 내려줘요) */
 (function () {
     'use strict';
 
     const PAGE_SIZE = 20;
+
+    const GROUP_LABELS = {
+        new: { ko: '아직 안 쓴 주제', ja: 'まだ使っていないテーマ' },
+        used: { ko: '사용한 주제', ja: '使ったテーマ' },
+    };
 
     const els = {
         list: $('topic-list'),
@@ -14,7 +19,18 @@
         nextPage: 0,
         hasNext: false,
         loading: false,
+        lastGroup: null,
     };
+
+    function createGroupHeading(group) {
+        const item = document.createElement('li');
+        item.className = 'group-heading';
+        item.append(
+            textEl('span', 'group-heading-ko', GROUP_LABELS[group].ko, 'ko'),
+            textEl('span', 'group-heading-ja', GROUP_LABELS[group].ja, 'ja')
+        );
+        return item;
+    }
 
     function createPill(usedDate) {
         const pill = document.createElement('span');
@@ -41,6 +57,15 @@
         return item;
     }
 
+    function appendTopic(topic) {
+        const group = topic.usedDate ? 'used' : 'new';
+        if (group !== state.lastGroup) {
+            els.list.append(createGroupHeading(group));
+            state.lastGroup = group;
+        }
+        els.list.append(createRow(topic));
+    }
+
     async function loadTopics() {
         if (state.loading) {
             return;
@@ -52,7 +77,7 @@
 
         try {
             const data = await apiGet(`/api/topics?page=${state.nextPage}&size=${PAGE_SIZE}`);
-            data.content.forEach((topic) => els.list.append(createRow(topic)));
+            data.content.forEach(appendTopic);
             state.nextPage = data.page + 1;
             state.hasNext = data.hasNext;
 

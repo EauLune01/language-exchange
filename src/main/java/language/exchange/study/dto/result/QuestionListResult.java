@@ -1,13 +1,21 @@
 package language.exchange.study.dto.result;
 
-import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
-@Builder
 public class QuestionListResult {
-    private Long topicId;
-    private List<QuestionResult> questions;
+
+    private final Long topicId;
+    private final List<QuestionResult> questions;
+
+    private QuestionListResult(Long topicId, List<QuestionResult> questions) {
+        this.topicId = topicId;
+        this.questions = questions;
+    }
+
+    public static QuestionListResult of(Long topicId, List<QuestionResult> questions) {
+        return new QuestionListResult(topicId, questions);
+    }
 }

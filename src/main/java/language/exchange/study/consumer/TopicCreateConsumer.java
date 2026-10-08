@@ -1,6 +1,6 @@
 package language.exchange.study.consumer;
 
-import language.exchange.global.config.RabbitMQConfig;
+import language.exchange.global.constants.rabbitmq.RabbitMQConstants;
 import language.exchange.study.event.TopicCreateEvent;
 import language.exchange.study.service.TopicService;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +15,9 @@ public class TopicCreateConsumer {
 
     private final TopicService topicService;
 
-    @RabbitListener(queues = RabbitMQConfig.TOPIC_CREATE_QUEUE)
+    @RabbitListener(queues = RabbitMQConstants.TOPIC_CREATE_QUEUE)
     public void consume(TopicCreateEvent event) {
-        log.info("주제 등록 처리 - nameKo: {}", event.getNameKo());
+        log.info("[TopicCreateConsumer] nameKo={}", event.getNameKo());
         topicService.createTopic(event.toCommand());
     }
 }

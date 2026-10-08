@@ -1,6 +1,6 @@
 package language.exchange.study.consumer;
 
-import language.exchange.global.config.RabbitMQConfig;
+import language.exchange.global.constants.rabbitmq.RabbitMQConstants;
 import language.exchange.study.event.TopicUsedEvent;
 import language.exchange.study.service.TopicService;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +15,9 @@ public class TopicUsedConsumer {
 
     private final TopicService topicService;
 
-    @RabbitListener(queues = RabbitMQConfig.TOPIC_USED_QUEUE)
+    @RabbitListener(queues = RabbitMQConstants.TOPIC_USED_QUEUE)
     public void consume(TopicUsedEvent event) {
-        log.info("주제 사용 처리 - topicId: {}, usedDate: {}", event.getTopicId(), event.getUsedDate());
+        log.info("[TopicUsedConsumer] topicId={}, usedDate={}", event.getTopicId(), event.getUsedDate());
         topicService.markAsUsed(event.getTopicId(), event.getUsedDate());
     }
 }

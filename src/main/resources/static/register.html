@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f3f5fc">
+    <title>주제 등록 テーマ登録</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+    <header class="site-header">
+        <a class="brand" href="index.html" aria-label="홈 / ホーム">
+        <span class="logo" aria-hidden="true">
+          <span class="logo-circle logo-circle--ko"></span>
+          <span class="logo-circle logo-circle--ja"></span>
+        </span>
+            <span class="wordmark">
+          <span class="wordmark-ko" lang="ko">언어교환</span>
+          <span class="wordmark-ja" lang="ja">言語交換</span>
+        </span>
+        </a>
+
+        <nav class="site-nav" aria-label="메뉴 / メニュー">
+            <a href="index.html">
+                <span lang="ko">홈</span>
+                <span lang="ja">ホーム</span>
+            </a>
+            <a href="topics.html">
+                <span lang="ko">전체 주제</span>
+                <span lang="ja">テーマ一覧</span>
+            </a>
+            <a href="history.html">
+                <span lang="ko">학습 기록</span>
+                <span lang="ja">学習の記録</span>
+            </a>
+            <a href="register.html" aria-current="page">
+                <span lang="ko">주제 등록</span>
+                <span lang="ja">テーマ登録</span>
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-head">
+            <h1 class="page-title">
+                <span lang="ko">주제 등록</span>
+                <span lang="ja">テーマ登録</span>
+            </h1>
+            <p class="page-note">
+                <span lang="ko">주제 이름과 질문 3개를 한국어와 일본어로 짝지어 적어주세요. 등록은 잠시 뒤에 반영돼요.</span>
+                <span lang="ja">テーマ名と質問3つを、韓国語と日本語のペアで入力してください。登録の反映には少し時間がかかります。</span>
+            </p>
+        </div>
+
+        <div id="mode-toggle" class="mode-toggle" role="group" aria-label="등록 방식 / 登録方法">
+            <button type="button" data-mode="single" aria-pressed="true">
+                <span lang="ko">하나씩</span>
+                <span lang="ja">1つずつ</span>
+            </button>
+            <button type="button" data-mode="bulk" aria-pressed="false">
+                <span lang="ko">여러 개씩</span>
+                <span lang="ja">まとめて</span>
+            </button>
+        </div>
+
+        <form id="register-form" class="register-form" novalidate>
+            <div id="topic-forms" class="topic-forms"></div>
+
+            <div id="form-message" class="message" role="alert" hidden></div>
+            <div id="form-success" class="message message--success" role="status" hidden></div>
+
+            <div class="form-actions">
+                <button type="button" id="add-topic" class="secondary add-topic" hidden>
+                    <span lang="ko">+ 주제 추가</span> / <span lang="ja">テーマを追加</span>
+                </button>
+
+                <button type="submit" id="submit-button" class="primary submit-button">
+                    <span id="submit-ko" class="btn-line" lang="ko">등록하기</span>
+                    <span id="submit-ja" class="btn-line btn-line--sub" lang="ja">登録する</span>
+                </button>
+            </div>
+        </form>
+    </main>
+</div>
+
+<!-- 주제 입력 칸 (주제 이름 1개 + 질문 3개, 한국어/일본어 짝) -->
+<template id="topic-template">
+    <section class="topic-form">
+        <div class="topic-form-head">
+            <h2 class="topic-form-title">
+                <span class="topic-form-no-ko" lang="ko"></span>
+                <span class="topic-form-no-ja" lang="ja"></span>
+            </h2>
+            <button type="button" class="text-button topic-remove">
+                <span lang="ko">삭제</span> / <span lang="ja">削除</span>
+            </button>
+        </div>
+
+        <div class="form-row">
+            <div class="form-row-name">
+                <span lang="ko">주제 이름</span>
+                <span lang="ja">テーマ名</span>
+            </div>
+            <label class="field">
+                <span class="field-label field-label--ko" lang="ko">한국어</span>
+                <input type="text" class="field-input field-input--ko" lang="ko" data-field="nameKo"
+                       maxlength="255" autocomplete="off" placeholder="예) 여행">
+            </label>
+            <label class="field">
+                <span class="field-label field-label--ja" lang="ja">日本語</span>
+                <input type="text" class="field-input field-input--ja" lang="ja" data-field="nameJa"
+                       maxlength="255" autocomplete="off" placeholder="例）旅行">
+            </label>
+        </div>
+
+        <div class="form-row">
+            <div class="form-row-name">
+                <span lang="ko">질문 1</span>
+                <span lang="ja">質問1</span>
+            </div>
+            <label class="field">
+                <span class="field-label field-label--ko" lang="ko">한국어</span>
+                <textarea class="field-input field-input--ko" lang="ko" data-field="contentKo" data-question="0"
+                          rows="2" maxlength="255" placeholder="예) 가장 기억에 남는 여행은 어디였어요?"></textarea>
+            </label>
+            <label class="field">
+                <span class="field-label field-label--ja" lang="ja">日本語</span>
+                <textarea class="field-input field-input--ja" lang="ja" data-field="contentJa" data-question="0"
+                          rows="2" maxlength="255" placeholder="例）一番思い出に残っている旅行はどこでしたか？"></textarea>
+            </label>
+        </div>
+
+        <div class="form-row">
+            <div class="form-row-name">
+                <span lang="ko">질문 2</span>
+                <span lang="ja">質問2</span>
+            </div>
+            <label class="field">
+                <span class="field-label field-label--ko" lang="ko">한국어</span>
+                <textarea class="field-input field-input--ko" lang="ko" data-field="contentKo" data-question="1"
+                          rows="2" maxlength="255"></textarea>
+            </label>
+            <label class="field">
+                <span class="field-label field-label--ja" lang="ja">日本語</span>
+                <textarea class="field-input field-input--ja" lang="ja" data-field="contentJa" data-question="1"
+                          rows="2" maxlength="255"></textarea>
+            </label>
+        </div>
+
+        <div class="form-row">
+            <div class="form-row-name">
+                <span lang="ko">질문 3</span>
+                <span lang="ja">質問3</span>
+            </div>
+            <label class="field">
+                <span class="field-label field-label--ko" lang="ko">한국어</span>
+                <textarea class="field-input field-input--ko" lang="ko" data-field="contentKo" data-question="2"
+                          rows="2" maxlength="255"></textarea>
+            </label>
+            <label class="field">
+                <span class="field-label field-label--ja" lang="ja">日本語</span>
+                <textarea class="field-input field-input--ja" lang="ja" data-field="contentJa" data-question="2"
+                          rows="2" maxlength="255"></textarea>
+            </label>
+        </div>
+    </section>
+</template>
+
+<script src="js/common.js"></script>
+<script src="js/register.js"></script>
+</body>
+</html>

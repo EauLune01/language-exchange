@@ -3,6 +3,7 @@ package language.exchange.study.dto.request;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import language.exchange.study.dto.command.TopicBulkCreateCommand;
+import language.exchange.study.dto.command.TopicCreateCommand;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +19,9 @@ public class TopicBulkCreateRequest {
     private List<TopicCreateRequest> topics;
 
     public TopicBulkCreateCommand toCommand() {
-        return TopicBulkCreateCommand.builder()
-                .topics(topics.stream().map(TopicCreateRequest::toCommand).toList())
-                .build();
+        List<TopicCreateCommand> topicCommands = topics.stream()
+                .map(TopicCreateRequest::toCommand)
+                .toList();
+        return TopicBulkCreateCommand.from(topicCommands);
     }
 }

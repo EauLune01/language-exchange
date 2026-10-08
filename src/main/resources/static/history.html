@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#f3f5fc">
-    <title>전체 주제 すべてのテーマ</title>
+    <title>학습 기록 学習の記録</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,11 +30,11 @@
                 <span lang="ko">홈</span>
                 <span lang="ja">ホーム</span>
             </a>
-            <a href="topics.html" aria-current="page">
+            <a href="topics.html">
                 <span lang="ko">전체 주제</span>
                 <span lang="ja">テーマ一覧</span>
             </a>
-            <a href="history.html">
+            <a href="history.html" aria-current="page">
                 <span lang="ko">학습 기록</span>
                 <span lang="ja">学習の記録</span>
             </a>
@@ -48,16 +48,16 @@
     <main>
         <div class="page-head">
             <h1 class="page-title">
-                <span lang="ko">전체 주제</span>
-                <span lang="ja">すべてのテーマ</span>
+                <span lang="ko">학습 기록</span>
+                <span lang="ja">学習の記録</span>
             </h1>
             <p class="page-note">
-                <span lang="ko">아직 안 쓴 주제가 먼저 나오고, 같은 그룹 안에서는 가나다순이에요. 주제를 누르면 질문을 볼 수 있어요.</span>
-                <span lang="ja">まだ使っていないテーマが先に表示され、同じグループ内ではハングル順(가나다順)です。テーマをタップすると質問を見られます。</span>
+                <span lang="ko">처음 뽑은 주제가 1회차예요. 주제를 누르면 그때의 질문을 다시 볼 수 있어요.</span>
+                <span lang="ja">最初に引いたテーマが第1回です。テーマをタップすると、そのときの質問をもう一度見られます。</span>
             </p>
         </div>
 
-        <ul id="topic-list" class="topic-list"></ul>
+        <ul id="history-list" class="history-list"></ul>
         <div id="list-message" class="message" hidden></div>
 
         <button type="button" id="load-more" class="secondary load-more" hidden>
@@ -92,6 +92,6 @@
 
 <script src="js/common.js"></script>
 <script src="js/sheet.js"></script>
-<script src="js/topics.js"></script>
+<script src="js/history.js"></script>
 </body>
 </html>

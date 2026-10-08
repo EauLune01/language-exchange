@@ -1,12 +1,19 @@
 package language.exchange.study.dto.command;
 
-import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
-@Builder
 public class TopicBulkCreateCommand {
-    private List<TopicCreateCommand> topics;
+
+    private final List<TopicCreateCommand> topics;
+
+    private TopicBulkCreateCommand(List<TopicCreateCommand> topics) {
+        this.topics = topics;
+    }
+
+    public static TopicBulkCreateCommand from(List<TopicCreateCommand> topics) {
+        return new TopicBulkCreateCommand(topics);
+    }
 }

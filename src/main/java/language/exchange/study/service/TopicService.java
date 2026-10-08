@@ -1,6 +1,6 @@
 package language.exchange.study.service;
 
-import language.exchange.global.constant.AppConstants;
+import language.exchange.global.constants.study.StudyConstants;
 import language.exchange.global.exception.BusinessException;
 import language.exchange.global.exception.ErrorCode;
 import language.exchange.study.domain.Question;
@@ -49,7 +49,10 @@ public class TopicService {
 
         List<Question> questionEntities = IntStream.range(0, questions.size())
                 .mapToObj(i -> Question.create(
-                        topic, i + 1, questions.get(i).getContentKo(), questions.get(i).getContentJa()))
+                        topic,
+                        i + 1,
+                        questions.get(i).getContentKo(),
+                        questions.get(i).getContentJa()))
                 .toList();
         questionRepository.saveAll(questionEntities);
     }
@@ -61,7 +64,7 @@ public class TopicService {
     }
 
     private void validateQuestionCount(List<QuestionCreateCommand> questions) {
-        if (questions == null || questions.size() != AppConstants.QUESTION_COUNT) {
+        if (questions == null || questions.size() != StudyConstants.QUESTION_COUNT) {
             throw new BusinessException(ErrorCode.INVALID_QUESTION_COUNT);
         }
     }

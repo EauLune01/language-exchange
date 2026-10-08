@@ -1,7 +1,7 @@
 package language.exchange.study.event;
 
+import language.exchange.study.dto.command.QuestionCreateCommand;
 import language.exchange.study.dto.command.TopicCreateCommand;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 public class TopicCreateEvent {
 
@@ -25,12 +25,9 @@ public class TopicCreateEvent {
     }
 
     public TopicCreateCommand toCommand() {
-        return TopicCreateCommand.builder()
-                .nameKo(nameKo)
-                .nameJa(nameJa)
-                .questions(questions.stream()
-                        .map(QuestionCreateEvent::toCommand)
-                        .toList())
-                .build();
+        List<QuestionCreateCommand> questionCommands = questions.stream()
+                .map(QuestionCreateEvent::toCommand)
+                .toList();
+        return TopicCreateCommand.of(nameKo, nameJa, questionCommands);
     }
 }

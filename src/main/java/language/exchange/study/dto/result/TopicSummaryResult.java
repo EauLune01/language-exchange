@@ -1,25 +1,25 @@
 package language.exchange.study.dto.result;
 
-import language.exchange.study.domain.Topic;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
 
 @Getter
-@Builder
 public class TopicSummaryResult {
-    private Long id;
-    private String nameKo;
-    private String nameJa;
-    private LocalDate usedDate;
 
-    public static TopicSummaryResult from(Topic topic) {
-        return TopicSummaryResult.builder()
-                .id(topic.getId())
-                .nameKo(topic.getNameKo())
-                .nameJa(topic.getNameJa())
-                .usedDate(topic.getUsedDate())
-                .build();
+    private final Long id;
+    private final String nameKo;
+    private final String nameJa;
+    private final LocalDate usedDate;
+
+    private TopicSummaryResult(Long id, String nameKo, String nameJa, LocalDate usedDate) {
+        this.id = id;
+        this.nameKo = nameKo;
+        this.nameJa = nameJa;
+        this.usedDate = usedDate;
+    }
+
+    public static TopicSummaryResult of(Long id, String nameKo, String nameJa, LocalDate usedDate) {
+        return new TopicSummaryResult(id, nameKo, nameJa, usedDate);
     }
 }

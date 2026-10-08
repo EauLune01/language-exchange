@@ -29,13 +29,8 @@ public class TopicCreateRequest {
 
     public TopicCreateCommand toCommand() {
         List<QuestionCreateCommand> questionCommands = questions.stream()
-                .map(question -> new QuestionCreateCommand(question.getContentKo(), question.getContentJa()))
+                .map(question -> QuestionCreateCommand.of(question.getContentKo(), question.getContentJa()))
                 .toList();
-
-        return TopicCreateCommand.builder()
-                .nameKo(nameKo)
-                .nameJa(nameJa)
-                .questions(questionCommands)
-                .build();
+        return TopicCreateCommand.of(nameKo, nameJa, questionCommands);
     }
 }

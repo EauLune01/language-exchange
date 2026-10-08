@@ -1,6 +1,15 @@
 package language.exchange.study.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import language.exchange.global.domain.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,11 +17,13 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "questions",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"topic_id", "sequence"}))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"topic_id", "sequence"}))
 public class Question extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -28,12 +39,14 @@ public class Question extends BaseTimeEntity {
     @Column(nullable = false)
     private String contentJa;
 
+    private Question(Topic topic, int sequence, String contentKo, String contentJa) {
+        this.topic = topic;
+        this.sequence = sequence;
+        this.contentKo = contentKo;
+        this.contentJa = contentJa;
+    }
+
     public static Question create(Topic topic, int sequence, String contentKo, String contentJa) {
-        Question question = new Question();
-        question.topic = topic;
-        question.sequence = sequence;
-        question.contentKo = contentKo;
-        question.contentJa = contentJa;
-        return question;
+        return new Question(topic, sequence, contentKo, contentJa);
     }
 }

@@ -1,6 +1,6 @@
 package language.exchange.study.publisher;
 
-import language.exchange.global.config.RabbitMQConfig;
+import language.exchange.global.constants.rabbitmq.RabbitMQConstants;
 import language.exchange.study.event.TopicUsedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,8 +17,8 @@ public class TopicUsedPublisher {
     public void publish(Long topicId, LocalDate usedDate) {
         TopicUsedEvent event = TopicUsedEvent.create(topicId, usedDate);
         rabbitTemplate.convertAndSend(
-                RabbitMQConfig.TOPIC_EXCHANGE,
-                RabbitMQConfig.TOPIC_USED_ROUTING_KEY,
+                RabbitMQConstants.TOPIC_EXCHANGE,
+                RabbitMQConstants.TOPIC_USED_KEY,
                 event);
     }
 }

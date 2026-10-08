@@ -1,6 +1,6 @@
 package language.exchange.study.publisher;
 
-import language.exchange.global.config.RabbitMQConfig;
+import language.exchange.global.constants.rabbitmq.RabbitMQConstants;
 import language.exchange.study.event.TopicCreateEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -14,8 +14,8 @@ public class TopicCreatePublisher {
 
     public void publish(TopicCreateEvent event) {
         rabbitTemplate.convertAndSend(
-                RabbitMQConfig.TOPIC_EXCHANGE,
-                RabbitMQConfig.TOPIC_CREATE_ROUTING_KEY,
+                RabbitMQConstants.TOPIC_EXCHANGE,
+                RabbitMQConstants.TOPIC_CREATE_KEY,
                 event);
     }
 }
