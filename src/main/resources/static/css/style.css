@@ -1,6 +1,8 @@
 /* ==========================================================
    언어교환 / 言語交換
-   - 색은 언어가 아니라 자리에 붙어요: 방의 첫 번째 언어(A) = 파랑, 두 번째 언어(B) = 빨강
+   - 글자 색은 언어가 아니라 자리에 붙어요: 방의 첫 번째 언어(A) = 파랑, 두 번째 언어(B) = 빨강
+   - 장식 그림(모티프)은 언어마다 달라요. common.js 가 --motif-a/b(그림), --accent-a/b(보조 색) 변수로 내려주고
+     <html data-motifs="pair|single"> 로 표시합니다. 여기서는 어떤 언어인지 모르고 변수만 씁니다.
    - 좌우 여백·위치는 논리 속성(inline-start/end)으로 써서 아랍어(dir="rtl")에서도 그대로 뒤집혀요
    - 두 원이 겹치는 모양(벤 다이어그램)이 앱의 상징: 두 언어가 만나는 곳
    ========================================================== */
@@ -130,6 +132,44 @@ a {
         bottom: -230px;
         background: var(--lang-b-circle);
     }
+
+    /* 모티프가 정해지면 배경의 두 원도 그 언어들의 보조 색을 옅게 풀어서 씁니다 */
+    :root[data-motifs] body::before {
+        background: color-mix(in srgb, var(--accent-a) 42%, #ffffff);
+    }
+
+    :root[data-motifs] body::after {
+        background: color-mix(in srgb, var(--accent-b) 42%, #ffffff);
+    }
+}
+
+/* ---------- 언어별 모티프 (장식) ---------- */
+
+.motif {
+    display: block;
+    flex: none;
+    width: 84px;
+    height: 84px;
+    background: center / contain no-repeat;
+    mix-blend-mode: multiply;
+}
+
+.motif--a {
+    background-image: var(--motif-a);
+}
+
+.motif--b {
+    background-image: var(--motif-b);
+}
+
+/* 방의 두 모티프를 살짝 겹쳐 나란히 (빈 상태 화면) */
+.motif-pair {
+    display: flex;
+    margin-top: 8px;
+}
+
+.motif-pair .motif--b {
+    margin-inline-start: -18px;
 }
 
 /* ---------- 레이아웃 ---------- */
@@ -176,6 +216,27 @@ a {
 .logo-circle--b {
     margin-inline-start: -10px;
     background: #ee8fa0;
+}
+
+/* 모티프가 정해지면 헤더 마크의 두 원이 그 언어들의 그림으로 바뀝니다 (정해지기 전에는 원 그대로) */
+:root[data-motifs] .logo-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 0;
+    background: center / contain no-repeat;
+}
+
+:root[data-motifs] .logo-circle--a {
+    background-image: var(--motif-a);
+}
+
+:root[data-motifs] .logo-circle--b {
+    background-image: var(--motif-b);
+}
+
+/* 방에 들어가기 전에는 화면 언어의 그림 하나만 */
+:root[data-motifs="single"] .logo-circle--b {
+    display: none;
 }
 
 .wordmark {
@@ -388,13 +449,13 @@ a {
 
 .venn-circle--a {
     left: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(0 100 100)'/%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(72 100 100)'/%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(144 100 100)'/%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(216 100 100)'/%3E%3Cpath d='M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z' fill='%23c9d9fa' transform='rotate(288 100 100)'/%3E%3Ccircle cx='100' cy='100' r='13' fill='%237d9ee6'/%3E%3C/svg%3E");
+    background-image: var(--motif-a);
     transform: translateX(calc(var(--d) * 0.15)) rotate(-12deg);
 }
 
 .venn-circle--b {
     right: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(0 100 100)'/%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(72 100 100)'/%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(144 100 100)'/%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(216 100 100)'/%3E%3Cpath d='M100 100 C68 78 60 34 82 14 C90 7 98 12 100 22 C102 12 110 7 118 14 C140 34 132 78 100 100Z' fill='%23f8cdd6' transform='rotate(288 100 100)'/%3E%3Ccircle cx='100' cy='100' r='9' fill='%23ee8fa0'/%3E%3C/svg%3E");
+    background-image: var(--motif-b);
     transform: translateX(calc(var(--d) * -0.15)) rotate(14deg);
 }
 
@@ -609,6 +670,18 @@ a {
     justify-content: space-between;
     gap: 14px 40px;
     margin-bottom: clamp(24px, 3.5vw, 36px);
+}
+
+/* 제목 옆에 모티프를 두는 화면 (들어가기) */
+.page-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.page-heading .motif {
+    width: 72px;
+    height: 72px;
 }
 
 .page-title {

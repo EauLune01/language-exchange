@@ -84,6 +84,7 @@
             state.hasNext = data.hasNext;
 
             if (els.list.children.length === 0) {
+                els.message.before(createMotifPair()); // 빈 화면에는 방의 두 모티프를 보여줍니다.
                 showI18nMessage(els.message, 'history.empty', null, 'info');
             }
         } catch (error) {
