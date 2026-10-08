@@ -17,7 +17,8 @@ i18nRegister('IT', {
     'enter.create.note': "Usate entrambi lo stesso ID della stanza e la stessa password. Se dimenticate la password non è possibile recuperarla, quindi annotatela.",
     'enter.create.name': "Nome",
     'enter.create.nationality': "Nazionalità",
-    'enter.create.language': "Lingua madre",
+    'enter.create.learningLanguage': "Lingua da imparare",
+    'enter.create.learningLanguageHint': "È uno scambio in cui ciascuno impara la lingua dell'altro. Scegliete ciascuno la lingua che volete imparare.",
     'enter.create.memberA': "Prima persona",
     'enter.create.memberB': "Seconda persona",
     'enter.create.choose': "Seleziona",
@@ -37,6 +38,6 @@ i18nRegister('IT', {
     'error.INVALID_CREDENTIALS': "L'ID della stanza o la password non sono corretti.",
     'error.ROOM_NOT_FOUND': "Stanza non trovata. Accedi di nuovo.",
     'error.DUPLICATE_ROOM_ID': "Questo ID della stanza è già in uso. Scegline un altro.",
-    'error.SAME_LANGUAGE': "Le due lingue madri devono essere diverse.",
+    'error.SAME_LANGUAGE': "Le due lingue da imparare devono essere diverse.",
     'error.INVALID_NATIONALITY': "Scegli una nazionalità dall'elenco.",
 });

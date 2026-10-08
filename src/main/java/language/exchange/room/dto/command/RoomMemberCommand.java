@@ -11,9 +11,9 @@ public class RoomMemberCommand {
 
     private final String name;
     private final String nationality;
-    private final Language language;
+    private final Language learningLanguage;
 
-    public static RoomMemberCommand of(String name, String nationality, Language language) {
-        return new RoomMemberCommand(name, nationality, language);
+    public static RoomMemberCommand of(String name, String nationality, Language learningLanguage) {
+        return new RoomMemberCommand(name, nationality, learningLanguage);
     }
 }

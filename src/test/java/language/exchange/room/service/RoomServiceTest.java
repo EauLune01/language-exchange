@@ -27,14 +27,14 @@ class RoomServiceTest {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(4);
     private final RoomService roomService = new RoomService(roomRepository, passwordEncoder);
 
-    private RoomCreateCommand command(Language languageA, Language languageB) {
-        return command(languageA, languageB, "JP");
+    private RoomCreateCommand command(Language learningLanguageA, Language learningLanguageB) {
+        return command(learningLanguageA, learningLanguageB, "JP");
     }
 
-    private RoomCreateCommand command(Language languageA, Language languageB, String nationalityB) {
+    private RoomCreateCommand command(Language learningLanguageA, Language learningLanguageB, String nationalityB) {
         return RoomCreateCommand.of("our-room", "password123",
-                RoomMemberCommand.of("민수", "KR", languageA),
-                RoomMemberCommand.of("ゆい", nationalityB, languageB));
+                RoomMemberCommand.of("민수", "KR", learningLanguageA),
+                RoomMemberCommand.of("ゆい", nationalityB, learningLanguageB));
     }
 
     @Test
@@ -42,12 +42,24 @@ class RoomServiceTest {
     void createRoomStoresPasswordHash() {
         when(roomRepository.save(any(Room.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        roomService.createRoom(command(Language.KO, Language.JA));
+        roomService.createRoom(command(Language.JA, Language.KO));
 
         ArgumentCaptor<Room> saved = ArgumentCaptor.forClass(Room.class);
         verify(roomRepository).save(saved.capture());
         assertThat(saved.getValue().getPasswordHash()).isNotEqualTo("password123");
         assertThat(passwordEncoder.matches("password123", saved.getValue().getPasswordHash())).isTrue();
+    }
+
+    @Test
+    @DisplayName("각자 배우고 싶은 언어를 맞물려 저장한다: A = 두 번째 사람이 배우고 싶은 언어, B = 첫 번째 사람이 배우고 싶은 언어")
+    void createRoomCrossesLearningLanguages() {
+        when(roomRepository.save(any(Room.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // 민수(첫 번째)는 일본어를, ゆい(두 번째)는 한국어를 배우고 싶다
+        roomService.createRoom(command(Language.JA, Language.KO));
+
+        ArgumentCaptor<Room> saved = ArgumentCaptor.forClass(Room.class);
+        verify(roomRepository).save(saved.capture());
         assertThat(saved.getValue().getLanguageA()).isEqualTo(Language.KO);
         assertThat(saved.getValue().getLanguageB()).isEqualTo(Language.JA);
     }
@@ -75,7 +87,7 @@ class RoomServiceTest {
     }
 
     @Test
-    @DisplayName("두 사람의 언어가 같으면 만들 수 없다")
+    @DisplayName("두 사람이 같은 언어를 배우고 싶다고 고르면 만들 수 없다")
     void createRoomRejectsSameLanguage() {
         assertThatThrownBy(() -> roomService.createRoom(command(Language.KO, Language.KO)))
                 .isInstanceOf(BusinessException.class)

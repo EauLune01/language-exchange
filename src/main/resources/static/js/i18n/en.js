@@ -16,7 +16,8 @@ i18nRegister('EN', {
     'enter.create.note': "You both use the same room ID and password. A forgotten password cannot be recovered, so be sure to write it down.",
     'enter.create.name': "Name",
     'enter.create.nationality': "Nationality",
-    'enter.create.language': "Native language",
+    'enter.create.learningLanguage': "Language to learn",
+    'enter.create.learningLanguageHint': "This is an exchange where you learn each other's language. Each of you, choose the language you want to learn.",
     'enter.create.memberA': "First person",
     'enter.create.memberB': "Second person",
     'enter.create.choose': "Select",
@@ -36,6 +37,6 @@ i18nRegister('EN', {
     'error.INVALID_CREDENTIALS': "The room ID or password is incorrect.",
     'error.ROOM_NOT_FOUND': "Room not found. Please log in again.",
     'error.DUPLICATE_ROOM_ID': "This room ID is already taken. Please choose another one.",
-    'error.SAME_LANGUAGE': "The two native languages must be different.",
+    'error.SAME_LANGUAGE': "The two of you must choose different languages to learn.",
     'error.INVALID_NATIONALITY': "Please choose a nationality from the list.",
 });

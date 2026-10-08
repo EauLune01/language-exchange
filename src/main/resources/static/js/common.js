@@ -312,6 +312,6 @@ const i18nReady = (async () => {
 
 /*
  * 메뉴가 있는 페이지에서는 열자마자 방 정보를 한 번 읽습니다.
- * roomReady 는 { loginId, members: [{ name, nationality, language }, …] } 로 풀리고, 읽지 못하면 null 이에요.
+ * roomReady 는 { loginId, members: [{ name, nationality, language, learningLanguage }, …] } 로 풀리고, 읽지 못하면 null 이에요.
  */
 const roomReady = siteNav ? apiGet('/api/rooms').catch(() => null) : Promise.resolve(null);

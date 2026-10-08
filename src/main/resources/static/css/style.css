@@ -1025,6 +1025,14 @@ a {
     margin-bottom: 16px;
 }
 
+/* 입력 줄 아래 한 줄 설명 (줄 전체 폭) */
+.form-row-hint {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.86rem;
+}
+
 @media (min-width: 760px) {
     .form-row {
         grid-template-columns: 110px minmax(0, 1fr) minmax(0, 1fr);

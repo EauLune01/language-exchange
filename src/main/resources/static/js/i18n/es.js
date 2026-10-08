@@ -17,7 +17,8 @@ i18nRegister('ES', {
     'enter.create.note': "Las dos personas usáis el mismo ID de sala y la misma contraseña. Si olvidáis la contraseña, no se puede recuperar, así que apuntadla.",
     'enter.create.name': "Nombre",
     'enter.create.nationality': "Nacionalidad",
-    'enter.create.language': "Lengua materna",
+    'enter.create.learningLanguage': "Idioma que quieres aprender",
+    'enter.create.learningLanguageHint': "Es un intercambio en el que cada persona aprende el idioma de la otra. Elegid cada uno el idioma que queréis aprender.",
     'enter.create.memberA': "Primera persona",
     'enter.create.memberB': "Segunda persona",
     'enter.create.choose': "Seleccionar",
@@ -37,6 +38,6 @@ i18nRegister('ES', {
     'error.INVALID_CREDENTIALS': "El ID de la sala o la contraseña no son correctos.",
     'error.ROOM_NOT_FOUND': "No se ha encontrado la sala. Vuelve a iniciar sesión.",
     'error.DUPLICATE_ROOM_ID': "Este ID de sala ya está en uso. Elige otro.",
-    'error.SAME_LANGUAGE': "Las dos lenguas maternas deben ser distintas.",
+    'error.SAME_LANGUAGE': "Los dos idiomas que queréis aprender deben ser distintos.",
     'error.INVALID_NATIONALITY': "Elige una nacionalidad de la lista.",
 });

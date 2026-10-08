@@ -21,10 +21,11 @@ public class RoomMemberRequest {
     @NotBlank(message = "국적은 필수입니다.")
     private String nationality;
 
-    @NotNull(message = "언어는 필수입니다.")
-    private Language language;
+    // 이 사람이 배우고 싶은 언어 (= 상대가 쓰는 언어)
+    @NotNull(message = "배우고 싶은 언어는 필수입니다.")
+    private Language learningLanguage;
 
     public RoomMemberCommand toCommand() {
-        return RoomMemberCommand.of(name, nationality, language);
+        return RoomMemberCommand.of(name, nationality, learningLanguage);
     }
 }

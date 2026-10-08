@@ -17,7 +17,8 @@ i18nRegister('AR', {
     'enter.create.note': "تستخدمان معًا معرّف الغرفة وكلمة المرور نفسيهما. لا يمكن استرجاع كلمة المرور إذا نُسيت، لذا احرصا على تدوينها.",
     'enter.create.name': "الاسم",
     'enter.create.nationality': "الجنسية",
-    'enter.create.language': "اللغة الأم",
+    'enter.create.learningLanguage': "اللغة التي تريد تعلّمها",
+    'enter.create.learningLanguageHint': "هذا تبادل يتعلّم فيه كلٌّ منكما لغة الآخر. ليختر كلٌّ منكما اللغة التي يريد تعلّمها.",
     'enter.create.memberA': "الشخص الأول",
     'enter.create.memberB': "الشخص الثاني",
     'enter.create.choose': "اختر",
@@ -37,6 +38,6 @@ i18nRegister('AR', {
     'error.INVALID_CREDENTIALS': "معرّف الغرفة أو كلمة المرور غير صحيحة.",
     'error.ROOM_NOT_FOUND': "تعذّر العثور على الغرفة. يُرجى تسجيل الدخول مرة أخرى.",
     'error.DUPLICATE_ROOM_ID': "معرّف الغرفة هذا مستخدم بالفعل. يُرجى اختيار معرّف آخر.",
-    'error.SAME_LANGUAGE': "يجب أن تكون اللغتان الأم مختلفتين.",
+    'error.SAME_LANGUAGE': "يجب أن تختلف اللغتان اللتان تريدان تعلّمهما.",
     'error.INVALID_NATIONALITY': "يُرجى اختيار الجنسية من القائمة.",
 });

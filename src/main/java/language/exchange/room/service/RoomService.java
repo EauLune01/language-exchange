@@ -2,6 +2,7 @@ package language.exchange.room.service;
 
 import language.exchange.global.exception.BusinessException;
 import language.exchange.global.exception.ErrorCode;
+import language.exchange.room.domain.Language;
 import language.exchange.room.domain.Room;
 import language.exchange.room.dto.command.RoomCreateCommand;
 import language.exchange.room.dto.command.RoomMemberCommand;
@@ -32,7 +33,10 @@ public class RoomService {
         if (!COUNTRY_CODES.contains(memberA.getNationality()) || !COUNTRY_CODES.contains(memberB.getNationality())) {
             throw new BusinessException(ErrorCode.INVALID_NATIONALITY);
         }
-        if (memberA.getLanguage() == memberB.getLanguage()) {
+        // 서로 상대의 언어를 배우는 교환: A가 쓰는 언어 = B가 배우고 싶은 언어, B가 쓰는 언어 = A가 배우고 싶은 언어
+        Language languageA = memberB.getLearningLanguage();
+        Language languageB = memberA.getLearningLanguage();
+        if (languageA == languageB) {
             throw new BusinessException(ErrorCode.SAME_LANGUAGE);
         }
         // 동시에 같은 아이디로 만들면 rooms.login_id 유니크 제약이 마지막으로 막는다 (그 경우 500)
@@ -43,8 +47,8 @@ public class RoomService {
         Room room = roomRepository.save(Room.create(
                 command.getLoginId(),
                 passwordEncoder.encode(command.getPassword()),
-                memberA.getLanguage(),
-                memberB.getLanguage(),
+                languageA,
+                languageB,
                 memberA.getName(),
                 memberA.getNationality(),
                 memberB.getName(),

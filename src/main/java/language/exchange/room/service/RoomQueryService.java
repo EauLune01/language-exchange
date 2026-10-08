@@ -27,7 +27,7 @@ public class RoomQueryService {
 
     private RoomResult toRoomResult(Room room) {
         return RoomResult.of(room.getLoginId(), List.of(
-                RoomMemberResult.of(room.getNameA(), room.getNationalityA(), room.getLanguageA()),
-                RoomMemberResult.of(room.getNameB(), room.getNationalityB(), room.getLanguageB())));
+                RoomMemberResult.of(room.getNameA(), room.getNationalityA(), room.getLanguageA(), room.getLanguageB()),
+                RoomMemberResult.of(room.getNameB(), room.getNationalityB(), room.getLanguageB(), room.getLanguageA())));
     }
 }

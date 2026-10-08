@@ -17,7 +17,8 @@ i18nRegister('VI', {
     'enter.create.note': "Hai người dùng chung ID phòng và mật khẩu. Nếu quên mật khẩu thì không thể khôi phục, vì vậy hãy ghi lại cẩn thận.",
     'enter.create.name': "Tên",
     'enter.create.nationality': "Quốc tịch",
-    'enter.create.language': "Tiếng mẹ đẻ",
+    'enter.create.learningLanguage': "Ngôn ngữ muốn học",
+    'enter.create.learningLanguageHint': "Đây là buổi trao đổi mà hai bạn học ngôn ngữ của nhau. Mỗi người hãy chọn ngôn ngữ mình muốn học.",
     'enter.create.memberA': "Người thứ nhất",
     'enter.create.memberB': "Người thứ hai",
     'enter.create.choose': "Chọn",
@@ -37,6 +38,6 @@ i18nRegister('VI', {
     'error.INVALID_CREDENTIALS': "ID phòng hoặc mật khẩu không đúng.",
     'error.ROOM_NOT_FOUND': "Không tìm thấy phòng. Vui lòng đăng nhập lại.",
     'error.DUPLICATE_ROOM_ID': "ID phòng này đã được sử dụng. Vui lòng chọn ID khác.",
-    'error.SAME_LANGUAGE': "Tiếng mẹ đẻ của hai người phải khác nhau.",
+    'error.SAME_LANGUAGE': "Hai người phải chọn hai ngôn ngữ muốn học khác nhau.",
     'error.INVALID_NATIONALITY': "Vui lòng chọn quốc tịch từ danh sách.",
 });

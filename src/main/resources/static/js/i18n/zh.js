@@ -17,7 +17,8 @@ i18nRegister('ZH', {
     'enter.create.note': "房间 ID 和密码由两个人共用。密码忘记后无法找回，请务必记下来。",
     'enter.create.name': "姓名",
     'enter.create.nationality': "国籍",
-    'enter.create.language': "母语",
+    'enter.create.learningLanguage': "想学的语言",
+    'enter.create.learningLanguageHint': "这是互相学习对方语言的交换。请各自选择想学的语言。",
     'enter.create.memberA': "第一个人",
     'enter.create.memberB': "第二个人",
     'enter.create.choose': "请选择",
@@ -37,6 +38,6 @@ i18nRegister('ZH', {
     'error.INVALID_CREDENTIALS': "房间 ID 或密码不正确。",
     'error.ROOM_NOT_FOUND': "找不到房间，请重新登录。",
     'error.DUPLICATE_ROOM_ID': "该房间 ID 已被使用，请换一个。",
-    'error.SAME_LANGUAGE': "两个人的母语必须不同。",
+    'error.SAME_LANGUAGE': "两个人想学的语言必须不同。",
     'error.INVALID_NATIONALITY': "请从列表中选择国籍。",
 });

@@ -17,7 +17,8 @@ i18nRegister('TH', {
     'enter.create.note': "คุณสองคนใช้ไอดีห้องและรหัสผ่านร่วมกัน หากลืมรหัสผ่านจะไม่สามารถกู้คืนได้ จึงควรจดไว้ให้ดี",
     'enter.create.name': "ชื่อ",
     'enter.create.nationality': "สัญชาติ",
-    'enter.create.language': "ภาษาแม่",
+    'enter.create.learningLanguage': "ภาษาที่อยากเรียน",
+    'enter.create.learningLanguageHint': "นี่คือการแลกเปลี่ยนที่ต่างฝ่ายต่างเรียนภาษาของอีกฝ่าย ให้แต่ละคนเลือกภาษาที่อยากเรียน",
     'enter.create.memberA': "คนที่หนึ่ง",
     'enter.create.memberB': "คนที่สอง",
     'enter.create.choose': "เลือก",
@@ -37,6 +38,6 @@ i18nRegister('TH', {
     'error.INVALID_CREDENTIALS': "ไอดีห้องหรือรหัสผ่านไม่ถูกต้อง",
     'error.ROOM_NOT_FOUND': "ไม่พบห้อง กรุณาเข้าสู่ระบบอีกครั้ง",
     'error.DUPLICATE_ROOM_ID': "ไอดีห้องนี้ถูกใช้แล้ว กรุณาเลือกไอดีอื่น",
-    'error.SAME_LANGUAGE': "ภาษาแม่ของทั้งสองคนต้องต่างกัน",
+    'error.SAME_LANGUAGE': "ภาษาที่ทั้งสองคนอยากเรียนต้องต่างกัน",
     'error.INVALID_NATIONALITY': "กรุณาเลือกสัญชาติจากรายการ",
 });

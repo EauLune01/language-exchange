@@ -16,7 +16,8 @@ i18nRegister('JA', {
     'enter.create.note': "ルームIDとパスワードはふたりで共有します。パスワードを忘れると復元できないので、必ずメモしておいてください。",
     'enter.create.name': "名前",
     'enter.create.nationality': "国籍",
-    'enter.create.language': "母語",
+    'enter.create.learningLanguage': "学びたい言語",
+    'enter.create.learningLanguageHint': "お互いに相手の言語を学ぶ交換です。それぞれ学びたい言語を選んでください。",
     'enter.create.memberA': "1人目",
     'enter.create.memberB': "2人目",
     'enter.create.choose': "選択",
@@ -36,6 +37,6 @@ i18nRegister('JA', {
     'error.INVALID_CREDENTIALS': "ルームIDまたはパスワードが正しくありません。",
     'error.ROOM_NOT_FOUND': "ルームが見つかりません。もう一度ログインしてください。",
     'error.DUPLICATE_ROOM_ID': "このルームIDはすでに使われています。別のIDにしてください。",
-    'error.SAME_LANGUAGE': "ふたりの母語は別の言語にしてください。",
+    'error.SAME_LANGUAGE': "ふたりの学びたい言語は別の言語にしてください。",
     'error.INVALID_NATIONALITY': "国籍をリストから選んでください。",
 });

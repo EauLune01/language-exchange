@@ -16,7 +16,8 @@ i18nRegister('KO', {
     'enter.create.note': "방 아이디와 비밀번호는 두 사람이 같이 써요. 비밀번호를 잊으면 되찾을 방법이 없으니 꼭 적어 두세요.",
     'enter.create.name': "이름",
     'enter.create.nationality': "국적",
-    'enter.create.language': "모국어",
+    'enter.create.learningLanguage': "배우고 싶은 언어",
+    'enter.create.learningLanguageHint': "서로 상대의 언어를 배우는 교환이에요. 각자 배우고 싶은 언어를 골라 주세요.",
     'enter.create.memberA': "첫 번째 사람",
     'enter.create.memberB': "두 번째 사람",
     'enter.create.choose': "선택",
@@ -36,6 +37,6 @@ i18nRegister('KO', {
     'error.INVALID_CREDENTIALS': "방 아이디 또는 비밀번호가 맞지 않아요.",
     'error.ROOM_NOT_FOUND': "방을 찾을 수 없어요. 다시 로그인해 주세요.",
     'error.DUPLICATE_ROOM_ID': "이미 사용 중인 방 아이디예요. 다른 아이디를 써 주세요.",
-    'error.SAME_LANGUAGE': "두 사람의 모국어는 서로 달라야 해요.",
+    'error.SAME_LANGUAGE': "두 사람이 배우고 싶은 언어는 서로 달라야 해요.",
     'error.INVALID_NATIONALITY': "국적을 목록에서 골라 주세요.",
 });

@@ -12,12 +12,14 @@ public class RoomMemberResponse {
     private String name;
     private String nationality;
     private Language language;
+    private Language learningLanguage;
 
     public static RoomMemberResponse from(RoomMemberResult result) {
         return RoomMemberResponse.builder()
                 .name(result.getName())
                 .nationality(result.getNationality())
                 .language(result.getLanguage())
+                .learningLanguage(result.getLearningLanguage())
                 .build();
     }
 }

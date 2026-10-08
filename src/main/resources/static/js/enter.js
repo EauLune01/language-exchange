@@ -81,10 +81,10 @@
         });
     }
 
-    /** 모국어 목록: 화면 언어와 상관없이 각 언어를 그 언어의 이름으로 보여줍니다. */
+    /** 배우고 싶은 언어 목록: 화면 언어와 상관없이 각 언어를 그 언어의 이름으로 보여줍니다. */
     function fillLanguageSelects() {
         const fields = els.createForm.elements;
-        [fields.languageA, fields.languageB].forEach((select, index) => {
+        [fields.learningLanguageA, fields.learningLanguageB].forEach((select, index) => {
             Object.entries(LANGUAGES).forEach(([code, meta]) => {
                 const option = new Option(meta.name, code);
                 option.lang = meta.tag;
@@ -123,7 +123,10 @@
 
     bindForm(els.createForm, {
         path: '/api/rooms',
-        validate: (fields) => (fields.languageA.value === fields.languageB.value ? 'error.SAME_LANGUAGE' : null),
+        // 서로 상대의 언어를 배우는 교환이라 두 사람이 같은 언어를 고를 수 없어요. (서버도 같은 규칙으로 막습니다)
+        validate: (fields) => (fields.learningLanguageA.value === fields.learningLanguageB.value
+            ? 'error.SAME_LANGUAGE'
+            : null),
         payload: (fields) => ({
             loginId: fields.loginId.value.trim(),
             password: fields.password.value,
@@ -131,12 +134,12 @@
                 {
                     name: fields.nameA.value.trim(),
                     nationality: fields.nationalityA.value,
-                    language: fields.languageA.value,
+                    learningLanguage: fields.learningLanguageA.value,
                 },
                 {
                     name: fields.nameB.value.trim(),
                     nationality: fields.nationalityB.value,
-                    language: fields.languageB.value,
+                    learningLanguage: fields.learningLanguageB.value,
                 },
             ],
         }),
