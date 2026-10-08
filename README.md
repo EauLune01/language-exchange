@@ -1,4 +1,7 @@
 # 🗣️ language-exchange
+
+**한국어** | [日本語](README-ja.md)
+
 **두 사람이 방 하나를 같이 쓰는 언어교환 주제 & 질문 가이드 서비스**
 
 서로의 언어를 배우는 두 사람이 **방(공용 계정)** 을 하나 만들고, 매주 이야기할 **주제를 뽑아** 주제마다 준비한 **질문 3개**로 대화를 이어가는 웹 서비스입니다.
@@ -79,7 +82,31 @@ flowchart LR
 
 ## 📡 API
 
-모든 응답은 공통 형식을 사용합니다. 실패 응답에는 `errorCode`가 들어가고, 화면은 이 값으로 화면 언어에 맞는 문구를 골라 보여줍니다.
+### 한눈에 보기 (총 11개)
+
+| # | Method | URI | 설명 | 로그인 | 응답 |
+|---|---|---|---|:---:|---|
+| 1 | `POST` | `/api/rooms` | 방 만들기 (만들면 바로 로그인) | 불필요 | `201` / `400` / `409` |
+| 2 | `GET` | `/api/rooms` | 현재 방 정보 조회 | 필요 | `200` / `401` |
+| 3 | `POST` | `/api/auth/login` | 방 아이디/비밀번호 로그인 | 불필요 | `200` / `400` / `401` |
+| 4 | `POST` | `/api/auth/logout` | 로그아웃 | 필요 | `200` / `401` |
+| 5 | `POST` | `/api/topics` | 주제 1개 + 질문 3개 등록 요청 (비동기) | 필요 | `202` / `400` / `401` |
+| 6 | `POST` | `/api/topics/bulk-create` | 주제 여러 개 일괄 등록 요청 (비동기) | 필요 | `202` / `400` / `401` |
+| 7 | `GET` | `/api/topics/weekly` | **이번 주 주제 뽑기** (이미 뽑았다면 그 주제) | 필요 | `200` / `401` / `404` |
+| 8 | `GET` | `/api/topics/this-week` | 이번 주에 **이미 뽑은** 주제 조회 (뽑지 않음) | 필요 | `200` / `401` |
+| 9 | `GET` | `/api/topics` | 전체 주제 목록 (`Slice`) | 필요 | `200` / `401` |
+| 10 | `GET` | `/api/topics/history` | 회차별 학습 기록 (`Slice`) | 필요 | `200` / `401` |
+| 11 | `GET` | `/api/topics/{topicId}/questions?lang=` | 주제의 질문 3개 (언어 지정) | 필요 | `200` / `400` / `401` / `404` |
+
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- 모든 API는 `Content-Type: application/json`을 사용하고, 로그인 후에는 세션 쿠키(`JSESSIONID`)가 자동으로 함께 전송됩니다.
+- 로그인이 필요한 API를 로그인 없이 부르면 모두 `401 UNAUTHORIZED`입니다. 아래 상세 설명에서는 중복을 피하려고 생략했습니다.
+- 모든 `roomId`는 세션에서만 꺼냅니다. 클라이언트가 보낸 값은 받지 않고, URI에도 방 번호가 없습니다.
+- 다른 방의 `topicId`는 존재 여부를 숨기려고 `404`로 응답합니다.
+
+### 공통 규칙
+
+**응답 형식** — 성공과 실패 모두 같은 틀을 씁니다. 실패 응답에는 `errorCode`가 들어가고, 화면은 이 값으로 화면 언어에 맞는 문구를 골라 보여줍니다.
 
 ```json
 { "success": true, "code": 200, "message": "주제 목록 조회 성공", "data": { } }
@@ -88,58 +115,44 @@ flowchart LR
 { "success": false, "code": 409, "errorCode": "DUPLICATE_ROOM_ID", "message": "이미 사용 중인 방 아이디입니다.", "data": null }
 ```
 
-### 방 · 인증
-
-| Method | URI | 설명 | 응답 |
-|---|---|---|---|
-| `POST` | `/api/rooms` | 방 만들기 (방 아이디, 비밀번호, 두 사람의 이름·국적·배우고 싶은 언어). 만들면 바로 로그인됩니다. | `201` / `400` / `409` |
-| `GET` | `/api/rooms` | 로그인한 방의 정보 (두 사람의 이름·국적·쓰는 언어·배우고 싶은 언어) | `200` / `401` |
-| `POST` | `/api/auth/login` | 방 아이디/비밀번호 로그인 | `200` / `401` |
-| `POST` | `/api/auth/logout` | 로그아웃 | `200` |
-
-### 주제 · 질문 (모두 로그인한 방 기준)
-
-| Method | URI | 설명 | 응답 |
-|---|---|---|---|
-| `POST` | `/api/topics` | 주제 1개 + 질문 3개 등록 요청 (비동기) | `202` / `400` |
-| `POST` | `/api/topics/bulk-create` | 주제 여러 개를 한 번에 등록 요청 (주제마다 질문 3개, 비동기) | `202` / `400` |
-| `GET` | `/api/topics/weekly` | **이번 주 주제 뽑기.** 이번 주에 이미 뽑았다면 그 주제, 아니면 안 쓴 주제 중 무작위 1개 | `200` / `404` |
-| `GET` | `/api/topics/this-week` | 이번 주에 **이미 뽑은** 주제 조회 (뽑지 않음, 없으면 `data: null`) | `200` |
-| `GET` | `/api/topics` | 전체 주제 목록 (`Slice`). 안 쓴 주제 우선 → 방의 첫 번째 언어 이름순 | `200` |
-| `GET` | `/api/topics/history` | 회차별 학습 기록 (`Slice`). 1회차부터 | `200` |
-| `GET` | `/api/topics/{topicId}/questions?lang=` | 주제의 질문 3개. `lang`은 필수이고 방의 두 언어 중 하나 | `200` / `400` / `404` |
-
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- 목록 API 공통 파라미터: `page`(0부터), `size`(기본 20)
-- 언어가 들어가는 값은 항상 **`{ "lang": "KO", "text": "공원" }`** 형태로 주고받습니다. 응답의 `names`는 방의 첫 번째 언어, 두 번째 언어 순서입니다.
-- 다른 방의 `topicId`는 존재 여부를 숨기려고 `404`로 응답합니다.
-
-### 주요 errorCode
-
-| errorCode | HTTP | 상황 |
+| 필드 | 타입 | 설명 |
 |---|---|---|
-| `INVALID_INPUT` | 400 | 필수값 누락, 형식 오류, 잘못된 언어 코드(`lang=XX`), `lang` 누락 |
-| `SAME_LANGUAGE` | 400 | 두 사람이 같은 언어를 배우겠다고 고름 |
-| `INVALID_NATIONALITY` | 400 | 국적이 ISO 3166-1 alpha-2 국가 코드가 아님 |
-| `LANGUAGE_NOT_IN_ROOM` | 400 | 방의 두 언어가 아닌 언어로 등록·조회 |
-| `INVALID_QUESTION_COUNT` | 400 | 질문이 3개가 아님 |
-| `UNAUTHORIZED` | 401 | 로그인하지 않음 |
-| `INVALID_CREDENTIALS` | 401 | 방 아이디 또는 비밀번호가 틀림 (둘을 구분하지 않음) |
-| `ROOM_NOT_FOUND` | 401 | 세션은 있는데 방이 없음 (다시 로그인 필요) |
-| `ACCESS_DENIED` | 403 | 권한 없음 |
-| `TOPIC_NOT_FOUND` | 404 | 주제가 없거나 다른 방의 주제 |
-| `NO_AVAILABLE_TOPIC` | 404 | 뽑을 수 있는 안 쓴 주제가 없음 |
-| `NOT_FOUND` | 404 | 없는 주소 |
-| `DUPLICATE_ROOM_ID` | 409 | 이미 있는 방 아이디 |
-| `INTERNAL_SERVER_ERROR` | 500 | 예상하지 못한 오류 |
+| `success` | boolean | 성공 여부 |
+| `code` | number | HTTP 상태 코드와 같은 값 |
+| `errorCode` | string | 실패 응답에만 존재 (성공 시에는 필드 자체가 없음) |
+| `message` | string | 한국어 설명 (화면은 `errorCode`로 화면 언어 문구를 따로 고름) |
+| `data` | object / array / null | 응답 본문. 입력 검증 실패(`INVALID_INPUT`) 때는 문제가 있는 필드 목록(`["loginId: 방 아이디는 영문 소문자·숫자·-·_ 4~20자여야 합니다."]`)이 들어갑니다. |
 
-<details>
-<summary>요청/응답 예시</summary>
+**언어가 들어가는 값** — 항상 `{ "lang": "KO", "text": "공원" }` 형태입니다. `lang`은 `KO, JA, EN, ZH, ES, FR, AR, VI, TH, IT` 중 하나이고, 응답의 `names`는 방의 첫 번째 언어(A), 두 번째 언어(B) 순서입니다.
 
-**방 만들기 `POST /api/rooms`**
+**목록(`Slice`) 응답** — `count` 쿼리 없이 다음 페이지 유무만 알려줍니다.
 
-`members`는 [첫 번째 사람, 두 번째 사람] 순서입니다. 서로 상대의 언어를 배우는 교환이라, 한 사람이 **쓰는 언어**는 상대가 **배우고 싶은 언어**로 정해집니다.
-방 아이디는 영문 소문자·숫자·`-`·`_` 4~20자, 비밀번호는 영문·숫자·기호 8~64자, 국적은 국가 코드(`KR`, `JP` …)입니다.
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `content` | array | 현재 페이지 항목 |
+| `page` | number | 현재 페이지 (0부터) |
+| `size` | number | 페이지 크기 |
+| `hasNext` | boolean | 다음 페이지 존재 여부 |
+
+쿼리 파라미터: `page`(기본 0), `size`(기본 20). `sort`는 정렬이 고정이라 무시됩니다.
+
+---
+
+### 1. 방 만들기 `POST /api/rooms`
+
+방 아이디·비밀번호와 두 사람의 정보로 방을 만들고 **바로 로그인**합니다. (응답에 세션 쿠키가 함께 내려갑니다.)
+서로 상대의 언어를 배우는 교환이라, 한 사람이 **쓰는 언어**는 상대가 **배우고 싶은 언어**로 정해집니다. 두 언어는 서로 달라야 합니다.
+
+**Request Body**
+
+| 필드 | 타입 | 필수 | 제약 |
+|---|---|:---:|---|
+| `loginId` | string | O | 영문 소문자·숫자·`-`·`_` 4~20자. 중복 불가 |
+| `password` | string | O | 영문·숫자·기호(ASCII) 8~64자 (BCrypt 72바이트 한계 때문에 ASCII만 허용) |
+| `members` | array | O | 정확히 2개: **[첫 번째 사람(A), 두 번째 사람(B)]** 순서 |
+| `members[].name` | string | O | 50자 이하, 공백만으로는 불가 |
+| `members[].nationality` | string | O | ISO 3166-1 alpha-2 국가 코드 (`KR`, `JP` …). 실제 코드인지 서비스에서 한 번 더 확인 |
+| `members[].learningLanguage` | string | O | 이 사람이 배우고 싶은 언어 (`Language` 값) |
 
 ```json
 {
@@ -152,7 +165,30 @@ flowchart LR
 }
 ```
 
-**방 정보 `GET /api/rooms`**
+위 요청이면 첫 번째 사람(A)은 한국어(KO), 두 번째 사람(B)은 일본어(JA)를 씁니다.
+
+**Response `201 Created`**
+
+```json
+{ "success": true, "code": 201, "message": "방이 만들어졌습니다.", "data": null }
+```
+
+**실패**
+
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `INVALID_INPUT` | 400 | 필수값 누락, 형식 오류(아이디·비밀번호 규칙, `members`가 2개가 아님), 없는 언어 코드 |
+| `SAME_LANGUAGE` | 400 | 두 사람이 같은 언어를 배우겠다고 고름 |
+| `INVALID_NATIONALITY` | 400 | 국적이 실제 ISO 국가 코드가 아님 |
+| `DUPLICATE_ROOM_ID` | 409 | 이미 있는 방 아이디 |
+
+---
+
+### 2. 현재 방 정보 `GET /api/rooms`
+
+로그인한 방의 아이디와 두 사람의 이름·국적·쓰는 언어(`language`)·배우고 싶은 언어(`learningLanguage`)를 돌려줍니다. `members`는 항상 [A, B] 순서입니다. 화면은 이 응답으로 방의 두 언어와 모티프를 정합니다.
+
+**Response `200 OK`**
 
 ```json
 {
@@ -169,9 +205,74 @@ flowchart LR
 }
 ```
 
-**주제 등록 `POST /api/topics`**
+**실패**
 
-주제명(`names`)과 각 질문(`contents`)에 방의 두 언어가 하나씩 있어야 합니다. 순서는 상관없습니다.
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `UNAUTHORIZED` | 401 | 로그인하지 않음 |
+| `ROOM_NOT_FOUND` | 401 | 세션은 있는데 방이 없음 (다시 로그인 필요) |
+
+---
+
+### 3. 로그인 `POST /api/auth/login`
+
+방 아이디와 비밀번호로 로그인합니다. 성공하면 세션 쿠키(`HttpOnly`, `SameSite=Lax`, 30일)가 발급됩니다. 같은 방 계정으로 여러 기기가 동시에 로그인할 수 있습니다.
+
+**Request Body**
+
+| 필드 | 타입 | 필수 | 제약 |
+|---|---|:---:|---|
+| `loginId` | string | O | 공백 불가 |
+| `password` | string | O | 공백 불가 |
+
+```json
+{ "loginId": "our-room", "password": "password123" }
+```
+
+**Response `200 OK`**
+
+```json
+{ "success": true, "code": 200, "message": "로그인 성공", "data": null }
+```
+
+**실패**
+
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `INVALID_INPUT` | 400 | 아이디나 비밀번호가 비어 있음 |
+| `INVALID_CREDENTIALS` | 401 | 아이디 또는 비밀번호가 틀림 (**어느 쪽이 틀렸는지 구분하지 않음**) |
+
+---
+
+### 4. 로그아웃 `POST /api/auth/logout`
+
+현재 세션을 끝냅니다. 요청 본문은 없습니다. 다른 기기에서 같은 방으로 로그인한 세션은 영향을 받지 않습니다.
+
+**Response `200 OK`**
+
+```json
+{ "success": true, "code": 200, "message": "로그아웃 성공", "data": null }
+```
+
+**실패**: 로그인하지 않았으면 `401 UNAUTHORIZED`.
+
+---
+
+### 5. 주제 1개 + 질문 3개 등록 `POST /api/topics`
+
+로그인한 방에 주제 1개와 질문 3개를 등록합니다. 검증만 마치고 큐(`topic.create.queue`)에 넣은 뒤 **즉시 `202`** 로 응답하고, 실제 저장은 Consumer가 비동기로 처리합니다. 주제 1개와 질문 3개는 **한 메시지·한 트랜잭션**이라, 하나라도 저장에 실패하면 전부 취소됩니다.
+
+**Request Body**
+
+| 필드 | 타입 | 필수 | 제약 |
+|---|---|:---:|---|
+| `names` | array | O | 정확히 2개. **방의 두 언어가 하나씩** (순서는 상관없음) |
+| `names[].lang` | string | O | `Language` 값 |
+| `names[].text` | string | O | 공백 불가, 255자 이하 |
+| `questions` | array | O | **정확히 3개** (순서가 `sequence` 1~3이 됨) |
+| `questions[].contents` | array | O | 정확히 2개. 질문 하나를 **방의 두 언어로 하나씩** |
+| `questions[].contents[].lang` | string | O | `Language` 값 |
+| `questions[].contents[].text` | string | O | 공백 불가, 255자 이하 |
 
 ```json
 {
@@ -187,9 +288,152 @@ flowchart LR
 }
 ```
 
-여러 개 등록(`POST /api/topics/bulk-create`)은 위 객체를 `{ "topics": [ … ] }`로 감쌉니다.
+**Response `202 Accepted`**
 
-**학습 기록 `GET /api/topics/history`**
+```json
+{ "success": true, "code": 202, "message": "주제 등록 요청이 접수되었습니다.", "data": null }
+```
+
+> `202`는 "접수"이지 "저장 완료"가 아닙니다. 저장이 끝난 주제는 `GET /api/topics`에 나타납니다.
+
+**실패**
+
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `INVALID_INPUT` | 400 | 필수값 누락, 255자 초과, `names`/`contents`가 2개가 아님, `questions`가 3개가 아님(DTO 검증), 없는 언어 코드 |
+| `INVALID_QUESTION_COUNT` | 400 | 질문이 3개가 아님 (서비스 단계 방어 검사) |
+| `LANGUAGE_NOT_IN_ROOM` | 400 | 방의 두 언어가 아닌 언어를 썼거나, 같은 언어를 두 번 씀 |
+
+---
+
+### 6. 주제 여러 개 일괄 등록 `POST /api/topics/bulk-create`
+
+주제 여러 개를 한 번에 등록 요청합니다. 각 주제의 형식은 5번과 같고, **주제 1개당 메시지 1개**로 나뉘어 처리됩니다. 한 주제가 저장에 실패해도 나머지는 저장되며, **큐에 넣기 전에 전체 입력을 먼저 검증**해서 형식이 틀린 주제가 하나라도 있으면 전부 거절합니다.
+
+**Request Body**
+
+| 필드 | 타입 | 필수 | 제약 |
+|---|---|:---:|---|
+| `topics` | array | O | 1개 이상. 각 항목은 5번의 Request Body와 동일 |
+
+```json
+{
+  "topics": [
+    {
+      "names": [ { "lang": "KO", "text": "공원" }, { "lang": "JA", "text": "公園" } ],
+      "questions": [
+        { "contents": [ { "lang": "KO", "text": "질문 1" }, { "lang": "JA", "text": "質問1" } ] },
+        { "contents": [ { "lang": "KO", "text": "질문 2" }, { "lang": "JA", "text": "質問2" } ] },
+        { "contents": [ { "lang": "KO", "text": "질문 3" }, { "lang": "JA", "text": "質問3" } ] }
+      ]
+    },
+    {
+      "names": [ { "lang": "KO", "text": "여행" }, { "lang": "JA", "text": "旅行" } ],
+      "questions": [ "… 같은 형식 3개 …" ]
+    }
+  ]
+}
+```
+
+**Response `202 Accepted`**
+
+```json
+{ "success": true, "code": 202, "message": "주제 일괄 등록 요청이 접수되었습니다.", "data": null }
+```
+
+**실패**: 5번과 같습니다. `topics`가 비어 있으면 `INVALID_INPUT`.
+
+---
+
+### 7. 이번 주 주제 뽑기 `GET /api/topics/weekly`
+
+이번 주(월~일)에 이미 뽑은 주제가 있으면 **그 주제를 그대로** 돌려줍니다. 없으면 로그인한 방의 **아직 안 쓴 주제 중 무작위 1개**를 뽑아 돌려주고, 그 주제의 사용 날짜를 채우는 요청을 `topic.used.queue`에 비동기로 보냅니다.
+
+- 다음 주가 되면 다시 새 주제를 뽑을 수 있습니다.
+- 뽑지 않고 이미 뽑았는지만 확인하려면 8번(`this-week`)을 쓰세요.
+
+**Response `200 OK`**
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "주제 조회 성공",
+  "data": {
+    "id": 5,
+    "names": [ { "lang": "KO", "text": "공원" }, { "lang": "JA", "text": "公園" } ]
+  }
+}
+```
+
+**실패**
+
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `NO_AVAILABLE_TOPIC` | 404 | 뽑을 수 있는 안 쓴 주제가 없음 (주제를 더 등록해야 함) |
+
+---
+
+### 8. 이번 주에 이미 뽑은 주제 `GET /api/topics/this-week`
+
+이번 주에 뽑은 주제가 있으면 돌려주고, **없으면 `data`가 `null`** 입니다. 주제를 뽑지도, 사용 처리하지도 않습니다. 화면은 이 API로 홈이 열릴 때 불필요한 "뽑기" 버튼을 숨깁니다.
+
+**Response `200 OK` — 뽑은 주제가 있을 때**
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "이번 주 주제 조회 성공",
+  "data": {
+    "id": 5,
+    "names": [ { "lang": "KO", "text": "공원" }, { "lang": "JA", "text": "公園" } ]
+  }
+}
+```
+
+**Response `200 OK` — 아직 안 뽑았을 때**
+
+```json
+{ "success": true, "code": 200, "message": "이번 주 주제 조회 성공", "data": null }
+```
+
+---
+
+### 9. 전체 주제 목록 `GET /api/topics`
+
+사용 여부와 관계없이 방의 전체 주제를 `Slice`로 돌려줍니다. **정렬은 고정**입니다: 아직 안 쓴 주제 먼저, 같은 그룹 안에서는 방의 첫 번째 언어(A) 이름순. `usedDate`가 `null`이면 아직 안 쓴 주제입니다.
+
+**Query Parameters**: `page`(기본 0), `size`(기본 20)
+
+**Response `200 OK`**
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "주제 목록 조회 성공",
+  "data": {
+    "content": [
+      { "id": 7, "names": [ { "lang": "KO", "text": "여행" }, { "lang": "JA", "text": "旅行" } ], "usedDate": null },
+      { "id": 5, "names": [ { "lang": "KO", "text": "공원" }, { "lang": "JA", "text": "公園" } ], "usedDate": "2026-10-08" }
+    ],
+    "page": 0,
+    "size": 20,
+    "hasNext": false
+  }
+}
+```
+
+---
+
+### 10. 회차별 학습 기록 `GET /api/topics/history`
+
+언어교환에 쓴 주제를 **1회차부터** 순서대로 돌려줍니다. 회차는 달력의 몇째 주가 아니라 **뽑은 순서**입니다. 처음 뽑은 주제가 1회차이고, 한 주를 건너뛰어도 회차는 빈칸 없이 이어집니다. 회차는 DB에 저장하지 않고 사용 날짜 오름차순 결과의 순서로 조회할 때 계산합니다. 각 항목의 `id`로 11번을 호출하면 그 주제의 질문을 다시 볼 수 있습니다.
+
+**Query Parameters**: `page`(기본 0), `size`(기본 20)
+
+**Response `200 OK`**
 
 ```json
 {
@@ -212,7 +456,20 @@ flowchart LR
 }
 ```
 
-**질문 `GET /api/topics/5/questions?lang=JA`**
+---
+
+### 11. 주제의 질문 3개 `GET /api/topics/{topicId}/questions?lang=`
+
+지정한 주제의 질문 3개를 **한 언어로** 돌려줍니다. 화면의 언어 토글은 이 API를 `lang`만 바꿔 다시 부르는 방식입니다.
+
+**Path / Query Parameters**
+
+| 이름 | 위치 | 필수 | 설명 |
+|---|---|:---:|---|
+| `topicId` | path | O | 주제 번호 |
+| `lang` | query | O | **방의 두 언어 중 하나** (예: `KO`, `JA`) |
+
+**Response `200 OK`** — `GET /api/topics/5/questions?lang=JA`
 
 ```json
 {
@@ -231,7 +488,46 @@ flowchart LR
 }
 ```
 
-</details>
+**실패**
+
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `INVALID_INPUT` | 400 | `lang`을 빼먹음, 없는 언어 코드(`lang=XX`), `topicId`가 숫자가 아님 |
+| `LANGUAGE_NOT_IN_ROOM` | 400 | 존재하는 언어지만 이 방의 두 언어가 아님 |
+| `TOPIC_NOT_FOUND` | 404 | 주제가 없거나 **다른 방의 주제** (존재 여부를 숨기려고 같은 응답) |
+
+---
+
+### 전체 errorCode
+
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `INVALID_INPUT` | 400 | 필수값 누락, 형식 오류, 잘못된 JSON·언어 코드, `lang` 누락 |
+| `SAME_LANGUAGE` | 400 | 두 사람이 같은 언어를 배우겠다고 고름 |
+| `INVALID_NATIONALITY` | 400 | 국적이 ISO 3166-1 alpha-2 국가 코드가 아님 |
+| `LANGUAGE_NOT_IN_ROOM` | 400 | 방의 두 언어가 아닌 언어로 등록·조회 |
+| `INVALID_QUESTION_COUNT` | 400 | 질문이 3개가 아님 |
+| `UNAUTHORIZED` | 401 | 로그인하지 않음 |
+| `INVALID_CREDENTIALS` | 401 | 방 아이디 또는 비밀번호가 틀림 (둘을 구분하지 않음) |
+| `ROOM_NOT_FOUND` | 401 | 세션은 있는데 방이 없음 (다시 로그인 필요) |
+| `ACCESS_DENIED` | 403 | 권한 없음 |
+| `TOPIC_NOT_FOUND` | 404 | 주제가 없거나 다른 방의 주제 |
+| `NO_AVAILABLE_TOPIC` | 404 | 뽑을 수 있는 안 쓴 주제가 없음 |
+| `NOT_FOUND` | 404 | 없는 주소 |
+| `DUPLICATE_ROOM_ID` | 409 | 이미 있는 방 아이디 |
+| `INTERNAL_SERVER_ERROR` | 500 | 예상하지 못한 오류 |
+
+### 비동기 메시지 (RabbitMQ)
+
+API 응답과 별개로 서버 안에서 오가는 메시지입니다.
+
+| Exchange | Queue | Routing Key | DLQ | 발행하는 API | 처리 내용 |
+|---|---|---|---|---|---|
+| `topic.exchange` | `topic.create.queue` | `topic.create` | `topic.create.dlq` | `POST /api/topics`, `POST /api/topics/bulk-create` | 주제 1개 + 질문 3개를 한 트랜잭션으로 저장 (메시지에 `roomId` 포함) |
+| `topic.exchange` | `topic.used.queue` | `topic.used` | `topic.used.dlq` | `GET /api/topics/weekly` | 뽑힌 주제의 사용 날짜(`used_date`) 기록 |
+
+- Consumer는 2초 → 4초 간격으로 **최대 3회** 시도하고, 모두 실패하면 DLQ(`topic.dlx`)로 이동합니다.
+- Consumer는 같은 메시지가 두 번 와도 결과가 같도록 작성했습니다(멱등).
 
 ---
 
