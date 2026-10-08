@@ -286,11 +286,13 @@ function applyProgress() {
         particle: hasBatchim(memberA.name) ? '과' : '와',
     });
     title.id = 'journey-title';
+    // 목표를 넘겨도 <progress> 는 알아서 100% 로 막아 주고, 숫자도 100% 에서 멈춥니다.
+    const percent = createElement('span', 'journey-percent');
+    percent.textContent = `${Math.min(100, Math.floor(roomInfo.studiedCount / roomInfo.goal * 100))}%`;
     journey.append(
         title,
-        i18nEl('span', 'journey-total', 'progress.total', { studied: roomInfo.studiedCount, goal: roomInfo.goal }),
-        // 목표를 넘겨도 <progress> 가 알아서 100% 로 막아 줍니다.
-        createElement('progress', 'journey-bar', { max: roomInfo.goal, value: roomInfo.studiedCount, 'aria-labelledby': 'journey-title' }));
+        createElement('progress', 'journey-bar', { max: roomInfo.goal, value: roomInfo.studiedCount, 'aria-labelledby': 'journey-title' }),
+        percent);
 
     const previous = siteHeader.querySelector('.journey');
     if (previous) {

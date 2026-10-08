@@ -92,6 +92,5 @@ i18nRegister('KO', {
     'register.success.link': "전체 주제 보기",
     'register.error.invalid': "서버가 입력 내용을 받아주지 않았어요. 주제 이름과 질문 3개를 다시 확인해 주세요.",
     'progress.title': "{nameA}{particle} {nameB}의 언어교환 여정",
-    'progress.total': "{studied} / {goal}",
     'room.goal.label': "목표 횟수",
 });

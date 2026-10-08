@@ -93,6 +93,5 @@ i18nRegister('ES', {
     'register.success.link': "Ver todos los temas",
     'register.error.invalid': "El servidor no ha aceptado los datos. Revisa el nombre del tema y las 3 preguntas.",
     'progress.title': "El viaje lingüístico de {nameA} y {nameB}",
-    'progress.total': "{studied} / {goal}",
     'room.goal.label': "Meta (sesiones)",
 });

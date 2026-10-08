@@ -93,6 +93,5 @@ i18nRegister('VI', {
     'register.success.link': "Xem tất cả chủ đề",
     'register.error.invalid': "Máy chủ không chấp nhận nội dung đã nhập. Vui lòng kiểm tra lại tên chủ đề và 3 câu hỏi.",
     'progress.title': "Hành trình trao đổi ngôn ngữ của {nameA} và {nameB}",
-    'progress.total': "{studied} / {goal}",
     'room.goal.label': "Mục tiêu (số buổi)",
 });

@@ -92,6 +92,5 @@ i18nRegister('EN', {
     'register.success.link': "See all topics",
     'register.error.invalid': "The server did not accept the input. Please check the topic name and the 3 questions.",
     'progress.title': "{nameA} & {nameB}'s language journey",
-    'progress.total': "{studied} / {goal}",
     'room.goal.label': "Goal (sessions)",
 });

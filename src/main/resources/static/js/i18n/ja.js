@@ -92,6 +92,5 @@ i18nRegister('JA', {
     'register.success.link': "テーマ一覧を見る",
     'register.error.invalid': "サーバーが入力内容を受け付けませんでした。テーマ名と質問3つをもう一度確認してください。",
     'progress.title': "{nameA}と{nameB}の言語交換の旅",
-    'progress.total': "{studied} / {goal}",
     'room.goal.label': "目標回数",
 });
