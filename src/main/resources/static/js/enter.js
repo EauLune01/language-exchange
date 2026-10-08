@@ -60,7 +60,7 @@
 
             const firstInvalid = markEmptyFields(form);
             if (firstInvalid) {
-                showI18nMessage(message, 'enter.error.emptyFields');
+                showI18nMessage(message, 'common.emptyFields');
                 firstInvalid.focus();
                 return;
             }

@@ -13,16 +13,8 @@
 </head>
 <body>
 <div class="page">
-    <!-- 화면 언어 선택은 common.js 가 헤더에 넣습니다. -->
-    <header class="site-header">
-        <a class="brand" href="enter.html">
-        <span class="logo" aria-hidden="true">
-          <span class="logo-circle logo-circle--ko"></span>
-          <span class="logo-circle logo-circle--ja"></span>
-        </span>
-            <span class="wordmark" data-i18n="app.name"></span>
-        </a>
-    </header>
+    <!-- 로고와 화면 언어 선택은 common.js 가 여기에 그립니다. (data-nav 가 없으면 메뉴 없이) -->
+    <header class="site-header"></header>
 
     <main>
         <div class="page-head">
@@ -42,12 +34,12 @@
                     <div class="form-row-name" data-i18n="enter.account.title"></div>
                     <label class="field">
                         <span class="field-label" data-i18n="enter.account.loginId"></span>
-                        <input type="text" class="field-input field-input--ko" name="loginId" maxlength="20" dir="ltr"
+                        <input type="text" class="field-input field-input--a" name="loginId" maxlength="20" dir="ltr"
                                autocomplete="username" autocapitalize="none" spellcheck="false">
                     </label>
                     <label class="field">
                         <span class="field-label" data-i18n="enter.account.password"></span>
-                        <input type="password" class="field-input field-input--ko" name="password" maxlength="64" dir="ltr"
+                        <input type="password" class="field-input field-input--a" name="password" maxlength="64" dir="ltr"
                                autocomplete="current-password">
                     </label>
                 </div>
@@ -71,12 +63,12 @@
                     <div class="form-row-name" data-i18n="enter.account.title"></div>
                     <label class="field">
                         <span class="field-label" data-i18n="enter.account.loginIdRule"></span>
-                        <input type="text" class="field-input field-input--ko" name="loginId" maxlength="20" dir="ltr"
+                        <input type="text" class="field-input field-input--a" name="loginId" maxlength="20" dir="ltr"
                                autocomplete="username" autocapitalize="none" spellcheck="false">
                     </label>
                     <label class="field">
                         <span class="field-label" data-i18n="enter.account.passwordRule"></span>
-                        <input type="password" class="field-input field-input--ko" name="password" maxlength="64" dir="ltr"
+                        <input type="password" class="field-input field-input--a" name="password" maxlength="64" dir="ltr"
                                autocomplete="new-password">
                     </label>
                 </div>
@@ -84,36 +76,36 @@
                 <div class="form-row">
                     <div class="form-row-name" data-i18n="enter.create.name"></div>
                     <label class="field">
-                        <span class="field-label field-label--ko" data-i18n="enter.create.memberA"></span>
-                        <input type="text" class="field-input field-input--ko" name="nameA" maxlength="50" dir="auto" autocomplete="off">
+                        <span class="field-label field-label--a" data-i18n="enter.create.memberA"></span>
+                        <input type="text" class="field-input field-input--a" name="nameA" maxlength="50" dir="auto" autocomplete="off">
                     </label>
                     <label class="field">
-                        <span class="field-label field-label--ja" data-i18n="enter.create.memberB"></span>
-                        <input type="text" class="field-input field-input--ja" name="nameB" maxlength="50" dir="auto" autocomplete="off">
+                        <span class="field-label field-label--b" data-i18n="enter.create.memberB"></span>
+                        <input type="text" class="field-input field-input--b" name="nameB" maxlength="50" dir="auto" autocomplete="off">
                     </label>
                 </div>
 
                 <div class="form-row">
                     <div class="form-row-name" data-i18n="enter.create.nationality"></div>
                     <label class="field">
-                        <span class="field-label field-label--ko" data-i18n="enter.create.memberA"></span>
-                        <select class="field-input field-input--ko" name="nationalityA"></select>
+                        <span class="field-label field-label--a" data-i18n="enter.create.memberA"></span>
+                        <select class="field-input field-input--a" name="nationalityA"></select>
                     </label>
                     <label class="field">
-                        <span class="field-label field-label--ja" data-i18n="enter.create.memberB"></span>
-                        <select class="field-input field-input--ja" name="nationalityB"></select>
+                        <span class="field-label field-label--b" data-i18n="enter.create.memberB"></span>
+                        <select class="field-input field-input--b" name="nationalityB"></select>
                     </label>
                 </div>
 
                 <div class="form-row">
                     <div class="form-row-name" data-i18n="enter.create.learningLanguage"></div>
                     <label class="field">
-                        <span class="field-label field-label--ko" data-i18n="enter.create.memberA"></span>
-                        <select class="field-input field-input--ko" name="learningLanguageA"></select>
+                        <span class="field-label field-label--a" data-i18n="enter.create.memberA"></span>
+                        <select class="field-input field-input--a" name="learningLanguageA"></select>
                     </label>
                     <label class="field">
-                        <span class="field-label field-label--ja" data-i18n="enter.create.memberB"></span>
-                        <select class="field-input field-input--ja" name="learningLanguageB"></select>
+                        <span class="field-label field-label--b" data-i18n="enter.create.memberB"></span>
+                        <select class="field-input field-input--b" name="learningLanguageB"></select>
                     </label>
                     <p class="form-row-hint" data-i18n="enter.create.learningLanguageHint"></p>
                 </div>

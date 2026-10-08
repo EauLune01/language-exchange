@@ -16,34 +16,30 @@
         loading: false,
     };
 
+    /**
+     * 회차 표시: 큰 숫자 + 작은 글자. 숫자가 앞에 오는지 뒤에 오는지는 언어마다 달라서
+     * 사전의 'history.round' 문구('{round}회차', 'Round {round}')에서 {round} 앞뒤 글자를 나눠 씁니다.
+     */
+    function fillRound(wrap) {
+        const [before, after] = t('history.round').split('{round}').map((part) => part.trim());
+        const parts = [];
+        if (before) {
+            parts.push(createElement('span', 'round-label'));
+            parts[parts.length - 1].textContent = before;
+        }
+        parts.push(createElement('span', 'round-no'));
+        parts[parts.length - 1].textContent = wrap.dataset.round;
+        if (after) {
+            parts.push(createElement('span', 'round-label'));
+            parts[parts.length - 1].textContent = after;
+        }
+        wrap.replaceChildren(...parts);
+    }
+
     function createRound(round) {
-        const wrap = document.createElement('span');
-        wrap.className = 'round';
-
-        const label = document.createElement('span');
-        label.className = 'round-label';
-        label.append(textEl('span', '', '회차', 'ko'), textEl('span', '', '回目', 'ja'));
-
-        wrap.append(textEl('span', 'round-no', String(round)), label);
+        const wrap = createElement('span', 'round', { 'data-round': String(round) });
+        fillRound(wrap);
         return wrap;
-    }
-
-    function createThisWeekPill() {
-        const pill = document.createElement('span');
-        pill.className = 'pill pill--now';
-        pill.append(textEl('span', '', '이번 주', 'ko'), document.createTextNode(' / '), textEl('span', '', '今週', 'ja'));
-        return pill;
-    }
-
-    function createDate(usedDate) {
-        const date = document.createElement('span');
-        date.className = 'history-date';
-        date.append(
-            textEl('span', '', formatDateKo(usedDate), 'ko'),
-            document.createTextNode(' / '),
-            textEl('span', '', formatDateJa(usedDate), 'ja')
-        );
-        return date;
     }
 
     function createCard(entry) {
@@ -52,21 +48,21 @@
         button.type = 'button';
         button.className = isThisWeek(entry.usedDate) ? 'history-card is-current' : 'history-card';
 
-        const top = document.createElement('span');
-        top.className = 'history-top';
+        const top = createElement('span', 'history-top');
         top.append(createRound(entry.round));
         if (isThisWeek(entry.usedDate)) {
-            top.append(createThisWeekPill());
+            top.append(i18nEl('span', 'pill pill--now', 'history.thisWeek'));
         }
 
-        const names = document.createElement('span');
-        names.className = 'history-names';
+        const names = createElement('span', 'history-names');
         names.append(
-            localizedEl('span', 'topic-name topic-name--ko', entry.names[0]),
-            localizedEl('span', 'topic-name topic-name--ja', entry.names[1])
+            localizedEl('span', 'topic-name topic-name--a', entry.names[0]),
+            localizedEl('span', 'topic-name topic-name--b', entry.names[1])
         );
 
-        button.append(top, names, createDate(entry.usedDate));
+        const date = i18nEl('span', 'history-date', 'common.date', { date: { date: entry.usedDate, style: 'long' } });
+
+        button.append(top, names, date);
         button.addEventListener('click', () => openQuestions(entry));
         item.append(button);
         return item;
@@ -88,10 +84,10 @@
             state.hasNext = data.hasNext;
 
             if (els.list.children.length === 0) {
-                showMessage(els.message, MESSAGES.emptyHistory, 'info');
+                showI18nMessage(els.message, 'history.empty', null, 'info');
             }
         } catch (error) {
-            showMessage(els.message, errorMessage(error));
+            showApiError(els.message, error);
             state.hasNext = true; // 실패하면 '더 보기' 버튼이 다시 시도 버튼 역할을 합니다.
         } finally {
             state.loading = false;
@@ -102,5 +98,8 @@
 
     els.loadMore.addEventListener('click', loadHistory);
 
-    i18nReady.then(loadHistory); // 언어 목록(LANGUAGES)이 준비된 뒤에 기록을 그립니다.
+    // 화면 언어를 바꾸면 회차 글자의 위치가 달라질 수 있어서 다시 그립니다.
+    document.addEventListener('i18n:change', () => els.list.querySelectorAll('.round').forEach(fillRound));
+
+    i18nReady.then(loadHistory); // 언어 목록(LANGUAGES)과 사전이 준비된 뒤에 시작합니다.
 })();

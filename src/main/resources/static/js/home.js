@@ -9,44 +9,35 @@
 
     const els = {
         card: $('weekly-card'),
-        ko: $('weekly-ko'),
-        ja: $('weekly-ja'),
+        nameA: $('weekly-a'),
+        nameB: $('weekly-b'),
         hint: $('weekly-hint'),
         message: $('weekly-message'),
         drawButton: $('draw-button'),
-        descKo: $('hero-desc-ko'),
-        descJa: $('hero-desc-ja'),
+        desc: $('hero-desc'),
     };
 
     let weeklyTopic = null;
 
-    /** 다음 주 월요일 (이번 주 주제를 뽑았다면, 새 주제는 이 날부터 뽑을 수 있어요) */
-    function nextMonday() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const daysUntilMonday = ((8 - today.getDay()) % 7) || 7;
-        const next = new Date(today);
-        next.setDate(today.getDate() + daysUntilMonday);
-        return next;
-    }
-
-    function showDrawnDescription() {
-        const next = nextMonday();
-        const month = next.getMonth() + 1;
-        const day = next.getDate();
-        els.descKo.textContent = `이번 주 주제가 정해졌어요. 다음 주제는 ${month}월 ${day}일(월)부터 뽑을 수 있어요.`;
-        els.descJa.textContent = `今週のテーマが決まりました。次のテーマは${month}月${day}日(月)から引けます。`;
+    /** 다음 주 월요일을 '2026-10-12' 형태로 (이번 주 주제를 뽑았다면, 새 주제는 이 날부터 뽑을 수 있어요) */
+    function nextMondayIso() {
+        const next = new Date();
+        const daysUntilMonday = ((8 - next.getDay()) % 7) || 7;
+        next.setDate(next.getDate() + daysUntilMonday);
+        const pad = (value) => String(value).padStart(2, '0');
+        return `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}`;
     }
 
     function fillTopic(topic) {
-        setLocalizedText(els.ko, topic.names[0]);
-        setLocalizedText(els.ja, topic.names[1]);
+        setLocalizedText(els.nameA, topic.names[0]);
+        setLocalizedText(els.nameB, topic.names[1]);
         els.card.classList.remove('is-empty');
+        els.card.removeAttribute('data-i18n-aria-label');
         els.card.removeAttribute('aria-label');
         els.card.disabled = false;
         els.hint.hidden = false;
         els.drawButton.hidden = true;
-        showDrawnDescription();
+        i18nSet(els.desc, 'home.hero.drawn', { date: { date: nextMondayIso(), style: 'weekday' } });
         weeklyTopic = topic;
     }
 
@@ -76,7 +67,7 @@
             const topic = await apiGet('/api/topics/weekly');
             await revealTopic(topic, true);
         } catch (error) {
-            showMessage(els.message, errorMessage(error, 'noTopic'));
+            showApiError(els.message, error); // 남은 주제가 없으면 error.NO_AVAILABLE_TOPIC
             els.drawButton.disabled = false;
         }
     }
@@ -103,5 +94,5 @@
         }
     });
 
-    i18nReady.then(checkThisWeek); // 언어 목록(LANGUAGES)이 준비된 뒤에 주제를 그립니다.
+    i18nReady.then(checkThisWeek); // 언어 목록(LANGUAGES)과 사전이 준비된 뒤에 시작합니다.
 })();

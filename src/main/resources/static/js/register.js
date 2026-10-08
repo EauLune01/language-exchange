@@ -4,6 +4,7 @@
 
     const QUESTION_COUNT = 3; // 서버 규칙: 주제 1개당 질문 3개
     const MAX_TOPICS = 20; // 한 번에 등록할 수 있는 주제 수 (화면에서의 제한)
+    const SLOTS = ['a', 'b']; // 왼쪽 칸 = 방의 첫 번째 언어(A), 오른쪽 칸 = 두 번째 언어(B)
 
     const els = {
         form: $('register-form'),
@@ -12,8 +13,7 @@
         template: $('topic-template'),
         addButton: $('add-topic'),
         submitButton: $('submit-button'),
-        submitKo: $('submit-ko'),
-        submitJa: $('submit-ja'),
+        submitLabel: $('submit-label'),
         message: $('form-message'),
         success: $('form-success'),
     };
@@ -52,7 +52,7 @@
         return value.replace(/\s*\n\s*/g, ' ').trim();
     }
 
-    /** 왼쪽(Ko) 칸 = 방의 첫 번째 언어(A), 오른쪽(Ja) 칸 = 두 번째 언어(B). 서버에는 { lang, text } 로 보냅니다. */
+    /** 서버에는 방의 두 언어로 { lang, text } 를 보냅니다. */
     function localizedPair(textA, textB) {
         return [
             { lang: state.languages[0], text: clean(textA) },
@@ -64,22 +64,22 @@
         const questions = [];
         for (let i = 0; i < QUESTION_COUNT; i += 1) {
             questions.push({
-                contents: localizedPair(fieldOf(card, 'contentKo', i).value, fieldOf(card, 'contentJa', i).value),
+                contents: localizedPair(fieldOf(card, 'contentA', i).value, fieldOf(card, 'contentB', i).value),
             });
         }
         return {
-            names: localizedPair(fieldOf(card, 'nameKo').value, fieldOf(card, 'nameJa').value),
+            names: localizedPair(fieldOf(card, 'nameA').value, fieldOf(card, 'nameB').value),
             questions,
         };
     }
 
-    /** 입력 칸의 언어 이름과 lang/dir 을 방의 두 언어로 맞춥니다. */
+    /** 칸 위의 언어 이름과 입력 칸의 lang/dir 을 방의 두 언어로 맞춥니다. */
     function applyRoomLanguages(card) {
         if (!state.languages) {
             return;
         }
-        [['ko', state.languages[0]], ['ja', state.languages[1]]].forEach(([slot, code]) => {
-            const meta = LANGUAGES[code];
+        SLOTS.forEach((slot, index) => {
+            const meta = LANGUAGES[state.languages[index]];
             card.querySelectorAll(`.field-label--${slot}`).forEach((label) => {
                 label.textContent = meta.name;
                 label.lang = meta.tag;
@@ -130,8 +130,7 @@
 
         cards.forEach((card, index) => {
             card.hidden = !isBulk && index > 0;
-            card.querySelector('.topic-form-no-ko').textContent = `주제 ${index + 1}`;
-            card.querySelector('.topic-form-no-ja').textContent = `テーマ${index + 1}`;
+            i18nSet(card.querySelector('.topic-form-title'), 'register.topicNo', { no: index + 1 });
             card.querySelector('.topic-remove').hidden = cards.length <= 1;
         });
 
@@ -142,9 +141,11 @@
         els.addButton.hidden = !isBulk;
         els.addButton.disabled = cards.length >= MAX_TOPICS;
 
-        const count = activeCards().length;
-        els.submitKo.textContent = isBulk ? `${count}개 한꺼번에 등록하기` : '등록하기';
-        els.submitJa.textContent = isBulk ? `${count}件まとめて登録する` : '登録する';
+        if (isBulk) {
+            i18nSet(els.submitLabel, 'register.submit.bulk', { count: activeCards().length });
+        } else {
+            i18nSet(els.submitLabel, 'register.submit.single');
+        }
     }
 
     function hideMessages() {
@@ -155,6 +156,7 @@
     function createCard() {
         const card = els.template.content.firstElementChild.cloneNode(true);
         card.querySelector('.topic-remove').addEventListener('click', () => removeCard(card));
+        i18nApply(card); // <template> 에서 복사한 조각은 문서 밖에 있었으므로 문구를 직접 채웁니다.
         applyRoomLanguages(card);
         return card;
     }
@@ -166,7 +168,7 @@
         const card = createCard();
         els.topicForms.append(card);
         refresh();
-        fieldOf(card, 'nameKo').focus();
+        fieldOf(card, 'nameA').focus();
         card.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
     }
 
@@ -174,7 +176,7 @@
         if (allCards().length <= 1) {
             return;
         }
-        if (hasContent(card) && !window.confirm('이 주제를 삭제할까요?\nこのテーマを削除しますか？')) {
+        if (hasContent(card) && !window.confirm(t('register.removeConfirm'))) {
             return;
         }
         card.remove();
@@ -192,29 +194,11 @@
 
     /* ---------- 전송 ---------- */
 
-    function registerErrorMessage(error) {
-        if (error instanceof ApiError) {
-            if (error.status === 0) {
-                return MESSAGES.network;
-            }
-            if (error.status === 400) {
-                return MESSAGES.invalidInput;
-            }
-        }
-        return MESSAGES.generic;
-    }
-
     function showSuccess(count) {
-        const link = document.createElement('a');
-        link.className = 'inline-link';
+        const link = i18nEl('a', 'inline-link', 'register.success.link');
         link.href = 'topics.html';
-        link.append(textEl('span', '', '전체 주제 보기', 'ko'), document.createTextNode(' / '), textEl('span', '', 'テーマ一覧を見る', 'ja'));
 
-        els.success.replaceChildren(
-            textEl('span', '', `${count}개의 주제 등록 요청이 접수됐어요. 잠시 뒤 전체 주제에서 확인할 수 있어요.`, 'ko'),
-            textEl('span', '', `${count}件のテーマの登録リクエストを受け付けました。しばらくすると、テーマ一覧で確認できます。`, 'ja'),
-            link
-        );
+        els.success.replaceChildren(i18nEl('span', '', 'register.success', { count }), link);
         els.success.hidden = false;
         els.success.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
     }
@@ -236,14 +220,14 @@
         hideMessages();
 
         if (!state.languages) {
-            showMessage(els.message, MESSAGES.generic); // 방 정보를 아직 못 읽었어요.
+            showI18nMessage(els.message, 'error.generic'); // 방 정보를 아직 못 읽었어요.
             return;
         }
 
         const cards = activeCards();
         const firstInvalid = markEmptyFields(cards);
         if (firstInvalid) {
-            showMessage(els.message, MESSAGES.emptyFields);
+            showI18nMessage(els.message, 'common.emptyFields');
             firstInvalid.focus();
             return;
         }
@@ -260,7 +244,8 @@
             showSuccess(cards.length);
             resetAfterSuccess();
         } catch (error) {
-            showMessage(els.message, registerErrorMessage(error));
+            // 이 화면에서 형식 오류는 주제 이름·질문을 다시 확인하라고 알려 줍니다.
+            showApiError(els.message, error, { INVALID_INPUT: 'register.error.invalid' });
         } finally {
             state.submitting = false;
             els.submitButton.disabled = false;
@@ -284,8 +269,11 @@
         event.target.removeAttribute('aria-invalid');
     });
 
-    els.topicForms.append(createCard());
-    refresh();
+    // 사전이 준비되면 첫 입력 칸을 만들고, 방 정보를 읽으면 칸 위에 방의 두 언어 이름을 붙입니다.
+    i18nReady.then(() => {
+        els.topicForms.append(createCard());
+        refresh();
+    });
 
     Promise.all([i18nReady, roomReady]).then(([, room]) => {
         if (!room) {
