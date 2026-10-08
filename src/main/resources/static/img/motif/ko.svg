@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<!-- 무궁화 (한국어) -->
+<path d="M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z" fill="#c9d9fa" transform="rotate(0 100 100)"/>
+<path d="M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z" fill="#c9d9fa" transform="rotate(72 100 100)"/>
+<path d="M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z" fill="#c9d9fa" transform="rotate(144 100 100)"/>
+<path d="M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z" fill="#c9d9fa" transform="rotate(216 100 100)"/>
+<path d="M100 100 C62 84 52 34 80 16 C92 8 108 8 120 16 C148 34 138 84 100 100Z" fill="#c9d9fa" transform="rotate(288 100 100)"/>
+<circle cx="100" cy="100" r="13" fill="#7d9ee6"/>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<!-- 재스민과 여덟 꼭지 별 문양 (아랍어) -->
+<rect x="36" y="36" width="128" height="128" fill="#dcefe9"/>
+<rect x="36" y="36" width="128" height="128" fill="#dcefe9" transform="rotate(45 100 100)"/>
+<g fill="none" stroke="#9fd0c3" stroke-width="3" stroke-linejoin="round">
+<rect x="50" y="50" width="100" height="100"/>
+<rect x="50" y="50" width="100" height="100" transform="rotate(45 100 100)"/>
+<circle cx="100" cy="100" r="34"/>
+</g>
+<path d="M100 100 C87 82 87 54 100 38 C113 54 113 82 100 100Z" fill="#ffffff" stroke="#8fc7b8" stroke-width="2.5" transform="rotate(0 100 100)"/>
+<path d="M100 100 C87 82 87 54 100 38 C113 54 113 82 100 100Z" fill="#ffffff" stroke="#8fc7b8" stroke-width="2.5" transform="rotate(72 100 100)"/>
+<path d="M100 100 C87 82 87 54 100 38 C113 54 113 82 100 100Z" fill="#ffffff" stroke="#8fc7b8" stroke-width="2.5" transform="rotate(144 100 100)"/>
+<path d="M100 100 C87 82 87 54 100 38 C113 54 113 82 100 100Z" fill="#ffffff" stroke="#8fc7b8" stroke-width="2.5" transform="rotate(216 100 100)"/>
+<path d="M100 100 C87 82 87 54 100 38 C113 54 113 82 100 100Z" fill="#ffffff" stroke="#8fc7b8" stroke-width="2.5" transform="rotate(288 100 100)"/>
+<circle cx="100" cy="100" r="7" fill="#f1d27a"/>
+</svg>

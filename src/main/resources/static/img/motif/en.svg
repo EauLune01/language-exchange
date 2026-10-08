@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<!-- 튜더 로즈 (영어) -->
+<path d="M100 100 L91 20 L100 4 L109 20Z" fill="#b9d8b4" transform="rotate(36 100 100)"/>
+<path d="M100 100 L91 20 L100 4 L109 20Z" fill="#b9d8b4" transform="rotate(108 100 100)"/>
+<path d="M100 100 L91 20 L100 4 L109 20Z" fill="#b9d8b4" transform="rotate(180 100 100)"/>
+<path d="M100 100 L91 20 L100 4 L109 20Z" fill="#b9d8b4" transform="rotate(252 100 100)"/>
+<path d="M100 100 L91 20 L100 4 L109 20Z" fill="#b9d8b4" transform="rotate(324 100 100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#f2b3bb" transform="rotate(0 100 100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#f2b3bb" transform="rotate(72 100 100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#f2b3bb" transform="rotate(144 100 100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#f2b3bb" transform="rotate(216 100 100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#f2b3bb" transform="rotate(288 100 100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#fdf1ec" stroke="#eeb9bf" stroke-width="3" transform="rotate(36 100 100) translate(100 100) scale(0.56) translate(-100 -100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#fdf1ec" stroke="#eeb9bf" stroke-width="3" transform="rotate(108 100 100) translate(100 100) scale(0.56) translate(-100 -100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#fdf1ec" stroke="#eeb9bf" stroke-width="3" transform="rotate(180 100 100) translate(100 100) scale(0.56) translate(-100 -100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#fdf1ec" stroke="#eeb9bf" stroke-width="3" transform="rotate(252 100 100) translate(100 100) scale(0.56) translate(-100 -100)"/>
+<path d="M100 100 C62 88 50 46 74 24 C86 13 98 18 100 28 C102 18 114 13 126 24 C150 46 138 88 100 100Z" fill="#fdf1ec" stroke="#eeb9bf" stroke-width="3" transform="rotate(324 100 100) translate(100 100) scale(0.56) translate(-100 -100)"/>
+<circle cx="100" cy="100" r="11" fill="#ecc96a"/>
+</svg>

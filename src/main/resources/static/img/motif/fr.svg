@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<!-- 아이리스 (프랑스어) -->
+<path d="M95 120 C72 104 48 70 32 80 C20 100 40 132 70 140 C83 142 92 134 95 120Z" fill="#cdc0f2"/>
+<path d="M95 120 C72 104 48 70 32 80 C20 100 40 132 70 140 C83 142 92 134 95 120Z" fill="#cdc0f2" transform="translate(200 0) scale(-1 1)"/>
+<path d="M100 16 C122 48 124 92 100 124 C76 92 78 48 100 16Z" fill="#b3a2e8"/>
+<path d="M92 134 C80 148 72 162 64 176 C80 170 92 154 97 136Z" fill="#b9dcb2"/>
+<path d="M92 134 C80 148 72 162 64 176 C80 170 92 154 97 136Z" fill="#b9dcb2" transform="translate(200 0) scale(-1 1)"/>
+<path d="M100 132 C108 150 107 170 100 186 C93 170 92 150 100 132Z" fill="#b3a2e8"/>
+<ellipse cx="58" cy="104" rx="11" ry="5" fill="#f1d27a" transform="rotate(32 58 104)"/>
+<ellipse cx="142" cy="104" rx="11" ry="5" fill="#f1d27a" transform="rotate(-32 142 104)"/>
+<rect x="78" y="119" width="44" height="13" rx="6.5" fill="#ecc96a"/>
+</svg>
