@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * 질문 시트 (한국어 / 일본어 토글)
+ * 질문 시트 (방의 두 언어 토글)
  * index.html, topics.html, history.html 에서 common.js 다음에 불러옵니다.
  */
 const sheetEls = {
@@ -20,6 +20,7 @@ const sheetState = {
 };
 
 const questionCache = new Map();
+const SLOTS = ['a', 'b'];
 
 function syncToggle() {
     sheetEls.langToggle.querySelectorAll('button[data-lang]').forEach((button) => {
@@ -52,6 +53,24 @@ function renderQuestionError(message) {
     sheetEls.questionArea.replaceChildren(box, retry);
 }
 
+/** 토글 두 칸을 이 주제의 두 언어로 맞춥니다. 색은 언어가 아니라 자리(A = 첫 번째, B = 두 번째)에 붙어요. */
+function configureToggle(names) {
+    const buttons = sheetEls.langToggle.querySelectorAll('button');
+    names.forEach((name, index) => {
+        const meta = LANGUAGES[name.lang];
+        const button = buttons[index];
+        button.dataset.lang = name.lang;
+        button.dataset.slot = SLOTS[index];
+        button.lang = meta.tag;
+        button.textContent = meta.name;
+    });
+}
+
+function slotOf(lang) {
+    const button = sheetEls.langToggle.querySelector(`button[data-lang="${lang}"]`);
+    return button ? button.dataset.slot : SLOTS[0];
+}
+
 function renderQuestions(data, lang) {
     if (!data.questions || data.questions.length === 0) {
         renderQuestionStatus(MESSAGES.noQuestions);
@@ -60,14 +79,14 @@ function renderQuestions(data, lang) {
 
     const list = document.createElement('ol');
     list.className = 'question-list';
-    list.dataset.lang = lang;
+    list.dataset.slot = slotOf(lang);
 
     data.questions.forEach((question) => {
         const item = document.createElement('li');
         item.className = 'question-item';
         item.append(
             textEl('span', 'question-no', String(question.sequence)),
-            textEl('span', 'question-text', question.content, lang === 'KO' ? 'ko' : 'ja')
+            localizedEl('span', 'question-text', { lang, text: question.content })
         );
         list.append(item);
     });
@@ -107,11 +126,16 @@ async function loadQuestions() {
     }
 }
 
-/** 주제의 질문 시트를 엽니다. topic = { id, nameKo, nameJa } */
+/** 주제의 질문 시트를 엽니다. topic = { id, names: [{ lang, text }, { lang, text }] } (A, B 순서) */
 function openQuestions(topic) {
     sheetState.topic = topic;
-    sheetEls.titleKo.textContent = topic.nameKo;
-    sheetEls.titleJa.textContent = topic.nameJa;
+    setLocalizedText(sheetEls.titleKo, topic.names[0]);
+    setLocalizedText(sheetEls.titleJa, topic.names[1]);
+    configureToggle(topic.names);
+    // 마지막으로 고른 언어가 이 방의 언어가 아니면 첫 번째 언어로 시작합니다.
+    if (!topic.names.some((name) => name.lang === sheetState.lang)) {
+        sheetState.lang = topic.names[0].lang;
+    }
     syncToggle();
     sheetEls.dialog.querySelector('.sheet').scrollTop = 0;
     sheetEls.dialog.showModal();

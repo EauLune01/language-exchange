@@ -1,6 +1,5 @@
 package language.exchange.study.event;
 
-import language.exchange.study.dto.command.QuestionCreateCommand;
 import language.exchange.study.dto.command.TopicCreateCommand;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,21 +12,20 @@ import java.util.List;
 @AllArgsConstructor
 public class TopicCreateEvent {
 
-    private String nameKo;
-    private String nameJa;
+    private Long roomId;
+    private List<LocalizedTextEvent> names;
     private List<QuestionCreateEvent> questions;
 
-    public static TopicCreateEvent from(TopicCreateCommand command) {
-        List<QuestionCreateEvent> questionEvents = command.getQuestions().stream()
-                .map(QuestionCreateEvent::from)
-                .toList();
-        return new TopicCreateEvent(command.getNameKo(), command.getNameJa(), questionEvents);
+    public static TopicCreateEvent of(Long roomId, TopicCreateCommand command) {
+        return new TopicCreateEvent(
+                roomId,
+                command.getNames().stream().map(LocalizedTextEvent::from).toList(),
+                command.getQuestions().stream().map(QuestionCreateEvent::from).toList());
     }
 
     public TopicCreateCommand toCommand() {
-        List<QuestionCreateCommand> questionCommands = questions.stream()
-                .map(QuestionCreateEvent::toCommand)
-                .toList();
-        return TopicCreateCommand.of(nameKo, nameJa, questionCommands);
+        return TopicCreateCommand.of(
+                names.stream().map(LocalizedTextEvent::toCommand).toList(),
+                questions.stream().map(QuestionCreateEvent::toCommand).toList());
     }
 }

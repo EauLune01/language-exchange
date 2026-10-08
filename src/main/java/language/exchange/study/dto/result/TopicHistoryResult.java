@@ -1,27 +1,22 @@
 package language.exchange.study.dto.result;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class TopicHistoryResult {
 
     private final Long id;
     private final long round;
-    private final String nameKo;
-    private final String nameJa;
+    private final List<LocalizedTextResult> names;
     private final LocalDate usedDate;
 
-    private TopicHistoryResult(Long id, long round, String nameKo, String nameJa, LocalDate usedDate) {
-        this.id = id;
-        this.round = round;
-        this.nameKo = nameKo;
-        this.nameJa = nameJa;
-        this.usedDate = usedDate;
-    }
-
-    public static TopicHistoryResult of(Long id, long round, String nameKo, String nameJa, LocalDate usedDate) {
-        return new TopicHistoryResult(id, round, nameKo, nameJa, usedDate);
+    public static TopicHistoryResult of(Long id, long round, List<LocalizedTextResult> names, LocalDate usedDate) {
+        return new TopicHistoryResult(id, round, names, usedDate);
     }
 }

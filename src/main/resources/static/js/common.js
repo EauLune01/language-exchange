@@ -73,11 +73,12 @@ const $ = (id) => document.getElementById(id);
 
 /* ---------- 공통 도구 ---------- */
 
+/** 질문 시트에서 마지막으로 고른 언어 코드. 없으면 null */
 function readSavedLang() {
     try {
-        return localStorage.getItem(LANG_STORAGE_KEY) === 'JA' ? 'JA' : 'KO';
+        return localStorage.getItem(LANG_STORAGE_KEY);
     } catch (storageError) {
-        return 'KO';
+        return null;
     }
 }
 
@@ -102,6 +103,24 @@ function textEl(tag, className, text, lang) {
         el.lang = lang;
     }
     el.textContent = text;
+    return el;
+}
+
+/*
+ * 서버가 주는 주제·질문 내용은 { lang: 'KO', text: '공원' } 형태예요.
+ * 내용의 실제 언어를 lang/dir 속성으로 달아 줍니다. (LANGUAGES 를 쓰므로 i18nReady 뒤에 불러야 해요)
+ */
+function setLocalizedText(el, localized) {
+    const meta = LANGUAGES[localized.lang];
+    el.textContent = localized.text;
+    el.lang = meta.tag;
+    el.dir = meta.dir;
+}
+
+function localizedEl(tag, className, localized) {
+    const el = document.createElement(tag);
+    el.className = className;
+    setLocalizedText(el, localized);
     return el;
 }
 

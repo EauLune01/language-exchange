@@ -3,6 +3,7 @@ package language.exchange.room.service;
 import language.exchange.global.exception.BusinessException;
 import language.exchange.global.exception.ErrorCode;
 import language.exchange.room.domain.Room;
+import language.exchange.room.dto.result.RoomLanguageResult;
 import language.exchange.room.dto.result.RoomMemberResult;
 import language.exchange.room.dto.result.RoomResult;
 import language.exchange.room.repository.RoomRepository;
@@ -23,6 +24,13 @@ public class RoomQueryService {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
         return toRoomResult(room);
+    }
+
+    /** 다른 도메인이 방의 두 언어(A/B)를 알아야 할 때 씁니다. */
+    public RoomLanguageResult getLanguages(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+        return RoomLanguageResult.of(room.getLanguageA(), room.getLanguageB());
     }
 
     private RoomResult toRoomResult(Room room) {

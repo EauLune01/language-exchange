@@ -21,6 +21,7 @@
     const state = {
         mode: 'single',
         submitting: false,
+        languages: null, // 방의 두 언어 코드 [A, B]. 방 정보를 읽은 뒤에 채워져요.
     };
 
     /* ---------- 입력 칸 도우미 ---------- */
@@ -51,19 +52,43 @@
         return value.replace(/\s*\n\s*/g, ' ').trim();
     }
 
+    /** 왼쪽(Ko) 칸 = 방의 첫 번째 언어(A), 오른쪽(Ja) 칸 = 두 번째 언어(B). 서버에는 { lang, text } 로 보냅니다. */
+    function localizedPair(textA, textB) {
+        return [
+            { lang: state.languages[0], text: clean(textA) },
+            { lang: state.languages[1], text: clean(textB) },
+        ];
+    }
+
     function buildPayload(card) {
         const questions = [];
         for (let i = 0; i < QUESTION_COUNT; i += 1) {
             questions.push({
-                contentKo: clean(fieldOf(card, 'contentKo', i).value),
-                contentJa: clean(fieldOf(card, 'contentJa', i).value),
+                contents: localizedPair(fieldOf(card, 'contentKo', i).value, fieldOf(card, 'contentJa', i).value),
             });
         }
         return {
-            nameKo: clean(fieldOf(card, 'nameKo').value),
-            nameJa: clean(fieldOf(card, 'nameJa').value),
+            names: localizedPair(fieldOf(card, 'nameKo').value, fieldOf(card, 'nameJa').value),
             questions,
         };
+    }
+
+    /** 입력 칸의 언어 이름과 lang/dir 을 방의 두 언어로 맞춥니다. */
+    function applyRoomLanguages(card) {
+        if (!state.languages) {
+            return;
+        }
+        [['ko', state.languages[0]], ['ja', state.languages[1]]].forEach(([slot, code]) => {
+            const meta = LANGUAGES[code];
+            card.querySelectorAll(`.field-label--${slot}`).forEach((label) => {
+                label.textContent = meta.name;
+                label.lang = meta.tag;
+            });
+            card.querySelectorAll(`.field-input--${slot}`).forEach((input) => {
+                input.lang = meta.tag;
+                input.dir = meta.dir;
+            });
+        });
     }
 
     function hasContent(card) {
@@ -130,6 +155,7 @@
     function createCard() {
         const card = els.template.content.firstElementChild.cloneNode(true);
         card.querySelector('.topic-remove').addEventListener('click', () => removeCard(card));
+        applyRoomLanguages(card);
         return card;
     }
 
@@ -209,6 +235,11 @@
         }
         hideMessages();
 
+        if (!state.languages) {
+            showMessage(els.message, MESSAGES.generic); // 방 정보를 아직 못 읽었어요.
+            return;
+        }
+
         const cards = activeCards();
         const firstInvalid = markEmptyFields(cards);
         if (firstInvalid) {
@@ -255,4 +286,12 @@
 
     els.topicForms.append(createCard());
     refresh();
+
+    Promise.all([i18nReady, roomReady]).then(([, room]) => {
+        if (!room) {
+            return;
+        }
+        state.languages = room.members.map((member) => member.language);
+        allCards().forEach(applyRoomLanguages);
+    });
 })();

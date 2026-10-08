@@ -13,7 +13,7 @@ public class ApiDocumentationConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("언어교환 API")
-                        .description("한국어/일본어 언어교환 주제·질문 관리")
+                        .description("방(공용 계정) 기반 언어교환 주제·질문 관리")
                         .version("v1.0.0"));
     }
 }

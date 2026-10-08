@@ -3,9 +3,12 @@ package language.exchange.global.exception;
 import language.exchange.global.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
@@ -20,6 +23,16 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.INVALID_INPUT;
         return ResponseEntity.status(errorCode.getStatus())
                 .body(ApiResponse.fail(errorCode, errorCode.getMessage(), getErrorFields(e)));
+    }
+
+    // 읽을 수 없는 본문(잘못된 JSON·enum 값), 잘못된 타입이나 빠진 쿼리 파라미터(lang=XX 등)
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class,
+            MissingServletRequestParameterException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleUnreadableRequest(Exception e) {
+        return buildErrorResponse(ErrorCode.INVALID_INPUT, ErrorCode.INVALID_INPUT.getMessage());
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

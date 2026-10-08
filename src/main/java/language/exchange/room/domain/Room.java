@@ -34,12 +34,12 @@ public class Room extends BaseTimeEntity {
     // MySQL ENUM 컬럼이 되면 언어를 추가할 때 스키마를 바꿔야 해서 VARCHAR로 고정
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(nullable = false, length = 10)
+    @Column(name = "language_a", nullable = false, length = 10)
     private Language languageA;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(nullable = false, length = 10)
+    @Column(name = "language_b", nullable = false, length = 10)
     private Language languageB;
 
     @Column(name = "a_name", nullable = false, length = 50)

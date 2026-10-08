@@ -10,17 +10,16 @@ import java.util.List;
 @Getter
 @Builder
 public class QuestionListResponse {
+
     private Long topicId;
     private Language language;
     private List<QuestionResponse> questions;
 
-    public static QuestionListResponse of(QuestionListResult result, Language language) {
+    public static QuestionListResponse from(QuestionListResult result) {
         return QuestionListResponse.builder()
                 .topicId(result.getTopicId())
-                .language(language)
-                .questions(result.getQuestions().stream()
-                        .map(q -> QuestionResponse.of(q, language))
-                        .toList())
+                .language(result.getLanguage())
+                .questions(result.getQuestions().stream().map(QuestionResponse::from).toList())
                 .build();
     }
 }

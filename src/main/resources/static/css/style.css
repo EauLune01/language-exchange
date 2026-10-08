@@ -1274,12 +1274,12 @@ textarea.field-input {
     transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.lang-toggle button[data-lang="KO"][aria-pressed="true"] {
+.lang-toggle button[data-slot="a"][aria-pressed="true"] {
     background: var(--ko);
     color: #ffffff;
 }
 
-.lang-toggle button[data-lang="JA"][aria-pressed="true"] {
+.lang-toggle button[data-slot="b"][aria-pressed="true"] {
     background: var(--ja);
     color: #ffffff;
 }
@@ -1316,17 +1316,17 @@ textarea.field-input {
     line-height: 1;
 }
 
-.question-list[data-lang="KO"] .question-no {
+.question-list[data-slot="a"] .question-no {
     background: var(--ko-soft);
     color: var(--ko);
 }
 
-.question-list[data-lang="JA"] .question-no {
+.question-list[data-slot="b"] .question-no {
     background: var(--ja-soft);
     color: var(--ja);
 }
 
-.question-list[data-lang="KO"] .question-text {
+.question-list[data-slot="a"] .question-text {
     word-break: keep-all;
 }
 
@@ -1335,7 +1335,7 @@ textarea.field-input {
     text-wrap: pretty;
 }
 
-.question-list[data-lang="JA"] .question-text {
+.question-list[data-slot="b"] .question-text {
     word-break: auto-phrase;
     line-break: strict;
 }

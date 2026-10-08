@@ -39,8 +39,8 @@
     }
 
     function fillTopic(topic) {
-        els.ko.textContent = topic.nameKo;
-        els.ja.textContent = topic.nameJa;
+        setLocalizedText(els.ko, topic.names[0]);
+        setLocalizedText(els.ja, topic.names[1]);
         els.card.classList.remove('is-empty');
         els.card.removeAttribute('aria-label');
         els.card.disabled = false;
@@ -103,5 +103,5 @@
         }
     });
 
-    checkThisWeek();
+    i18nReady.then(checkThisWeek); // 언어 목록(LANGUAGES)이 준비된 뒤에 주제를 그립니다.
 })();

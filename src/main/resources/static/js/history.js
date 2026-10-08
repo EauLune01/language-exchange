@@ -62,8 +62,8 @@
         const names = document.createElement('span');
         names.className = 'history-names';
         names.append(
-            textEl('span', 'topic-name topic-name--ko', entry.nameKo, 'ko'),
-            textEl('span', 'topic-name topic-name--ja', entry.nameJa, 'ja')
+            localizedEl('span', 'topic-name topic-name--ko', entry.names[0]),
+            localizedEl('span', 'topic-name topic-name--ja', entry.names[1])
         );
 
         button.append(top, names, createDate(entry.usedDate));
@@ -102,5 +102,5 @@
 
     els.loadMore.addEventListener('click', loadHistory);
 
-    loadHistory();
+    i18nReady.then(loadHistory); // 언어 목록(LANGUAGES)이 준비된 뒤에 기록을 그립니다.
 })();

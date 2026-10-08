@@ -48,8 +48,8 @@
         button.type = 'button';
         button.className = topic.usedDate ? 'topic-row is-used' : 'topic-row is-new';
         button.append(
-            textEl('span', 'topic-name topic-name--ko', topic.nameKo, 'ko'),
-            textEl('span', 'topic-name topic-name--ja', topic.nameJa, 'ja'),
+            localizedEl('span', 'topic-name topic-name--ko', topic.names[0]),
+            localizedEl('span', 'topic-name topic-name--ja', topic.names[1]),
             createPill(topic.usedDate)
         );
         button.addEventListener('click', () => openQuestions(topic));
@@ -96,5 +96,5 @@
 
     els.loadMore.addEventListener('click', loadTopics);
 
-    loadTopics();
+    i18nReady.then(loadTopics); // 언어 목록(LANGUAGES)이 준비된 뒤에 주제를 그립니다.
 })();

@@ -84,14 +84,25 @@
     /** 배우고 싶은 언어 목록: 화면 언어와 상관없이 각 언어를 그 언어의 이름으로 보여줍니다. */
     function fillLanguageSelects() {
         const fields = els.createForm.elements;
-        [fields.learningLanguageA, fields.learningLanguageB].forEach((select, index) => {
+        [fields.learningLanguageA, fields.learningLanguageB].forEach((select) => {
+            const placeholder = new Option(t('enter.create.chooseLanguage'), ''); // 기본값 없이 직접 고르게 합니다.
+            placeholder.dataset.i18n = 'enter.create.chooseLanguage';
+            select.append(placeholder);
             Object.entries(LANGUAGES).forEach(([code, meta]) => {
                 const option = new Option(meta.name, code);
                 option.lang = meta.tag;
                 select.append(option);
             });
-            select.selectedIndex = index; // 처음부터 서로 다른 언어가 골라져 있게
+            select.addEventListener('change', syncCreateButton);
         });
+        syncCreateButton();
+    }
+
+    /** 두 사람 모두 배우고 싶은 언어를 고르기 전에는 방 만들기 버튼을 누를 수 없어요. */
+    function syncCreateButton() {
+        const fields = els.createForm.elements;
+        els.createForm.querySelector('button[type="submit"]').disabled =
+            !(fields.learningLanguageA.value && fields.learningLanguageB.value);
     }
 
     /** 국적 목록: 나라 이름을 지금 화면 언어로 만들고 그 언어의 순서로 정렬합니다. 화면 언어가 바뀌면 다시 불러요. */
