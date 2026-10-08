@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,11 +37,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
- * 방 격리: 한 방의 주제·질문·기록·이번 주 주제가 다른 방에 보이지 않는지 실제 DB 쿼리로 확인합니다.
- * (docker compose 의 MySQL·RabbitMQ 가 떠 있어야 하고, 테스트 데이터는 끝나면 롤백됩니다.
- *  큐로는 보내지 않고 Consumer 가 부르는 서비스 메서드를 직접 호출합니다.)
+ * 방 격리: 한 방의 주제·질문·기록·이번 주 주제가 다른 방에 보이지 않는지 실제 쿼리로 확인합니다.
+ * (test 프로파일: 메모리 DB(H2, MySQL 모드)를 쓰고 큐에는 연결하지 않습니다.
+ *  큐로 보내는 대신 Consumer 가 부르는 서비스 메서드를 직접 호출합니다.)
  */
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 class TopicRoomIsolationTest {
 

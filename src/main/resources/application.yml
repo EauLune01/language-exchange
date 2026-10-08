@@ -1,24 +1,26 @@
-
+# 모든 환경 공통 설정.
+# 환경별 차이는 application-dev.yml(개발, 기본값) / application-prod.yml(배포) / src/test/resources/application-test.yml(테스트)에 둔다.
 spring:
   config:
     import: optional:file:.env[.properties]
+
+  profiles:
+    default: dev   # 프로파일을 지정하지 않고 실행하면 개발용 설정을 쓴다
 
   application:
     name: exchange
 
   datasource:
-    url: jdbc:mysql://localhost:3306/exchange?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/${MYSQL_DATABASE:exchange}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update   # 실제 데이터가 생기면 마이그레이션 도구 + validate 로 바꾼다 (CONVENTION §14)
     open-in-view: false
-    show-sql: true
     properties:
       hibernate:
-        format_sql: true
         jdbc:
           time_zone: Asia/Seoul
 
@@ -29,6 +31,7 @@ spring:
     password: guest
     listener:
       simple:
+        # Consumer 실패 시 2초 → 4초 간격으로 최대 3회 시도하고, 그래도 실패하면 DLQ로 보낸다
         retry:
           enabled: true
           initial-interval: 2s
@@ -37,11 +40,7 @@ spring:
         default-requeue-rejected: false
 
 server:
-  port: 8080
   servlet:
-    encoding:
-      charset: UTF-8
-      force: true
     session:
       # 일주일에 한 번 쓰는 앱이라 길게 둔다. 세션은 메모리에 있어서 서버를 재시작하면 다시 로그인해야 한다.
       timeout: 30d
@@ -54,11 +53,3 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: method
-  api-docs:
-    path: /v3/api-docs
-
-logging:
-  level:
-    root: INFO
-    language.exchange: DEBUG
-    org.hibernate.SQL: DEBUG

@@ -1,0 +1,16 @@
+# 테스트용 (@ActiveProfiles("test")). 개발용 MySQL·RabbitMQ 를 건드리지 않고, Docker 없이도 돈다.
+spring:
+  datasource:
+    # 메모리 DB(H2)를 MySQL 호환 모드로 쓴다. 테스트가 끝나면 사라진다.
+    url: jdbc:h2:mem:exchange-test;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false   # 큐에 연결하지 않는다. 비동기 경로는 Consumer 가 부르는 서비스 메서드를 직접 호출해 확인한다.
