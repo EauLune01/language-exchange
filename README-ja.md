@@ -10,7 +10,7 @@
 - **10言語**：韓国語、日本語、英語、中国語（簡体字）、スペイン語、フランス語、アラビア語、ベトナム語、タイ語、イタリア語。ルーム作成時にそれぞれが**学びたい言語**を選ぶと、その2言語がルームの言語になります。
 - **トピックと質問はルームの2言語**をペアにして保存し、画面では2言語を並べて表示するか、トグルで切り替えて見ます。
 - トピックは、まだ使っていないものの中からランダムに引きます。週ごとの制限はなく、引くたびに学習回数が1つ増え、ルーム作成時に決めた**目標回数**（25/50/75/100）までの進捗バーが伸びます。
-- これまで話したトピックは**回ごとの学習記録**として見返せます。
+- これまで話したトピックは**回ごとの学習記録**として見返せ、**統計**画面では合計回数・今月の回数・トピックの進み具合・月ごとのグラフでふり返れます。
 - すでに引いて話したトピックの質問ごとに**メモ**を残せます。メモはルーム × 質問 × 言語の単位なので、同じ質問でも2つの言語のメモは別々に保存されます。
 - トピック・質問・記録・メモは**ルームごとに完全に分離**されています。
 
@@ -83,7 +83,7 @@ flowchart LR
 
 ## 📡 API
 
-### 一覧（全12個）
+### 一覧（全13個）
 
 | # | Method | URI | 説明 | ログイン | レスポンス |
 |---|---|---|---|:---:|---|
@@ -99,6 +99,7 @@ flowchart LR
 | 10 | `GET` | `/api/topics/{topicId}/questions?lang=` | トピックの質問3つ（言語指定） | 必要 | `200` / `400` / `401` / `404` |
 | 11 | `PUT` | `/api/questions/{questionId}/note?lang=` | 質問メモの保存（あれば更新、なければ作成）。使用済みトピックのみ | 必要 | `200` / `400` / `401` / `403` / `404` |
 | 12 | `GET` | `/api/questions/{questionId}/note?lang=` | 質問メモの取得 | 必要 | `200` / `400` / `401` |
+| 13 | `GET` | `/api/stats` | ルームの学習統計 | 必要 | `200` / `401` |
 
 - Swagger UI：`http://localhost:8080/swagger-ui.html`
 - すべてのAPIは`Content-Type: application/json`を使い、ログイン後はセッションCookie（`JSESSIONID`）が自動的に一緒に送信されます。
@@ -543,6 +544,46 @@ flowchart LR
 
 ---
 
+### 13. ルームの学習統計 `GET /api/stats`
+
+ログイン中のルームの統計をまとめて返します。別に保存している値はなく、トピックの使用日から取得時に計算します。パラメータはありません。
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `totalTopics` | number | 登録したトピックの数 |
+| `usedTopics` | number | 使ったトピックの数 = 合計回数（`GET /api/rooms`の`studiedCount`と同じ値） |
+| `thisMonthCount` | number | 今月引いた回数（サーバーの日付基準） |
+| `weekStreak` | number | 1週も空けずに続けた週の数。週は月〜日で、今週まだやっていなければ先週までを数えます。 |
+| `firstUsedDate` | string / null | 初めてトピックを引いた日。まだなければ`null` |
+| `monthly` | array | 直近6か月の月ごとの回数。**古い月 → 今月**の順で、0回の月も`count: 0`で入るため常に6個です。 |
+
+**Response `200 OK`**
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "통계 조회 성공",
+  "data": {
+    "totalTopics": 28,
+    "usedTopics": 17,
+    "thisMonthCount": 2,
+    "weekStreak": 4,
+    "firstUsedDate": "2026-03-14",
+    "monthly": [
+      { "month": "2026-05", "count": 3 },
+      { "month": "2026-06", "count": 4 },
+      { "month": "2026-07", "count": 0 },
+      { "month": "2026-08", "count": 2 },
+      { "month": "2026-09", "count": 5 },
+      { "month": "2026-10", "count": 2 }
+    ]
+  }
+}
+```
+
+---
+
 ### 全errorCode
 
 | errorCode | HTTP | 状況 |
@@ -588,12 +629,15 @@ APIのレスポンスとは別に、サーバー内部でやり取りされる�
 | ホーム | `index.html` | トピックを引きます。ボタンを押すたびに新しいトピックが引かれ、ヘッダーの進捗バーが伸びます。カードを押すと質問が開きます。 |
 | 全トピック | `topics.html` | 登録されたすべてのトピック。「まだ使っていないトピック / 使ったトピック」のグループに分かれ、`もっと見る`で続きを読み込みます。 |
 | 学習記録 | `history.html` | 第1回からこれまでに話したトピックの一覧。今週の記録は強調されます。 |
+| 統計 | `stats.html` | 数字タイル4つ（合計回数と目標、今月と先月、連続で続けた週、一緒に過ごした日数）、登録したトピックのうち話したトピックの進捗バー、直近6か月の月ごとの棒グラフ（今月を強調）。 |
 | トピック登録 | `register.html` | トピックと質問3つを、ルームの2言語をペアにして入力します。**1つずつ / 複数まとめて**の方式を選べます。 |
 
 - **共通ヘッダー**：ロゴ、メニュー、画面言語の選択、ログアウトは`common.js`がすべてのページに描画します。HTMLには空の`<header>`だけがあります。
 - **進捗バー**：ログイン後のすべてのページのヘッダー下に、「민수とゆいの言語交換の旅」というタイトル、進捗バー、パーセント（`studiedCount / goal`、切り捨て、最大100%）が表示されます。`common.js`の`applyProgress()`がルーム情報（`roomInfo`）から描画し、ホームでトピックを引くとすぐに1つ進みます。韓国語のタイトルの助詞（과/와）は、1人目の名前のパッチムに合わせます（ハングルでなければ「와」）。
 - **質問シート**：トピックを押すと質問3つが開き、ルームの2言語のトグルで言語を切り替えます。最後に選んだ言語はルームごとにブラウザに記憶されます。
 - **質問メモ**：**使用済みのトピック**（ホームで引いたばかりのトピック、学習記録、全トピックの「使ったテーマ」）でだけ表示されます。まだ使っていないトピックでは質問だけを表示します。質問を押すと、その下に罫線ノート風のメモ欄が開き、もう一度押すと閉じます。メモは今選んでいる言語のものを読み込み、**保存**ボタンで保存します（2000文字まで、空の内容は保存不可）。言語トグルを切り替えると同じ質問のその言語のメモに変わり、保存していない内容もページを離れるまでは残ります。
+- **ペット**：ホームのカードの下に、ルームの2言語の組み合わせに合った動物が表示されます（`js/pet.js`、45通りの組み合わせ、2言語の順番は無関係）。動物と絵文字は組み合わせごとにすべて異なります。サーバーに別途保存する値はなく、学習回数と目標回数からレベル（0〜100）を計算し、目標を達成するとレベル100になります（目標25回なら1回で4レベル、50回なら2レベル、75回なら1〜2レベル、100回なら1レベル）。1回でも引くと現れ、トピックを引いてレベルが上がると「レベルアップ」のダイアログで知らせます。レベル100になるとお祝いのダイアログが表示されます（すでにレベル100のルームでは、その端末で1回）。名前は画面言語に合わせます。
+- **統計グラフ**：チャートライブラリを使わず、HTML/CSSで描きます。棒ごとに値を数字でも表示して色だけに頼らず、月の名前と数字の書式は`Intl`が画面言語に合わせます。
 - **入力検証**：空欄があれば送信せず、該当の欄を表示します。文字数はDBカラムの長さ（255文字）に合わせて制限しました。
 
 ### 多言語対応
@@ -683,11 +727,11 @@ exchange
     │   │   ├── auth                 # ログイン・ログアウト (AuthController, AuthService)
     │   │   ├── room                 # ルーム作成・ルーム情報 (Room, Language, RoomService, RoomQueryService)
     │   │   └── study                # トピック・質問
-    │   │       ├── controller       # TopicController
+    │   │       ├── controller       # TopicController, StatsController
     │   │       ├── domain           # Topic, Question
     │   │       ├── dto              # request / command / result / response
     │   │       ├── repository       # TopicRepository (+ QueryDSL custom/impl), QuestionRepository
-    │   │       ├── service          # TopicService(書き込み), TopicQueryService(取得)
+    │   │       ├── service          # TopicService(書き込み), TopicQueryService(取得), StatsQueryService(統計)
     │   │       ├── event            # キューに送るメッセージオブジェクト
     │   │       ├── publisher        # メッセージ発行
     │   │       ├── consumer         # メッセージ受信・処理
@@ -697,7 +741,7 @@ exchange
     │       ├── application-dev.yml  # 開発用 (デフォルト)
     │       ├── application-prod.yml # 本番用
     │       └── static
-    │           ├── enter.html / index.html / topics.html / history.html / register.html
+    │           ├── enter.html / index.html / topics.html / history.html / stats.html / register.html
     │           ├── favicon.svg
     │           ├── css/style.css
     │           ├── img/motif/       # 言語別モチーフSVG 10個
@@ -707,9 +751,10 @@ exchange
     │               ├── i18n.js      # 画面文言エンジン
     │               ├── i18n/        # 言語別辞書 10個
     │               ├── sheet.js     # 質問シート、質問メモ
-    │               └── enter.js / home.js / topics.js / history.js / register.js
+    │               ├── pet.js       # 言語の組み合わせごとのペット（動物、画面言語ごとの名前）
+    │               └── enter.js / home.js / topics.js / history.js / stats.js / register.js
     └── test
-        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, NoteServiceTest
+        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, NoteServiceTest, StatsQueryServiceTest
         └── resources/application-test.yml
 ```
 
@@ -775,7 +820,7 @@ docker compose ps        # 両方がhealthyになるまで待つ
 ./gradlew clean test
 ```
 
-Dockerなしで実行できます。ルームの分離（他のルームのトピック・記録が見えず、引かれもしないか）、ルーム作成のルール（言語・国籍・目標回数）、パスワードのハッシュ、質問メモ（保存・更新、ルーム・言語ごとの分離、未使用トピックには保存不可）を確認します。
+Dockerなしで実行できます。ルームの分離（他のルームのトピック・記録が見えず、引かれもしないか）、ルーム作成のルール（言語・国籍・目標回数）、パスワードのハッシュ、質問メモ（保存・更新、ルーム・言語ごとの分離、未使用トピックには保存不可）、統計（月ごとの集計、連続週、ルームの分離）を確認します。
 
 ### スキーマを変更したとき
 

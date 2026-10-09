@@ -16,6 +16,9 @@
         modeToggle: $('mode-toggle'),
         loginForm: $('login-form'),
         createForm: $('create-form'),
+        petPreview: $('pet-preview'),
+        petPreviewEmoji: $('pet-preview-emoji'),
+        petPreviewName: $('pet-preview-name'),
     };
 
     function setMode(mode) {
@@ -94,8 +97,21 @@
                 select.append(option);
             });
             select.addEventListener('change', syncCreateButton);
+            select.addEventListener('change', syncPetPreview);
         });
         syncCreateButton();
+    }
+
+    /** 서로 다른 두 언어를 고르면 그 조합의 펫(pet.js)을 미리 보여줍니다. 이름은 화면 언어를 따라가요. */
+    function syncPetPreview() {
+        const fields = els.createForm.elements;
+        const langA = fields.learningLanguageA.value;
+        const langB = fields.learningLanguageB.value;
+        els.petPreview.hidden = !langA || !langB || langA === langB;
+        if (!els.petPreview.hidden) {
+            els.petPreviewEmoji.textContent = getPet(langA, langB).emoji;
+            els.petPreviewName.textContent = getPetName(langA, langB, i18nLang);
+        }
     }
 
     /** 두 사람 모두 배우고 싶은 언어를 고르기 전에는 방 만들기 버튼을 누를 수 없어요. */
@@ -171,6 +187,7 @@
         fillLanguageSelects();
         fillNationalitySelects();
         document.addEventListener('i18n:change', fillNationalitySelects);
+        document.addEventListener('i18n:change', syncPetPreview);
     });
 
     // 이미 로그인한 상태면 바로 홈으로 보냅니다.

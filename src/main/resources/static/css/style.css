@@ -610,6 +610,160 @@ a {
 
 /* ---------- 메인: 바로가기 ---------- */
 
+/* ---------- 펫: 두 언어가 만나 생긴 동물. 레벨바는 A 색에서 B 색으로 이어집니다 ---------- */
+
+.pet-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 560px;
+    margin: clamp(28px, 4vw, 40px) auto 0;
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+}
+
+.pet-emoji {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--lang-a-circle), var(--lang-b-circle));
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.pet-emoji.is-level-up {
+    animation: pet-hop 0.5s ease-out;
+}
+
+@keyframes pet-hop {
+    40% {
+        transform: translateY(-10px) scale(1.08);
+    }
+}
+
+.pet-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.pet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 12px;
+}
+
+.pet-name {
+    font-size: 1.15rem;
+    line-height: 1.3;
+}
+
+.pet-level-label {
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+.pet-bar-track {
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--line);
+}
+
+.pet-bar {
+    width: var(--fill, 0%);
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(to right, var(--lang-a), var(--lang-b));
+    transition: width 0.6s ease;
+}
+
+[dir="rtl"] .pet-bar {
+    background: linear-gradient(to left, var(--lang-a), var(--lang-b));
+}
+
+/* 방 만들기: 두 언어를 고르면 나오는 펫 미리보기 (줄 전체 폭) */
+.pet-preview {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    gap: 18px;
+    margin: 4px 0 0;
+    padding: 16px 20px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(to right, var(--lang-a-soft), var(--lang-b-soft));
+    animation: note-in 0.22s ease-out;
+}
+
+[dir="rtl"] .pet-preview {
+    background: linear-gradient(to left, var(--lang-a-soft), var(--lang-b-soft));
+}
+
+.pet-preview .pet-emoji {
+    width: 76px;
+    height: 76px;
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+    font-size: 2.8rem;
+}
+
+.pet-preview-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    line-height: 1.3;
+}
+
+.pet-preview-label {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.pet-preview .pet-name {
+    font-size: 1.5rem;
+}
+
+.congrats-dialog {
+    width: min(340px, calc(100% - 40px));
+    padding: 32px 24px 24px;
+    border: 0;
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+    text-align: center;
+}
+
+.congrats-dialog::backdrop {
+    background: rgba(27, 35, 64, 0.52);
+}
+
+.congrats-dialog[open] {
+    animation: sheet-in 0.26s ease-out;
+}
+
+.congrats-emoji {
+    margin: 0 0 12px;
+    font-size: 4rem;
+    line-height: 1.1;
+}
+
+.congrats-message {
+    margin: 0 0 6px;
+    line-height: 1.6;
+    text-wrap: pretty;
+}
+
 .shortcuts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -1199,6 +1353,223 @@ textarea.field-input {
     color: inherit;
     font-weight: 500;
     text-underline-offset: 3px;
+}
+
+/* ---------- 통계 ---------- */
+
+.stats {
+    display: grid;
+    gap: clamp(14px, 2vw, 20px);
+}
+
+.stat-tiles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(10px, 1.6vw, 16px);
+}
+
+.stat-tile,
+.stat-panel {
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+}
+
+.stat-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: 18px 20px 20px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.stat-value {
+    font-size: clamp(2.2rem, 4.6vw, 3.1rem);
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.stat-sub {
+    margin-top: auto;
+    padding-top: 6px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* 맨 앞의 총 회차만 방의 첫 번째 색으로 채워 주인공으로 */
+.stat-tile--hero {
+    background: var(--lang-a);
+    color: #ffffff;
+}
+
+.stat-tile--hero .stat-label,
+.stat-tile--hero .stat-sub {
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.stat-panels {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+    gap: clamp(14px, 2vw, 20px);
+}
+
+.stat-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 22px 24px 24px;
+}
+
+.stat-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.stat-note {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+.stat-fraction {
+    margin: auto 0 12px;
+    padding-top: 20px;
+    line-height: 1.1;
+}
+
+.stat-fraction-done {
+    font-size: clamp(2.4rem, 5vw, 3.2rem);
+    font-weight: 400;
+}
+
+.stat-fraction-total {
+    color: var(--muted);
+    font-size: 1.3rem;
+}
+
+/* 비율 하나 = 미터: 같은 색의 옅은 통 위에 진한 채움 */
+.stat-meter {
+    height: 14px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--lang-a-soft);
+}
+
+.stat-meter-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--lang-a);
+    animation: stat-meter-in 0.7s ease-out;
+}
+
+@keyframes stat-meter-in {
+    from {
+        transform: translateX(-100%);
+    }
+}
+
+[dir="rtl"] .stat-meter-fill {
+    animation: none;
+}
+
+.stat-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2px 16px;
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+/* 월별 세로 막대: 얇은 막대, 위쪽만 둥글게, 바닥 선 하나. 지난달들은 옅게 두고 이번 달만 진하게 */
+.stat-bars {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 6px;
+    margin: auto 0 0;
+    padding: 24px 0 0;
+    list-style: none;
+}
+
+.stat-bar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.stat-bar-value {
+    order: 1;
+    margin-bottom: 6px;
+    font-size: 0.92rem;
+    line-height: 1.2;
+}
+
+.stat-bar-value.is-zero {
+    color: #9aa1b8;
+}
+
+.stat-bar {
+    order: 2;
+    width: 24px;
+    max-width: 100%;
+    border-radius: 4px 4px 0 0;
+    background: var(--lang-a-circle);
+    transform-origin: bottom;
+    animation: stat-bar-in 0.6s ease-out backwards;
+}
+
+.stat-bar-item.is-current .stat-bar {
+    background: var(--lang-a);
+}
+
+@keyframes stat-bar-in {
+    from {
+        transform: scaleY(0);
+    }
+}
+
+.stat-bar-month {
+    order: 3;
+    align-self: stretch;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.3;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.stat-bar-item.is-current .stat-bar-month {
+    color: var(--ink);
+}
+
+@media (max-width: 760px) {
+    .stat-tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stat-panels {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .stat-panel {
+        padding: 20px 18px 22px;
+    }
 }
 
 /* ---------- 질문 시트 ---------- */

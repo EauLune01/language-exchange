@@ -113,6 +113,14 @@
                         <select class="field-input field-input--b" name="learningLanguageB"></select>
                     </label>
                     <p class="form-row-hint" data-i18n="enter.create.learningLanguageHint"></p>
+                    <!-- 두 언어를 고르면 그 조합의 펫을 미리 보여줍니다 (enter.js) -->
+                    <p id="pet-preview" class="pet-preview" aria-live="polite" hidden>
+                        <span id="pet-preview-emoji" class="pet-emoji" aria-hidden="true"></span>
+                        <span class="pet-preview-text">
+                            <span class="pet-preview-label" data-i18n="stats.pet"></span>
+                            <span id="pet-preview-name" class="pet-name"></span>
+                        </span>
+                    </p>
                 </div>
 
                 <div class="form-row form-row--goal" role="radiogroup" aria-labelledby="goal-label">
@@ -123,6 +131,7 @@
                         <label><input type="radio" name="goal" value="75">75</label>
                         <label><input type="radio" name="goal" value="100">100</label>
                     </div>
+                    <p class="form-row-hint" data-i18n="room.goal.petHint"></p>
                 </div>
             </section>
 
@@ -139,6 +148,7 @@
 
 <!-- languages.js, i18n.js, 사전은 common.js 가 불러옵니다. -->
 <script src="js/common.js"></script>
+<script src="js/pet.js"></script>
 <script src="js/enter.js"></script>
 </body>
 </html>

@@ -49,6 +49,21 @@
             </div>
         </section>
 
+        <!-- 펫: 방의 두 언어 조합마다 동물이 하나씩 있고, 학습 횟수가 레벨입니다. 한 번이라도 뽑으면 home.js 가 보여줍니다. -->
+        <section id="pet-section" class="pet-display" data-i18n-aria-label="stats.pet" hidden>
+            <span id="pet-emoji" class="pet-emoji" aria-hidden="true"></span>
+            <div class="pet-info">
+                <span class="pet-head">
+                    <span id="pet-name" class="pet-name"></span>
+                    <span id="pet-level" class="pet-level-label"></span>
+                </span>
+                <div id="pet-track" class="pet-bar-track" role="progressbar"
+                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="pet-name">
+                    <div id="pet-bar" class="pet-bar"></div>
+                </div>
+            </div>
+        </section>
+
         <!-- 바로가기 -->
         <section class="shortcuts" data-i18n-aria-label="home.shortcuts.label">
             <a class="shortcut" href="topics.html">
@@ -93,7 +108,17 @@
     </div>
 </dialog>
 
+<!-- 펫 레벨 업 알림 · 100레벨 달성 축하 (문구는 home.js 가 채웁니다) -->
+<dialog id="pet-congrats-modal" class="congrats-dialog">
+    <form method="dialog" class="congrats-content">
+        <p id="congrats-emoji" class="congrats-emoji" aria-hidden="true"></p>
+        <p id="congrats-message" class="congrats-message"></p>
+        <button type="submit" class="primary" data-i18n="sheet.close"></button>
+    </form>
+</dialog>
+
 <script src="js/common.js"></script>
+<script src="js/pet.js"></script>
 <script src="js/sheet.js"></script>
 <script src="js/home.js"></script>
 </body>

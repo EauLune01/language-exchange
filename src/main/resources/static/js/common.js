@@ -193,6 +193,7 @@ const NAV_ITEMS = [
     ['home', 'index.html', 'nav.home'],
     ['topics', 'topics.html', 'nav.topics'],
     ['history', 'history.html', 'nav.history'],
+    ['stats', 'stats.html', 'nav.stats'],
     ['register', 'register.html', 'nav.register'],
 ];
 

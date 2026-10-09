@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f3f5fc">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title data-i18n="nav.stats"></title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+SC:wght@400;500&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+    <!-- 로고·메뉴·화면 언어 선택·로그아웃은 common.js 가 여기에 그립니다. 화면 문구는 data-i18n 키로만 씁니다. -->
+    <header class="site-header" data-nav="stats"></header>
+
+    <main>
+        <div class="page-head">
+            <h1 class="page-title" data-i18n="nav.stats"></h1>
+            <p class="page-note" data-i18n="stats.note"></p>
+        </div>
+
+        <!-- 숫자 타일, 주제 진행, 월별 그래프는 stats.js 가 여기에 그립니다. -->
+        <div id="stats" class="stats"></div>
+        <div id="stats-message" class="message" hidden></div>
+    </main>
+</div>
+
+
+<script src="js/common.js"></script>
+<script src="js/stats.js"></script>
+</body>
+</html>

@@ -10,7 +10,7 @@
 - **10개 언어**: 한국어, 일본어, 영어, 중국어(간체), 스페인어, 프랑스어, 아랍어, 베트남어, 태국어, 이탈리아어. 방을 만들 때 각자 **배우고 싶은 언어**를 고르면 그 두 언어가 방의 언어가 됩니다.
 - **주제와 질문은 방의 두 언어로** 짝지어 저장하고, 화면에서는 두 언어를 나란히 보여주거나 토글로 바꿔 봅니다.
 - 주제는 아직 안 쓴 주제 중에서 무작위로 뽑습니다. 주 단위 제한은 없고, 뽑을 때마다 학습 횟수가 1씩 늘어 방을 만들 때 정한 **목표 횟수**(25/50/75/100)까지의 진행바가 채워집니다.
-- 지금까지 이야기한 주제는 **회차별 학습 기록**으로 다시 볼 수 있습니다.
+- 지금까지 이야기한 주제는 **회차별 학습 기록**으로 다시 볼 수 있고, **통계** 화면에서 총 회차·이번 달 횟수·주제 진행·월별 그래프로 돌아볼 수 있습니다.
 - 이미 뽑아서 이야기한 주제의 질문마다 **메모**를 남길 수 있습니다. 메모는 방 × 질문 × 언어 단위라, 같은 질문이어도 두 언어의 메모가 따로 저장됩니다.
 - 주제·질문·기록·메모는 **방마다 완전히 분리**됩니다.
 
@@ -83,7 +83,7 @@ flowchart LR
 
 ## 📡 API
 
-### 한눈에 보기 (총 12개)
+### 한눈에 보기 (총 13개)
 
 | # | Method | URI | 설명 | 로그인 | 응답 |
 |---|---|---|---|:---:|---|
@@ -99,6 +99,7 @@ flowchart LR
 | 10 | `GET` | `/api/topics/{topicId}/questions?lang=` | 주제의 질문 3개 (언어 지정) | 필요 | `200` / `400` / `401` / `404` |
 | 11 | `PUT` | `/api/questions/{questionId}/note?lang=` | 질문 메모 저장 (있으면 수정, 없으면 생성). 사용한 주제만 | 필요 | `200` / `400` / `401` / `403` / `404` |
 | 12 | `GET` | `/api/questions/{questionId}/note?lang=` | 질문 메모 조회 | 필요 | `200` / `400` / `401` |
+| 13 | `GET` | `/api/stats` | 방의 학습 통계 | 필요 | `200` / `401` |
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - 모든 API는 `Content-Type: application/json`을 사용하고, 로그인 후에는 세션 쿠키(`JSESSIONID`)가 자동으로 함께 전송됩니다.
@@ -543,6 +544,46 @@ flowchart LR
 
 ---
 
+### 13. 방의 학습 통계 `GET /api/stats`
+
+로그인한 방의 통계를 한 번에 돌려줍니다. 따로 저장하는 값은 없고, 주제의 사용 날짜로 조회할 때 계산합니다. 파라미터는 없습니다.
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `totalTopics` | number | 등록한 주제 수 |
+| `usedTopics` | number | 사용한 주제 수 = 총 회차 (`GET /api/rooms`의 `studiedCount`와 같은 값) |
+| `thisMonthCount` | number | 이번 달에 뽑은 횟수 (서버 날짜 기준) |
+| `weekStreak` | number | 한 주도 거르지 않고 이어온 주 수. 주는 월~일이고, 이번 주에 아직 안 했으면 지난주까지를 셉니다. |
+| `firstUsedDate` | string / null | 처음 주제를 뽑은 날. 아직 없으면 `null` |
+| `monthly` | array | 최근 6개월의 월별 횟수. **오래된 달 → 이번 달** 순서이고, 안 한 달도 `count: 0`으로 들어 있어 항상 6개입니다. |
+
+**Response `200 OK`**
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "통계 조회 성공",
+  "data": {
+    "totalTopics": 28,
+    "usedTopics": 17,
+    "thisMonthCount": 2,
+    "weekStreak": 4,
+    "firstUsedDate": "2026-03-14",
+    "monthly": [
+      { "month": "2026-05", "count": 3 },
+      { "month": "2026-06", "count": 4 },
+      { "month": "2026-07", "count": 0 },
+      { "month": "2026-08", "count": 2 },
+      { "month": "2026-09", "count": 5 },
+      { "month": "2026-10", "count": 2 }
+    ]
+  }
+}
+```
+
+---
+
 ### 전체 errorCode
 
 | errorCode | HTTP | 상황 |
@@ -588,12 +629,15 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
 | 홈 | `index.html` | 주제 뽑기. 버튼을 누를 때마다 새 주제가 뽑히고 헤더의 진행바가 올라갑니다. 카드를 누르면 질문이 열립니다. |
 | 전체 주제 | `topics.html` | 등록된 모든 주제. "아직 안 쓴 주제 / 사용한 주제" 그룹으로 나뉘며 `더 보기`로 이어서 불러옵니다. |
 | 학습 기록 | `history.html` | 1회차부터 지금까지 이야기한 주제 목록. 이번 주 기록은 강조됩니다. |
+| 통계 | `stats.html` | 숫자 타일 4개(총 회차와 목표, 이번 달과 지난달, 연속으로 이어온 주, 함께한 날), 등록한 주제 중 이야기한 주제의 진행 막대, 최근 6개월 월별 막대그래프(이번 달 강조). |
 | 주제 등록 | `register.html` | 주제와 질문 3개를 방의 두 언어로 짝지어 입력. **하나씩 / 여러 개씩** 방식을 선택할 수 있습니다. |
 
 - **공통 헤더**: 로고, 메뉴, 화면 언어 선택, 로그아웃은 `common.js`가 모든 페이지에 그립니다. HTML에는 빈 `<header>`만 있습니다.
 - **진행바**: 로그인한 모든 페이지의 헤더 아래에 "민준과 ゆい의 언어교환 여정" 제목, 진행바, 퍼센트(`studiedCount / goal`, 내림, 최대 100%)가 나옵니다. `common.js`의 `applyProgress()`가 방 정보(`roomInfo`)로 그리고, 홈에서 주제를 뽑으면 바로 한 칸 올라갑니다. 한국어 제목의 조사 과/와는 첫 번째 이름의 받침에 맞춥니다(한글이 아니면 "와").
 - **질문 시트**: 주제를 누르면 질문 3개가 열리고, 방의 두 언어 토글로 언어를 바꿉니다. 마지막으로 고른 언어는 방별로 브라우저에 기억됩니다.
 - **질문 메모**: **사용한 주제**(홈에서 방금 뽑은 주제, 학습 기록, 전체 주제의 "사용한 주제")에서만 나옵니다. 아직 안 쓴 주제는 질문만 보여줍니다. 질문을 누르면 그 아래에 줄 공책 모양의 메모 칸이 열리고, 다시 누르면 닫힙니다. 메모는 지금 고른 언어의 것을 불러오고 **저장** 버튼으로 저장합니다(2000자까지, 빈 내용은 저장 불가). 언어 토글을 바꾸면 같은 질문의 그 언어 메모로 바뀌고, 저장하지 않은 내용도 페이지를 벗어나기 전까지는 남아 있습니다.
+- **펫**: 홈의 뽑기 카드 아래에 방의 두 언어 조합에 맞는 동물이 나옵니다(`js/pet.js`, 45가지 조합, 두 언어의 순서와 무관). 동물과 이모지는 조합마다 서로 다릅니다. 서버에 따로 저장하는 값 없이 학습 횟수와 목표 횟수로 레벨(0~100)을 계산해서, 목표를 다 채우면 100레벨입니다(목표 25회면 한 번에 4레벨, 50회면 2레벨, 75회면 1~2레벨, 100회면 1레벨). 한 번이라도 뽑아야 나타나고, 주제를 뽑아 레벨이 오르면 "레벨 업" 창으로 알려 줍니다. 100레벨이 되면 축하 창이 뜹니다(이미 100레벨인 방은 그 기기에서 한 번). 이름은 화면 언어를 따라갑니다.
+- **통계 그래프**: 차트 라이브러리 없이 HTML/CSS로 그립니다. 막대마다 값을 숫자로도 적어 색에만 의존하지 않고, 달 이름과 숫자 모양은 `Intl`이 화면 언어에 맞춥니다.
 - **입력 검증**: 빈 칸이 있으면 전송하지 않고 해당 칸을 표시합니다. 글자 수는 DB 컬럼 길이(255자)에 맞춰 제한했습니다.
 
 ### 다국어
@@ -683,11 +727,11 @@ exchange
     │   │   ├── auth                 # 로그인·로그아웃 (AuthController, AuthService)
     │   │   ├── room                 # 방 만들기·방 정보 (Room, Language, RoomService, RoomQueryService)
     │   │   └── study                # 주제·질문
-    │   │       ├── controller       # TopicController
+    │   │       ├── controller       # TopicController, StatsController
     │   │       ├── domain           # Topic, Question
     │   │       ├── dto              # request / command / result / response
     │   │       ├── repository       # TopicRepository (+ QueryDSL custom/impl), QuestionRepository
-    │   │       ├── service          # TopicService(쓰기), TopicQueryService(조회)
+    │   │       ├── service          # TopicService(쓰기), TopicQueryService(조회), StatsQueryService(통계)
     │   │       ├── event            # 큐로 보내는 메시지 객체
     │   │       ├── publisher        # 메시지 발행
     │   │       ├── consumer         # 메시지 수신·처리
@@ -697,7 +741,7 @@ exchange
     │       ├── application-dev.yml  # 개발용 (기본)
     │       ├── application-prod.yml # 배포용
     │       └── static
-    │           ├── enter.html / index.html / topics.html / history.html / register.html
+    │           ├── enter.html / index.html / topics.html / history.html / stats.html / register.html
     │           ├── favicon.svg
     │           ├── css/style.css
     │           ├── img/motif/       # 언어별 모티프 SVG 10개
@@ -707,9 +751,10 @@ exchange
     │               ├── i18n.js      # 화면 문구 엔진
     │               ├── i18n/        # 언어별 사전 10개
     │               ├── sheet.js     # 질문 시트, 질문 메모
-    │               └── enter.js / home.js / topics.js / history.js / register.js
+    │               ├── pet.js       # 언어 조합별 펫 (동물, 화면 언어별 이름)
+    │               └── enter.js / home.js / topics.js / history.js / stats.js / register.js
     └── test
-        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, NoteServiceTest
+        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, NoteServiceTest, StatsQueryServiceTest
         └── resources/application-test.yml
 ```
 
@@ -775,7 +820,7 @@ docker compose ps        # 둘 다 healthy 가 될 때까지 대기
 ./gradlew clean test
 ```
 
-Docker 없이 실행됩니다. 방 격리(다른 방의 주제·기록이 보이지도 뽑히지도 않는지), 방 만들기 규칙(언어·국적·목표 횟수), 비밀번호 해시, 질문 메모(저장·수정, 방·언어별 분리, 안 쓴 주제에는 저장 불가)를 확인합니다.
+Docker 없이 실행됩니다. 방 격리(다른 방의 주제·기록이 보이지도 뽑히지도 않는지), 방 만들기 규칙(언어·국적·목표 횟수), 비밀번호 해시, 질문 메모(저장·수정, 방·언어별 분리, 안 쓴 주제에는 저장 불가), 통계(월별 집계, 연속 주, 방 분리)를 확인합니다.
 
 ### 스키마를 바꿨을 때
 

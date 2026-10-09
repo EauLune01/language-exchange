@@ -21,6 +21,7 @@ const I18N_ATTRIBUTES = ['aria-label', 'placeholder', 'title'];
 const I18N_DATE_STYLES = {
     short: { month: 'short', day: 'numeric' },
     long: { month: 'long', day: 'numeric' },
+    full: { year: 'numeric', month: 'long', day: 'numeric' },
     weekday: { month: 'long', day: 'numeric', weekday: 'short' },
 };
 
