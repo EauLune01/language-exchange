@@ -1,13 +1,17 @@
 FROM gradle:9-jdk25 AS builder
-WORKDIR /app
-COPY gradlew settings.gradle build.gradle ./
+WORKDIR /build
+COPY gradlew .
 COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
+RUN ./gradlew dependencies --no-daemon -q || true
 COPY src src
-RUN ./gradlew bootJar --no-daemon
+RUN ./gradlew bootJar --no-daemon -x test
 
-FROM eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:25-jre-alpine AS runtime
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /build/build/libs/*.jar app.jar
 EXPOSE 8080
-# 프로파일은 SPRING_PROFILES_ACTIVE 환경 변수로 받는다
+ENV SPRING_PROFILES_ACTIVE=prod
+ENV TZ=Asia/Seoul
 ENTRYPOINT ["java", "-jar", "app.jar"]
