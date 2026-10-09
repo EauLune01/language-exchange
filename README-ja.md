@@ -11,7 +11,8 @@
 - **トピックと質問はルームの2言語**をペアにして保存し、画面では2言語を並べて表示するか、トグルで切り替えて見ます。
 - トピックは、まだ使っていないものの中からランダムに引きます。週ごとの制限はなく、引くたびに学習回数が1つ増え、ルーム作成時に決めた**目標回数**（25/50/75/100）までの進捗バーが伸びます。
 - これまで話したトピックは**回ごとの学習記録**として見返せます。
-- トピック・質問・記録は**ルームごとに完全に分離**されています。
+- すでに引いて話したトピックの質問ごとに**メモ**を残せます。メモはルーム × 質問 × 言語の単位なので、同じ質問でも2つの言語のメモは別々に保存されます。
+- トピック・質問・記録・メモは**ルームごとに完全に分離**されています。
 
 ---
 
@@ -21,7 +22,7 @@
 - **ルーム単位の認証**：ルームID/パスワードでログインすると、サーバーセッションにルームが記録されます。すべてのAPIはセッションのルームを基準に動作し、URIにルーム番号は含まれません。
 - **非同期書き込み構成**：トピック登録と「引いたトピックの使用済み処理」はRabbitMQを経由して処理します。APIは検証だけ行って`202 Accepted`で即座に応答し、実際の保存はConsumerが担当します。
 - **障害対策**：Consumerが失敗した場合は最大3回まで試行し、すべて失敗したらDLQ（Dead Letter Queue）に送ってメッセージが失われないようにします。
-- **単一RDB**：MySQLにルーム（`rooms`）、トピック（`topics`）、質問（`questions`）を保存します。複数の言語を一緒に保存するため`utf8mb4`を使います。
+- **単一RDB**：MySQLにルーム（`rooms`）、トピック（`topics`）、質問（`questions`）、質問メモ（`notes`）を保存します。複数の言語を一緒に保存するため`utf8mb4`を使います。
 
 ```mermaid
 flowchart LR
@@ -82,7 +83,7 @@ flowchart LR
 
 ## 📡 API
 
-### 一覧（全10個）
+### 一覧（全12個）
 
 | # | Method | URI | 説明 | ログイン | レスポンス |
 |---|---|---|---|:---:|---|
@@ -96,12 +97,14 @@ flowchart LR
 | 8 | `GET` | `/api/topics` | 全トピック一覧（`Slice`） | 必要 | `200` / `401` |
 | 9 | `GET` | `/api/topics/history` | 回ごとの学習記録（`Slice`） | 必要 | `200` / `401` |
 | 10 | `GET` | `/api/topics/{topicId}/questions?lang=` | トピックの質問3つ（言語指定） | 必要 | `200` / `400` / `401` / `404` |
+| 11 | `PUT` | `/api/questions/{questionId}/note?lang=` | 質問メモの保存（あれば更新、なければ作成）。使用済みトピックのみ | 必要 | `200` / `400` / `401` / `403` / `404` |
+| 12 | `GET` | `/api/questions/{questionId}/note?lang=` | 質問メモの取得 | 必要 | `200` / `400` / `401` |
 
 - Swagger UI：`http://localhost:8080/swagger-ui.html`
 - すべてのAPIは`Content-Type: application/json`を使い、ログイン後はセッションCookie（`JSESSIONID`）が自動的に一緒に送信されます。
 - ログインが必要なAPIをログインなしで呼ぶと、すべて`401 UNAUTHORIZED`になります。重複を避けるため、以下の詳細では省略しています。
 - `roomId`はセッションからのみ取り出します。クライアントが送った値は受け取らず、URIにもルーム番号はありません。
-- 他のルームの`topicId`は、存在の有無を隠すために`404`で応答します。
+- 他のルームの`topicId`は、存在の有無を隠すために`404`で応答します。他のルームの`questionId`にメモを保存しようとした場合も同じです。
 
 ### 共通ルール
 
@@ -437,7 +440,7 @@ flowchart LR
 
 ### 10. トピックの質問3つ `GET /api/topics/{topicId}/questions?lang=`
 
-指定したトピックの質問3つを**1つの言語で**返します。画面の言語トグルは、このAPIを`lang`だけ変えて呼び直す方式です。
+指定したトピックの質問3つを**1つの言語で**返します。画面の言語トグルは、このAPIを`lang`だけ変えて呼び直す方式です。各質問の`id`は、メモAPI（11番、12番）の`questionId`として使います。
 
 **Path / Query Parameters**
 
@@ -457,9 +460,9 @@ flowchart LR
     "topicId": 5,
     "language": "JA",
     "questions": [
-      { "sequence": 1, "content": "好きな公園について説明してください。" },
-      { "sequence": 2, "content": "公園に行ったら、主に何をしますか？" },
-      { "sequence": 3, "content": "最近公園に行った経験を話してください。" }
+      { "id": 13, "sequence": 1, "content": "好きな公園について説明してください。" },
+      { "id": 14, "sequence": 2, "content": "公園に行ったら、主に何をしますか？" },
+      { "id": 15, "sequence": 3, "content": "最近公園に行った経験を話してください。" }
     ]
   }
 }
@@ -475,6 +478,71 @@ flowchart LR
 
 ---
 
+### 11. 質問メモの保存 `PUT /api/questions/{questionId}/note?lang=`
+
+ログイン中のルームが、その質問に`lang`の言語で書いたメモを保存します。すでにあれば内容を更新し、なければ新しく作ります（upsert）。メモは**ルーム × 質問 × 言語**ごとに1つなので、同じ質問でもA言語のメモとB言語のメモは別物で、他のルームからは見えません。
+
+メモは**すでに引いて使ったトピック**（`usedDate`があるトピック）の質問にだけ書けます。まだ使っていないトピックの質問なら`403 TOPIC_NOT_USED`です。
+
+**Path / Query Parameters**
+
+| 名前 | 位置 | 必須 | 説明 |
+|---|---|:---:|---|
+| `questionId` | path | O | 質問番号（10番のレスポンスの`questions[].id`） |
+| `lang` | query | O | **ルームの2言語のうちの1つ**（例：`KO`、`JA`） |
+
+**Request Body**
+
+| フィールド | 型 | 必須 | 制約 |
+|---|---|:---:|---|
+| `content` | string | O | 空白のみは不可、2000文字以下 |
+
+```json
+{ "content": "公園でよく散歩します。「산책하다」= 散歩する" }
+```
+
+**Response `200 OK`**
+
+```json
+{ "success": true, "code": 200, "message": "메모가 저장되었습니다.", "data": null }
+```
+
+**失敗**
+
+| errorCode | HTTP | 状況 |
+|---|---|---|
+| `NOTE_CONTENT_BLANK` | 400 | `content`がない、または空白のみ |
+| `INVALID_INPUT` | 400 | 2000文字超過、`lang`がない、存在しない言語コード、`questionId`が数字ではない |
+| `LANGUAGE_NOT_IN_ROOM` | 400 | 存在する言語だが、このルームの2言語ではない |
+| `TOPIC_NOT_USED` | 403 | まだ使っていないトピックの質問 |
+| `NOT_FOUND` | 404 | 質問がない、または**他のルームの質問**（存在を隠すため同じレスポンス）。使用済みかどうかより先に確認します。 |
+
+---
+
+### 12. 質問メモの取得 `GET /api/questions/{questionId}/note?lang=`
+
+ログイン中のルームが、その質問に`lang`の言語で書いたメモを返します。まだメモがない場合は`404`ではなく、**`content`が空文字列**になります。パラメータは11番と同じです。保存と違い、取得ではトピックが使用済みかどうかを問いません。
+
+**Response `200 OK`** — `GET /api/questions/13/note?lang=JA`
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "메모 조회 성공",
+  "data": { "content": "公園でよく散歩します。「산책하다」= 散歩する" }
+}
+```
+
+**失敗**
+
+| errorCode | HTTP | 状況 |
+|---|---|---|
+| `INVALID_INPUT` | 400 | `lang`がない、存在しない言語コード、`questionId`が数字ではない |
+| `LANGUAGE_NOT_IN_ROOM` | 400 | 存在する言語だが、このルームの2言語ではない |
+
+---
+
 ### 全errorCode
 
 | errorCode | HTTP | 状況 |
@@ -484,13 +552,15 @@ flowchart LR
 | `INVALID_NATIONALITY` | 400 | 国籍がISO 3166-1 alpha-2の国コードではない |
 | `LANGUAGE_NOT_IN_ROOM` | 400 | ルームの2言語ではない言語で登録・取得した |
 | `INVALID_QUESTION_COUNT` | 400 | 質問が3つではない |
+| `NOTE_CONTENT_BLANK` | 400 | メモの内容が空 |
 | `UNAUTHORIZED` | 401 | ログインしていない |
 | `INVALID_CREDENTIALS` | 401 | ルームIDまたはパスワードが違う（両者を区別しない） |
 | `ROOM_NOT_FOUND` | 401 | セッションはあるのにルームがない（再ログインが必要） |
 | `ACCESS_DENIED` | 403 | 権限がない |
+| `TOPIC_NOT_USED` | 403 | まだ使っていないトピックの質問にメモを保存しようとした |
 | `TOPIC_NOT_FOUND` | 404 | トピックがない、または他のルームのトピック |
 | `NO_AVAILABLE_TOPIC` | 404 | 引ける未使用のトピックがない |
-| `NOT_FOUND` | 404 | 存在しないパス |
+| `NOT_FOUND` | 404 | 存在しないパス、メモを保存しようとした質問がない・他のルームの質問 |
 | `DUPLICATE_ROOM_ID` | 409 | すでに存在するルームID |
 | `INTERNAL_SERVER_ERROR` | 500 | 予期しないエラー |
 
@@ -523,6 +593,7 @@ APIのレスポンスとは別に、サーバー内部でやり取りされる�
 - **共通ヘッダー**：ロゴ、メニュー、画面言語の選択、ログアウトは`common.js`がすべてのページに描画します。HTMLには空の`<header>`だけがあります。
 - **進捗バー**：ログイン後のすべてのページのヘッダー下に、「민수とゆいの言語交換の旅」というタイトル、進捗バー、パーセント（`studiedCount / goal`、切り捨て、最大100%）が表示されます。`common.js`の`applyProgress()`がルーム情報（`roomInfo`）から描画し、ホームでトピックを引くとすぐに1つ進みます。韓国語のタイトルの助詞（과/와）は、1人目の名前のパッチムに合わせます（ハングルでなければ「와」）。
 - **質問シート**：トピックを押すと質問3つが開き、ルームの2言語のトグルで言語を切り替えます。最後に選んだ言語はルームごとにブラウザに記憶されます。
+- **質問メモ**：**使用済みのトピック**（ホームで引いたばかりのトピック、学習記録、全トピックの「使ったテーマ」）でだけ表示されます。まだ使っていないトピックでは質問だけを表示します。質問を押すと、その下に罫線ノート風のメモ欄が開き、もう一度押すと閉じます。メモは今選んでいる言語のものを読み込み、**保存**ボタンで保存します（2000文字まで、空の内容は保存不可）。言語トグルを切り替えると同じ質問のその言語のメモに変わり、保存していない内容もページを離れるまでは残ります。
 - **入力検証**：空欄があれば送信せず、該当の欄を表示します。文字数はDBカラムの長さ（255文字）に合わせて制限しました。
 
 ### 多言語対応
@@ -619,7 +690,8 @@ exchange
     │   │       ├── service          # TopicService(書き込み), TopicQueryService(取得)
     │   │       ├── event            # キューに送るメッセージオブジェクト
     │   │       ├── publisher        # メッセージ発行
-    │   │       └── consumer         # メッセージ受信・処理
+    │   │       ├── consumer         # メッセージ受信・処理
+    │   │       └── note             # 質問メモ (controller / domain / dto / repository / service)
     │   └── resources
     │       ├── application.yml      # 共通設定
     │       ├── application-dev.yml  # 開発用 (デフォルト)
@@ -634,10 +706,10 @@ exchange
     │               ├── languages.js # 対応言語のメタデータ (名前, 方向, モチーフ, 補助色)
     │               ├── i18n.js      # 画面文言エンジン
     │               ├── i18n/        # 言語別辞書 10個
-    │               ├── sheet.js     # 質問シート
+    │               ├── sheet.js     # 質問シート、質問メモ
     │               └── enter.js / home.js / topics.js / history.js / register.js
     └── test
-        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest
+        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, NoteServiceTest
         └── resources/application-test.yml
 ```
 
@@ -648,8 +720,9 @@ exchange
 | `rooms` | `id`, `login_id`(ユニーク), `password_hash`, `language_a`, `language_b`, `a_name`, `a_nationality`, `b_name`, `b_nationality`, `goal`(目標回数、デフォルト50), `created_at`, `updated_at` |
 | `topics` | `id`, `room_id`, `name_a`, `name_b`, `used_date`(使用日。nullならまだ使っていないトピック), `created_at`, `updated_at` · インデックス `(room_id, used_date)` |
 | `questions` | `id`, `topic_id`(FK), `sequence`(1〜3。`topic_id`と合わせてユニーク), `content_a`, `content_b`, `created_at`, `updated_at` |
+| `notes` | `id`, `question_id`(FK), `room_id`, `lang`(メモを書いた質問の言語、5文字以下), `content`(TEXT), `created_at`, `updated_at` · ユニーク `(question_id, room_id, lang)` |
 
-- `Question`が`Topic`を参照する**単方向**の関連です。`Topic`は別ドメインであるルームを、エンティティではなく`room_id`の値だけで参照します。
+- `Question`が`Topic`を参照する**単方向**の関連です。`Topic`は別ドメインであるルームを、エンティティではなく`room_id`の値だけで参照します。`Note`も、同じドメインの`Question`は関連で、ルームは`room_id`の値だけで参照します。
 - 国籍はISO 3166-1 alpha-2の国コードで保存し、画面では`Intl.DisplayNames`で画面言語の国名を表示します。
 
 ---
@@ -702,11 +775,11 @@ docker compose ps        # 両方がhealthyになるまで待つ
 ./gradlew clean test
 ```
 
-Dockerなしで実行できます。ルームの分離（他のルームのトピック・記録が見えず、引かれもしないか）、ルーム作成のルール（言語・国籍・目標回数）、パスワードのハッシュを確認します。
+Dockerなしで実行できます。ルームの分離（他のルームのトピック・記録が見えず、引かれもしないか）、ルーム作成のルール（言語・国籍・目標回数）、パスワードのハッシュ、質問メモ（保存・更新、ルーム・言語ごとの分離、未使用トピックには保存不可）を確認します。
 
 ### スキーマを変更したとき
 
-開発段階では`ddl-auto: update`を使っています。カラムの追加は再起動すれば自動で反映されます（例：`rooms.goal`はデフォルト50で追加されるので、既存のルームもそのまま使えます）。カラム名や構造を変更しても自動では反映されないので、DBを初期化します。
+開発段階では`ddl-auto: update`を使っています。カラムやテーブルの追加は再起動すれば自動で反映されます（例：`rooms.goal`はデフォルト50で追加されるので既存のルームもそのまま使え、`notes`テーブルは新しく作られます）。カラム名や構造を変更しても自動では反映されないので、DBを初期化します。
 
 ```bash
 docker compose down -v && docker compose up -d
@@ -719,7 +792,8 @@ docker compose down -v && docker compose up -d
 ## 📝 Notes
 
 - **ごく短い間隔で続けてトピックを引くと**、同じトピックがもう一度引かれることがあります（使用済み処理が非同期のため）。使用済み処理は冪等なので学習回数は1回しか増えませんが、画面の進捗バーは開き直すまで1つ多く表示されることがあります。
-- ルームのパスワードは復旧できず、ルーム情報（名前・国籍・言語）やトピックを編集・削除する機能はまだありません。
+- ルームのパスワードは復旧できず、ルーム情報（名前・国籍・言語）やトピックを編集・削除する機能はまだありません。メモも内容の書き換えはできますが、削除する機能はありません。
+- **トピックを引いた直後にメモを保存すると**、まれに`403 TOPIC_NOT_USED`で失敗することがあります（使用済み処理が非同期で、まだ反映されていない瞬間）。書いた内容は残っているので、もう一度保存すれば大丈夫です。
 - 外部に公開する前に必要なこと：パスワード変更、ログイン試行の制限、CSRFの再検討、HTTPSとCookieの`Secure`、セッションストア、翻訳のネイティブチェック。
 
 ## About

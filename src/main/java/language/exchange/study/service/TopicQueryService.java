@@ -103,6 +103,7 @@ public class TopicQueryService {
 
     private QuestionResult toQuestionResult(Question question, boolean isLanguageA) {
         return QuestionResult.of(
+                question.getId(),
                 question.getSequence(),
                 isLanguageA ? question.getContentA() : question.getContentB());
     }

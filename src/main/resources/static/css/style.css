@@ -1327,14 +1327,65 @@ textarea.field-input {
     list-style: none;
 }
 
+.question-list[data-slot="a"] {
+    --slot: var(--lang-a);
+    --slot-soft: var(--lang-a-soft);
+    --slot-line: var(--lang-a-circle);
+}
+
+.question-list[data-slot="b"] {
+    --slot: var(--lang-b);
+    --slot-soft: var(--lang-b-soft);
+    --slot-line: var(--lang-b-circle);
+}
+
 .question-item {
-    display: grid;
-    grid-template-columns: 2.2rem 1fr;
-    gap: 14px;
-    padding: 20px 0;
     border-bottom: 1px solid var(--line);
     font-size: 1.22rem;
     line-height: 1.7;
+}
+
+.question-row {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr auto;
+    gap: 14px;
+    width: 100%;
+    padding: 20px 0;
+}
+
+/* 사용한 주제에서는 질문 한 줄이 메모 칸을 여닫는 버튼 */
+.question-toggle {
+    border: 0;
+    background: transparent;
+    line-height: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+.question-toggle:focus-visible {
+    outline-color: var(--slot);
+    outline-offset: -3px;
+    border-radius: var(--radius-sm);
+}
+
+.question-note-icon {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    margin-top: 0.15rem;
+    border-radius: 50%;
+    color: #9aa1b8;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.question-toggle:hover .question-note-icon {
+    color: var(--slot);
+}
+
+.question-toggle[aria-expanded="true"] .question-note-icon {
+    background: var(--slot);
+    color: #ffffff;
 }
 
 .question-item:last-child {
@@ -1370,6 +1421,121 @@ textarea.field-input {
 .question-text {
     overflow-wrap: anywhere;
     text-wrap: pretty;
+}
+
+/* ---------- 질문 메모: 지금 고른 언어 자리의 색을 띤 줄 공책 ---------- */
+
+.note {
+    margin: 0 0 20px;
+    margin-inline-start: calc(2.2rem + 14px);
+    padding: 14px 16px 12px;
+    border-radius: var(--radius-md);
+    background: var(--slot-soft);
+    box-shadow: inset 0 0 0 1.5px transparent;
+    transition: box-shadow 0.15s ease;
+    animation: note-in 0.22s ease-out;
+}
+
+.note:focus-within {
+    box-shadow: inset 0 0 0 1.5px var(--slot);
+}
+
+@keyframes note-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .note {
+        margin-inline-start: 0;
+    }
+}
+
+.note-input {
+    --note-line-height: 1.9em;
+    display: block;
+    width: 100%;
+    min-height: calc(var(--note-line-height) * 3);
+    padding: 0;
+    border: 0;
+    /* 글줄마다 밑줄: 줄 높이와 같은 간격으로 긋고, 글과 함께 스크롤되게(local) 합니다. */
+    background: repeating-linear-gradient(
+        transparent 0 calc(var(--note-line-height) - 1px),
+        var(--slot-line) calc(var(--note-line-height) - 1px) var(--note-line-height)
+    ) local;
+    color: var(--ink);
+    font: inherit;
+    font-size: 1rem;
+    line-height: var(--note-line-height);
+    resize: vertical;
+}
+
+.note-input:focus {
+    outline: none; /* 초점 표시는 .note:focus-within 테두리가 맡아요 */
+}
+
+.note-input::placeholder {
+    color: var(--muted);
+    opacity: 0.75;
+}
+
+.note-input:disabled {
+    opacity: 0.55;
+}
+
+.note-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.note-status {
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.4;
+}
+
+.note-status--saved {
+    color: #1d6b3f;
+}
+
+.note-status--saved::before {
+    content: "✓ ";
+}
+
+.note-status--error {
+    color: #8a1f36;
+}
+
+.note-save {
+    flex: none;
+    min-height: 40px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--slot);
+    color: #ffffff;
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.note-save:focus-visible {
+    outline-color: var(--slot);
+}
+
+.note-save:disabled {
+    opacity: 0.4;
+    cursor: default;
 }
 
 .question-status {

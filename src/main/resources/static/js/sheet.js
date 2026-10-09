@@ -22,6 +22,15 @@ const sheetState = {
 
 const questionCache = new Map();
 
+// 메모는 질문 × 언어마다 하나예요(한국어 질문의 메모와 일본어 질문의 메모는 별개).
+// 적던 내용과 펼친 상태는 언어를 바꿔 목록을 다시 그려도 남도록 따로 기억합니다.
+const noteDrafts = new Map(); // "questionId:lang" → 적던 내용 (서버에서 읽어 온 값 포함)
+const openNotes = new Set(); // 펼쳐 둔 questionId (언어를 바꾸면 같은 질문의 그 언어 메모가 열려요)
+
+const NOTE_MAX_LENGTH = 2000; // 서버 NoteUpsertRequest 의 @Size 와 같은 값
+const NOTE_ICON = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">'
+    + '<path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 function toggleButton(lang) {
     return sheetEls.langToggle.querySelector(`button[data-lang="${lang}"]`);
 }
@@ -58,6 +67,88 @@ function renderQuestionError(error) {
     sheetEls.questionArea.replaceChildren(box, retry);
 }
 
+/** 질문 하나의 lang 언어 메모 칸. load() 는 펼칠 때 부르고, 이 화면에서 아직 읽은 적이 없을 때만 서버에서 가져옵니다. */
+function createNote(questionId, lang) {
+    const noteKey = `${questionId}:${lang}`;
+    const notePath = `/api/questions/${questionId}/note?lang=${lang}`;
+    const el = createElement('div', 'note');
+    el.hidden = true;
+
+    const input = createElement('textarea', 'note-input', {
+        rows: 3,
+        maxlength: NOTE_MAX_LENGTH,
+        dir: 'auto',
+        placeholder: t('sheet.note-placeholder'),
+        'aria-label': t('sheet.note-placeholder'),
+        'data-i18n-placeholder': 'sheet.note-placeholder',
+        'data-i18n-aria-label': 'sheet.note-placeholder',
+    });
+    input.disabled = true;
+
+    const status = createElement('span', 'note-status', { role: 'status' });
+    const save = i18nEl('button', 'note-save', 'sheet.note-save');
+    save.type = 'button';
+
+    const foot = createElement('div', 'note-foot');
+    foot.append(status, save);
+    el.append(input, foot);
+
+    function setStatus(key, tone) {
+        status.className = tone ? `note-status note-status--${tone}` : 'note-status';
+        if (key) {
+            i18nSet(status, key);
+        } else {
+            i18nClear(status);
+            status.textContent = '';
+        }
+    }
+
+    function syncSave() {
+        save.disabled = input.disabled || !input.value.trim();
+    }
+
+    input.addEventListener('input', () => {
+        noteDrafts.set(noteKey, input.value);
+        setStatus(null);
+        syncSave();
+    });
+
+    save.addEventListener('click', async () => {
+        save.disabled = true;
+        setStatus(null);
+        try {
+            await apiPut(notePath, { content: input.value });
+            setStatus('sheet.note-saved', 'saved');
+        } catch (error) {
+            setStatus('sheet.note-error', 'error');
+        }
+        syncSave();
+    });
+
+    async function load() {
+        if (!noteDrafts.has(noteKey)) {
+            setStatus('sheet.loading');
+            try {
+                const data = await apiGet(notePath);
+                // 읽어 오는 사이에 다른 칸(언어를 바꿨다 돌아와 다시 그린 같은 질문)에서 적기 시작했으면 그 내용을 지킵니다.
+                if (!noteDrafts.has(noteKey)) {
+                    noteDrafts.set(noteKey, data.content);
+                }
+            } catch (error) {
+                // 못 읽은 채로 저장하면 원래 메모를 덮어쓰니까 칸을 잠가 둡니다. 닫았다 다시 열면 다시 읽어요.
+                setStatus('error.generic', 'error');
+                return;
+            }
+            setStatus(null);
+        }
+        input.value = noteDrafts.get(noteKey);
+        input.disabled = false;
+        syncSave();
+    }
+
+    return { el, load };
+}
+
 function renderQuestions(data, lang) {
     if (!data.questions || data.questions.length === 0) {
         renderQuestionStatus('sheet.empty');
@@ -71,7 +162,41 @@ function renderQuestions(data, lang) {
         number.textContent = String(question.sequence);
 
         const item = createElement('li', 'question-item');
-        item.append(number, localizedEl('span', 'question-text', { lang, text: question.content }));
+        const text = localizedEl('span', 'question-text', { lang, text: question.content });
+
+        // 메모는 이미 뽑아서 이야기한(사용한) 주제에만 적을 수 있어요. 아직 안 쓴 주제는 질문만 보여줍니다.
+        if (!sheetState.topic.used) {
+            const row = createElement('div', 'question-row');
+            row.append(number, text);
+            item.append(row);
+            list.append(item);
+            return;
+        }
+
+        const icon = createElement('span', 'question-note-icon');
+        icon.innerHTML = NOTE_ICON;
+
+        // 질문을 누르면 그 아래 메모 칸이 열리고, 다시 누르면 닫힙니다.
+        const toggle = createElement('button', 'question-row question-toggle', { type: 'button', 'aria-expanded': 'false' });
+        toggle.append(number, text, icon);
+
+        const note = createNote(question.id, lang);
+        const setOpen = (open) => {
+            note.el.hidden = !open;
+            toggle.setAttribute('aria-expanded', String(open));
+            if (open) {
+                openNotes.add(question.id);
+                note.load();
+            } else {
+                openNotes.delete(question.id);
+            }
+        };
+        toggle.addEventListener('click', () => setOpen(note.el.hidden));
+        if (openNotes.has(question.id)) {
+            setOpen(true);
+        }
+
+        item.append(toggle, note.el);
         list.append(item);
     });
 
@@ -110,7 +235,10 @@ async function loadQuestions() {
     }
 }
 
-/** 주제의 질문 시트를 엽니다. topic = { id, names: [{ lang, text }, { lang, text }] } (A, B 순서) */
+/**
+ * 주제의 질문 시트를 엽니다. topic = { id, names: [{ lang, text }, { lang, text }], used } (names 는 A, B 순서)
+ * used 가 true(이미 뽑아서 사용한 주제)일 때만 질문마다 메모 칸이 붙습니다.
+ */
 function openQuestions(topic) {
     sheetState.topic = topic;
     setLocalizedText(sheetEls.titleA, topic.names[0]);

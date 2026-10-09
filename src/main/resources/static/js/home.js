@@ -69,7 +69,7 @@
 
     els.card.addEventListener('click', () => {
         if (weeklyTopic) {
-            openQuestions(weeklyTopic);
+            openQuestions({ ...weeklyTopic, used: true }); // 방금 뽑은 주제 = 사용한 주제
         }
     });
 

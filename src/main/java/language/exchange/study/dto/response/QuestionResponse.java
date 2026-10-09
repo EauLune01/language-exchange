@@ -8,11 +8,13 @@ import lombok.Getter;
 @Builder
 public class QuestionResponse {
 
+    private Long id;
     private int sequence;
     private String content;
 
     public static QuestionResponse from(QuestionResult result) {
         return QuestionResponse.builder()
+                .id(result.getId())
                 .sequence(result.getSequence())
                 .content(result.getContent())
                 .build();

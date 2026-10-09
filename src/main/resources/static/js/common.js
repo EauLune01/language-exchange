@@ -131,6 +131,14 @@ function apiPost(path, payload) {
     });
 }
 
+function apiPut(path, payload) {
+    return apiRequest(path, {
+        method: 'PUT',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+}
+
 /* ---------- 화면 언어 · 공통 헤더 · 로그인한 방 ---------- */
 
 function loadScript(src) {

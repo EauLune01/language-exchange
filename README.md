@@ -11,7 +11,8 @@
 - **주제와 질문은 방의 두 언어로** 짝지어 저장하고, 화면에서는 두 언어를 나란히 보여주거나 토글로 바꿔 봅니다.
 - 주제는 아직 안 쓴 주제 중에서 무작위로 뽑습니다. 주 단위 제한은 없고, 뽑을 때마다 학습 횟수가 1씩 늘어 방을 만들 때 정한 **목표 횟수**(25/50/75/100)까지의 진행바가 채워집니다.
 - 지금까지 이야기한 주제는 **회차별 학습 기록**으로 다시 볼 수 있습니다.
-- 주제·질문·기록은 **방마다 완전히 분리**됩니다.
+- 이미 뽑아서 이야기한 주제의 질문마다 **메모**를 남길 수 있습니다. 메모는 방 × 질문 × 언어 단위라, 같은 질문이어도 두 언어의 메모가 따로 저장됩니다.
+- 주제·질문·기록·메모는 **방마다 완전히 분리**됩니다.
 
 ---
 
@@ -21,7 +22,7 @@
 - **방 단위 인증**: 방 아이디/비밀번호로 로그인하면 서버 세션에 방이 기록됩니다. 모든 API는 세션의 방을 기준으로 동작하고, URI에는 방 번호가 들어가지 않습니다.
 - **비동기 쓰기 구조**: 주제 등록과 "뽑은 주제 사용 처리"는 RabbitMQ를 거쳐 처리합니다. API는 검증만 마치고 `202 Accepted`로 즉시 응답하고, 실제 저장은 Consumer가 담당합니다.
 - **실패 대비**: Consumer가 실패하면 최대 3회까지 시도하고, 모두 실패하면 DLQ(Dead Letter Queue)로 보내 메시지가 유실되지 않게 합니다.
-- **단일 RDB**: MySQL에 방(`rooms`), 주제(`topics`), 질문(`questions`)을 저장합니다. 여러 언어를 함께 저장하므로 `utf8mb4`를 사용합니다.
+- **단일 RDB**: MySQL에 방(`rooms`), 주제(`topics`), 질문(`questions`), 질문 메모(`notes`)를 저장합니다. 여러 언어를 함께 저장하므로 `utf8mb4`를 사용합니다.
 
 ```mermaid
 flowchart LR
@@ -82,7 +83,7 @@ flowchart LR
 
 ## 📡 API
 
-### 한눈에 보기 (총 10개)
+### 한눈에 보기 (총 12개)
 
 | # | Method | URI | 설명 | 로그인 | 응답 |
 |---|---|---|---|:---:|---|
@@ -96,12 +97,14 @@ flowchart LR
 | 8 | `GET` | `/api/topics` | 전체 주제 목록 (`Slice`) | 필요 | `200` / `401` |
 | 9 | `GET` | `/api/topics/history` | 회차별 학습 기록 (`Slice`) | 필요 | `200` / `401` |
 | 10 | `GET` | `/api/topics/{topicId}/questions?lang=` | 주제의 질문 3개 (언어 지정) | 필요 | `200` / `400` / `401` / `404` |
+| 11 | `PUT` | `/api/questions/{questionId}/note?lang=` | 질문 메모 저장 (있으면 수정, 없으면 생성). 사용한 주제만 | 필요 | `200` / `400` / `401` / `403` / `404` |
+| 12 | `GET` | `/api/questions/{questionId}/note?lang=` | 질문 메모 조회 | 필요 | `200` / `400` / `401` |
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - 모든 API는 `Content-Type: application/json`을 사용하고, 로그인 후에는 세션 쿠키(`JSESSIONID`)가 자동으로 함께 전송됩니다.
 - 로그인이 필요한 API를 로그인 없이 부르면 모두 `401 UNAUTHORIZED`입니다. 아래 상세 설명에서는 중복을 피하려고 생략했습니다.
 - 모든 `roomId`는 세션에서만 꺼냅니다. 클라이언트가 보낸 값은 받지 않고, URI에도 방 번호가 없습니다.
-- 다른 방의 `topicId`는 존재 여부를 숨기려고 `404`로 응답합니다.
+- 다른 방의 `topicId`는 존재 여부를 숨기려고 `404`로 응답합니다. 다른 방의 `questionId`에 메모를 저장하려 할 때도 같습니다.
 
 ### 공통 규칙
 
@@ -437,7 +440,7 @@ flowchart LR
 
 ### 10. 주제의 질문 3개 `GET /api/topics/{topicId}/questions?lang=`
 
-지정한 주제의 질문 3개를 **한 언어로** 돌려줍니다. 화면의 언어 토글은 이 API를 `lang`만 바꿔 다시 부르는 방식입니다.
+지정한 주제의 질문 3개를 **한 언어로** 돌려줍니다. 화면의 언어 토글은 이 API를 `lang`만 바꿔 다시 부르는 방식입니다. 각 질문의 `id`는 메모 API(11, 12번)의 `questionId`로 씁니다.
 
 **Path / Query Parameters**
 
@@ -457,9 +460,9 @@ flowchart LR
     "topicId": 5,
     "language": "JA",
     "questions": [
-      { "sequence": 1, "content": "好きな公園について説明してください。" },
-      { "sequence": 2, "content": "公園に行ったら、主に何をしますか？" },
-      { "sequence": 3, "content": "最近公園に行った経験を話してください。" }
+      { "id": 13, "sequence": 1, "content": "好きな公園について説明してください。" },
+      { "id": 14, "sequence": 2, "content": "公園に行ったら、主に何をしますか？" },
+      { "id": 15, "sequence": 3, "content": "最近公園に行った経験を話してください。" }
     ]
   }
 }
@@ -475,6 +478,71 @@ flowchart LR
 
 ---
 
+### 11. 질문 메모 저장 `PUT /api/questions/{questionId}/note?lang=`
+
+로그인한 방이 그 질문에 `lang` 언어로 적은 메모를 저장합니다. 이미 있으면 내용을 바꾸고, 없으면 새로 만듭니다(upsert). 메모는 **방 × 질문 × 언어**마다 하나라서, 같은 질문이어도 A 언어 메모와 B 언어 메모는 별개이고 다른 방에서는 보이지 않습니다.
+
+메모는 **이미 뽑아서 사용한 주제**(`usedDate`가 있는 주제)의 질문에만 적을 수 있습니다. 아직 안 쓴 주제의 질문이면 `403 TOPIC_NOT_USED`입니다.
+
+**Path / Query Parameters**
+
+| 이름 | 위치 | 필수 | 설명 |
+|---|---|:---:|---|
+| `questionId` | path | O | 질문 번호 (10번 응답의 `questions[].id`) |
+| `lang` | query | O | **방의 두 언어 중 하나** (예: `KO`, `JA`) |
+
+**Request Body**
+
+| 필드 | 타입 | 필수 | 제약 |
+|---|---|:---:|---|
+| `content` | string | O | 공백만으로는 불가, 2000자 이하 |
+
+```json
+{ "content": "公園でよく散歩します。「산책하다」= 散歩する" }
+```
+
+**Response `200 OK`**
+
+```json
+{ "success": true, "code": 200, "message": "메모가 저장되었습니다.", "data": null }
+```
+
+**실패**
+
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `NOTE_CONTENT_BLANK` | 400 | `content`가 없거나 공백뿐임 |
+| `INVALID_INPUT` | 400 | 2000자 초과, `lang`을 빼먹음, 없는 언어 코드, `questionId`가 숫자가 아님 |
+| `LANGUAGE_NOT_IN_ROOM` | 400 | 존재하는 언어지만 이 방의 두 언어가 아님 |
+| `TOPIC_NOT_USED` | 403 | 아직 사용하지 않은 주제의 질문 |
+| `NOT_FOUND` | 404 | 질문이 없거나 **다른 방의 질문** (존재 여부를 숨기려고 같은 응답). 사용 여부보다 먼저 확인합니다. |
+
+---
+
+### 12. 질문 메모 조회 `GET /api/questions/{questionId}/note?lang=`
+
+로그인한 방이 그 질문에 `lang` 언어로 적은 메모를 돌려줍니다. 아직 적은 메모가 없으면 `404`가 아니라 **`content`가 빈 문자열**입니다. 파라미터는 11번과 같습니다. 저장과 달리 조회는 주제의 사용 여부를 따지지 않습니다.
+
+**Response `200 OK`** — `GET /api/questions/13/note?lang=JA`
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "메모 조회 성공",
+  "data": { "content": "公園でよく散歩します。「산책하다」= 散歩する" }
+}
+```
+
+**실패**
+
+| errorCode | HTTP | 상황 |
+|---|---|---|
+| `INVALID_INPUT` | 400 | `lang`을 빼먹음, 없는 언어 코드, `questionId`가 숫자가 아님 |
+| `LANGUAGE_NOT_IN_ROOM` | 400 | 존재하는 언어지만 이 방의 두 언어가 아님 |
+
+---
+
 ### 전체 errorCode
 
 | errorCode | HTTP | 상황 |
@@ -484,13 +552,15 @@ flowchart LR
 | `INVALID_NATIONALITY` | 400 | 국적이 ISO 3166-1 alpha-2 국가 코드가 아님 |
 | `LANGUAGE_NOT_IN_ROOM` | 400 | 방의 두 언어가 아닌 언어로 등록·조회 |
 | `INVALID_QUESTION_COUNT` | 400 | 질문이 3개가 아님 |
+| `NOTE_CONTENT_BLANK` | 400 | 메모 내용이 비어 있음 |
 | `UNAUTHORIZED` | 401 | 로그인하지 않음 |
 | `INVALID_CREDENTIALS` | 401 | 방 아이디 또는 비밀번호가 틀림 (둘을 구분하지 않음) |
 | `ROOM_NOT_FOUND` | 401 | 세션은 있는데 방이 없음 (다시 로그인 필요) |
 | `ACCESS_DENIED` | 403 | 권한 없음 |
+| `TOPIC_NOT_USED` | 403 | 아직 사용하지 않은 주제의 질문에 메모를 저장하려 함 |
 | `TOPIC_NOT_FOUND` | 404 | 주제가 없거나 다른 방의 주제 |
 | `NO_AVAILABLE_TOPIC` | 404 | 뽑을 수 있는 안 쓴 주제가 없음 |
-| `NOT_FOUND` | 404 | 없는 주소 |
+| `NOT_FOUND` | 404 | 없는 주소, 메모를 저장하려는 질문이 없거나 다른 방의 질문 |
 | `DUPLICATE_ROOM_ID` | 409 | 이미 있는 방 아이디 |
 | `INTERNAL_SERVER_ERROR` | 500 | 예상하지 못한 오류 |
 
@@ -523,6 +593,7 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
 - **공통 헤더**: 로고, 메뉴, 화면 언어 선택, 로그아웃은 `common.js`가 모든 페이지에 그립니다. HTML에는 빈 `<header>`만 있습니다.
 - **진행바**: 로그인한 모든 페이지의 헤더 아래에 "민준과 ゆい의 언어교환 여정" 제목, 진행바, 퍼센트(`studiedCount / goal`, 내림, 최대 100%)가 나옵니다. `common.js`의 `applyProgress()`가 방 정보(`roomInfo`)로 그리고, 홈에서 주제를 뽑으면 바로 한 칸 올라갑니다. 한국어 제목의 조사 과/와는 첫 번째 이름의 받침에 맞춥니다(한글이 아니면 "와").
 - **질문 시트**: 주제를 누르면 질문 3개가 열리고, 방의 두 언어 토글로 언어를 바꿉니다. 마지막으로 고른 언어는 방별로 브라우저에 기억됩니다.
+- **질문 메모**: **사용한 주제**(홈에서 방금 뽑은 주제, 학습 기록, 전체 주제의 "사용한 주제")에서만 나옵니다. 아직 안 쓴 주제는 질문만 보여줍니다. 질문을 누르면 그 아래에 줄 공책 모양의 메모 칸이 열리고, 다시 누르면 닫힙니다. 메모는 지금 고른 언어의 것을 불러오고 **저장** 버튼으로 저장합니다(2000자까지, 빈 내용은 저장 불가). 언어 토글을 바꾸면 같은 질문의 그 언어 메모로 바뀌고, 저장하지 않은 내용도 페이지를 벗어나기 전까지는 남아 있습니다.
 - **입력 검증**: 빈 칸이 있으면 전송하지 않고 해당 칸을 표시합니다. 글자 수는 DB 컬럼 길이(255자)에 맞춰 제한했습니다.
 
 ### 다국어
@@ -619,7 +690,8 @@ exchange
     │   │       ├── service          # TopicService(쓰기), TopicQueryService(조회)
     │   │       ├── event            # 큐로 보내는 메시지 객체
     │   │       ├── publisher        # 메시지 발행
-    │   │       └── consumer         # 메시지 수신·처리
+    │   │       ├── consumer         # 메시지 수신·처리
+    │   │       └── note             # 질문 메모 (controller / domain / dto / repository / service)
     │   └── resources
     │       ├── application.yml      # 공통 설정
     │       ├── application-dev.yml  # 개발용 (기본)
@@ -634,10 +706,10 @@ exchange
     │               ├── languages.js # 지원 언어 메타데이터 (이름, 방향, 모티프, 보조 색)
     │               ├── i18n.js      # 화면 문구 엔진
     │               ├── i18n/        # 언어별 사전 10개
-    │               ├── sheet.js     # 질문 시트
+    │               ├── sheet.js     # 질문 시트, 질문 메모
     │               └── enter.js / home.js / topics.js / history.js / register.js
     └── test
-        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest
+        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, NoteServiceTest
         └── resources/application-test.yml
 ```
 
@@ -648,8 +720,9 @@ exchange
 | `rooms` | `id`, `login_id`(유니크), `password_hash`, `language_a`, `language_b`, `a_name`, `a_nationality`, `b_name`, `b_nationality`, `goal`(목표 횟수, 기본값 50), `created_at`, `updated_at` |
 | `topics` | `id`, `room_id`, `name_a`, `name_b`, `used_date`(사용 날짜, null이면 아직 안 쓴 주제), `created_at`, `updated_at` · 인덱스 `(room_id, used_date)` |
 | `questions` | `id`, `topic_id`(FK), `sequence`(1~3, `topic_id`와 함께 유니크), `content_a`, `content_b`, `created_at`, `updated_at` |
+| `notes` | `id`, `question_id`(FK), `room_id`, `lang`(메모를 적은 질문 언어, 5자 이하), `content`(TEXT), `created_at`, `updated_at` · 유니크 `(question_id, room_id, lang)` |
 
-- `Question`이 `Topic`을 참조하는 **단방향** 연관관계입니다. `Topic`은 다른 도메인인 방을 엔티티가 아니라 `room_id` 값으로만 참조합니다.
+- `Question`이 `Topic`을 참조하는 **단방향** 연관관계입니다. `Topic`은 다른 도메인인 방을 엔티티가 아니라 `room_id` 값으로만 참조합니다. `Note`도 같은 도메인인 `Question`은 연관관계로, 방은 `room_id` 값으로만 참조합니다.
 - 국적은 ISO 3166-1 alpha-2 국가 코드로 저장하고, 화면에서는 `Intl.DisplayNames`로 화면 언어의 나라 이름을 보여줍니다.
 
 ---
@@ -702,11 +775,11 @@ docker compose ps        # 둘 다 healthy 가 될 때까지 대기
 ./gradlew clean test
 ```
 
-Docker 없이 실행됩니다. 방 격리(다른 방의 주제·기록이 보이지도 뽑히지도 않는지), 방 만들기 규칙(언어·국적·목표 횟수), 비밀번호 해시를 확인합니다.
+Docker 없이 실행됩니다. 방 격리(다른 방의 주제·기록이 보이지도 뽑히지도 않는지), 방 만들기 규칙(언어·국적·목표 횟수), 비밀번호 해시, 질문 메모(저장·수정, 방·언어별 분리, 안 쓴 주제에는 저장 불가)를 확인합니다.
 
 ### 스키마를 바꿨을 때
 
-개발 단계에서는 `ddl-auto: update`를 씁니다. 컬럼 추가는 다시 실행하면 자동으로 반영됩니다(예: `rooms.goal`은 기본값 50으로 추가되어 기존 방도 그대로 쓸 수 있습니다). 컬럼 이름이나 구조를 바꾸면 자동으로 반영되지 않으므로 DB를 초기화합니다.
+개발 단계에서는 `ddl-auto: update`를 씁니다. 컬럼이나 테이블 추가는 다시 실행하면 자동으로 반영됩니다(예: `rooms.goal`은 기본값 50으로 추가되어 기존 방도 그대로 쓸 수 있고, `notes` 테이블은 새로 만들어집니다). 컬럼 이름이나 구조를 바꾸면 자동으로 반영되지 않으므로 DB를 초기화합니다.
 
 ```bash
 docker compose down -v && docker compose up -d
@@ -719,7 +792,8 @@ docker compose down -v && docker compose up -d
 ## 📝 Notes
 
 - **주제를 아주 짧은 간격으로 연달아 뽑으면** 같은 주제가 다시 뽑힐 수 있습니다 (사용 처리가 비동기라서). 사용 처리는 멱등이라 학습 횟수는 한 번만 올라가지만, 화면의 진행바는 새로 열기 전까지 하나 더 올라가 보일 수 있습니다.
-- 방 비밀번호는 복구할 수 없고, 방 정보(이름·국적·언어)와 주제를 수정·삭제하는 기능은 아직 없습니다.
+- 방 비밀번호는 복구할 수 없고, 방 정보(이름·국적·언어)와 주제를 수정·삭제하는 기능은 아직 없습니다. 메모도 내용을 고칠 수는 있지만 지우는 기능은 없습니다.
+- **주제를 뽑자마자 메모를 저장하면** 드물게 `403 TOPIC_NOT_USED`로 실패할 수 있습니다 (사용 처리가 비동기라 아직 반영되지 않은 순간). 적던 내용은 남아 있으므로 다시 저장하면 됩니다.
 - 외부에 공개하기 전에 필요한 일: 비밀번호 변경, 로그인 시도 제한, CSRF 재검토, HTTPS와 쿠키 `Secure`, 세션 저장소, 번역 원어민 검수.
 
 ## About

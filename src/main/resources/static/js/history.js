@@ -63,7 +63,7 @@
         const date = i18nEl('span', 'history-date', 'common.date', { date: { date: entry.usedDate, style: 'long' } });
 
         button.append(top, names, date);
-        button.addEventListener('click', () => openQuestions(entry));
+        button.addEventListener('click', () => openQuestions({ ...entry, used: true })); // 기록에는 사용한 주제만 있어요
         item.append(button);
         return item;
     }

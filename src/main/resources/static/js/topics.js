@@ -33,7 +33,7 @@
             localizedEl('span', 'topic-name topic-name--b', topic.names[1]),
             createPill(topic.usedDate)
         );
-        button.addEventListener('click', () => openQuestions(topic));
+        button.addEventListener('click', () => openQuestions({ ...topic, used: Boolean(topic.usedDate) }));
         item.append(button);
         return item;
     }

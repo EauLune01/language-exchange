@@ -16,6 +16,9 @@ public enum ErrorCode {
     NO_AVAILABLE_TOPIC(HttpStatus.NOT_FOUND, "사용 가능한 주제가 없습니다."),
     INVALID_QUESTION_COUNT(HttpStatus.BAD_REQUEST, "질문은 정확히 3개여야 합니다."),
     LANGUAGE_NOT_IN_ROOM(HttpStatus.BAD_REQUEST, "이 방에서 사용하는 언어가 아닙니다."),
+    // note
+    NOTE_CONTENT_BLANK(HttpStatus.BAD_REQUEST, "메모 내용을 입력해 주세요."),
+    TOPIC_NOT_USED(HttpStatus.FORBIDDEN, "사용되지 않은 주제입니다."),
     // auth·room
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
