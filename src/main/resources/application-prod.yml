@@ -4,4 +4,4 @@ server:
   servlet:
     session:
       cookie:
-        secure: true   # 세션 쿠키를 HTTPS 로만 보낸다
+        secure: false   # HTTPS 를 붙이면 true 로 되돌린다 (지금은 HTTP 로 직접 접속)
