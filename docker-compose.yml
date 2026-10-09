@@ -1,3 +1,4 @@
+# docker-compose.local.yml
 services:
   mysql:
     image: mysql:8.0
@@ -39,45 +40,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-
-  app:
-    build: .
-    container_name: exchange-app
-    restart: unless-stopped
-    expose:
-      - "8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
-      SPRING_RABBITMQ_HOST: rabbitmq
-      TZ: Asia/Seoul
-    depends_on:
-      mysql:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
-  nginx:
-    image: nginx:alpine
-    container_name: exchange-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
-    depends_on:
-      - app
-
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
 
 volumes:
   mysql-data:
