@@ -1,7 +1,5 @@
-# 배포용. SPRING_PROFILES_ACTIVE=prod 로 실행한다. HTTPS 뒤에서 도는 것을 전제로 한다.
-# DB·RabbitMQ 접속 정보는 환경 변수로 덮어쓴다 (SPRING_DATASOURCE_URL, SPRING_RABBITMQ_HOST 등).
 server:
   servlet:
     session:
       cookie:
-        secure: false   # HTTPS 를 붙이면 true 로 되돌린다 (지금은 HTTP 로 직접 접속)
+        secure: true
