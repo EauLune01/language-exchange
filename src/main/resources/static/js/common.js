@@ -274,32 +274,37 @@ function hasBatchim(text) {
 
 /**
  * 헤더 아래 진행바: 목표 횟수(goal) 중 지금까지 학습한 횟수(studiedCount)를 roomInfo 의 지금 값으로 그립니다.
- * 값이 바뀌면(주제를 뽑으면) 다시 부르면 돼요. 이름은 사용자 내용이라 키와 값만 달아 둡니다.
+ * 값이 바뀌면(주제를 뽑으면) 다시 부르면 돼요. 처음 한 번만 만들고, 그 뒤로는 채움 너비만 바꿔서 차오르게 합니다. 이름은 사용자 내용이라 키와 값만 달아 둡니다.
  * particle 은 한국어 사전만 쓰는 조사예요: 첫 번째 이름에 받침이 있으면 "과", 없거나 한글이 아니면 "와".
  */
 function applyProgress() {
-    const [memberA, memberB] = roomInfo.members;
-    const journey = createElement('div', 'journey');
-    const title = i18nEl('span', 'journey-title', 'progress.title', {
-        nameA: memberA.name,
-        nameB: memberB.name,
-        particle: hasBatchim(memberA.name) ? '과' : '와',
-    });
-    title.id = 'journey-title';
-    // 목표를 넘겨도 <progress> 는 알아서 100% 로 막아 주고, 숫자도 100% 에서 멈춥니다.
-    const percent = createElement('span', 'journey-percent');
-    percent.textContent = `${Math.min(100, Math.floor(roomInfo.studiedCount / roomInfo.goal * 100))}%`;
-    journey.append(
-        title,
-        createElement('progress', 'journey-bar', { max: roomInfo.goal, value: roomInfo.studiedCount, 'aria-labelledby': 'journey-title' }),
-        percent);
-
-    const previous = siteHeader.querySelector('.journey');
-    if (previous) {
-        previous.replaceWith(journey);
-    } else {
+    const percentValue = Math.min(100, Math.floor(roomInfo.studiedCount / roomInfo.goal * 100));
+    let journey = siteHeader.querySelector('.journey');
+    if (!journey) {
+        const [memberA, memberB] = roomInfo.members;
+        journey = createElement('div', 'journey');
+        const title = i18nEl('span', 'journey-title', 'progress.title', {
+            nameA: memberA.name,
+            nameB: memberB.name,
+            particle: hasBatchim(memberA.name) ? '과' : '와',
+        });
+        title.id = 'journey-title';
+        // <progress> 의 채움은 브라우저마다 transition 이 안 먹어서, 차오르는 효과를 위해 div 로 그립니다.
+        const bar = createElement('div', 'journey-bar', { role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-labelledby': 'journey-title' });
+        bar.append(createElement('span', 'journey-fill'));
+        journey.append(title, bar, createElement('span', 'journey-percent'));
         siteHeader.append(journey);
     }
+
+    // 목표를 넘겨도 100% 에서 멈춥니다.
+    const bar = journey.querySelector('.journey-bar');
+    const fill = journey.querySelector('.journey-fill');
+    fill.classList.remove('is-filling');
+    void fill.offsetWidth; // 0 에서(또는 이전 값에서) 차오르고, 반짝임이 매번 다시 돌도록 한 번 그리게 합니다.
+    fill.classList.add('is-filling');
+    fill.style.width = `${percentValue}%`;
+    bar.setAttribute('aria-valuenow', percentValue);
+    journey.querySelector('.journey-percent').textContent = `${percentValue}%`;
 }
 
 /** 화면 언어 선택 칸: 사전이 있는 언어만, 각 언어의 이름으로 보여줍니다. */
