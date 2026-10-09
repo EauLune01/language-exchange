@@ -1,6 +1,7 @@
 /* 메인 페이지: 주제 뽑기
  *  - 뽑기 버튼을 누를 때마다 아직 안 쓴 주제 중 하나가 뽑혀요. (주에 한 번 제한은 없어요)
  *  - 뽑으면 헤더의 진행바도 한 칸 올라가요.
+ *  - 마지막으로 뽑은 주제는 새로고침하거나 다른 기기에서 열어도 카드에 그대로 나와요. 다음 주제를 뽑을 때까지 사라지지 않습니다.
  *  - 펫: 방의 두 언어 조합에 맞는 동물(pet.js)을 보여줘요. 목표 횟수를 다 채우면 100레벨이고, 뽑아서 레벨이 오르면 창으로 알려 줍니다.
  */
 (function () {
@@ -116,6 +117,26 @@
         }
     }
 
+    /**
+     * 마지막으로 뽑은 주제를 카드에 다시 보여줍니다. (서버에서 읽으므로 상대의 기기에서도 같은 주제가 보여요)
+     * 학습 기록은 오래된 순이라, 마지막 한 건 = 가장 최근에 뽑은 주제예요.
+     */
+    async function restoreTopic() {
+        if (!roomInfo || roomInfo.studiedCount < 1) {
+            return;
+        }
+        try {
+            // ponytail: 사용 날짜는 날짜까지만 있어서 같은 날 두 번 뽑으면 먼저 뽑은 주제가 나올 수 있다. 문제가 되면 사용 시각을 저장해 정렬
+            const data = await apiGet(`/api/topics/history?page=${roomInfo.studiedCount - 1}&size=1`);
+            const latest = data.content[0];
+            if (latest && !weeklyTopic) {
+                fillTopic(latest);
+            }
+        } catch (error) {
+            /* 못 읽어도 새로 뽑을 수는 있으니 빈 카드로 둡니다. */
+        }
+    }
+
     async function drawTopic() {
         els.drawButton.disabled = true;
         hideMessage(els.message);
@@ -144,9 +165,10 @@
     });
 
     // 언어 목록(LANGUAGES), 사전, 방 정보가 준비된 뒤에 뽑을 수 있게 합니다.
-    Promise.all([i18nReady, roomReady]).then(() => {
-        els.drawButton.hidden = false;
+    Promise.all([i18nReady, roomReady]).then(async () => {
         renderPet();
+        await restoreTopic();
+        els.drawButton.hidden = false;
     });
 
     // 펫 이름은 화면 언어를 따라갑니다.
