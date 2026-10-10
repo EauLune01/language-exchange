@@ -21,10 +21,17 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, TopicReposi
 
     long countByRoomId(Long roomId);
 
+    boolean existsByRoomIdAndUsedDateIsNull(Long roomId);
+
+    /** 그 방의 아직 안 쓴 주제 id 들 (Redis 풀을 채울 때 쓴다) */
+    @Query("SELECT t.id FROM Topic t WHERE t.roomId = :roomId AND t.usedDate IS NULL")
+    List<Long> findUnusedIds(@Param("roomId") Long roomId);
+
     /** 그 방에서 사용한 주제들의 사용 날짜 (통계용). 방 하나의 주제 수는 많지 않아서 날짜만 모두 읽어 서비스에서 센다 */
     @Query("SELECT t.usedDate FROM Topic t WHERE t.roomId = :roomId AND t.usedDate IS NOT NULL")
     List<LocalDate> findUsedDates(@Param("roomId") Long roomId);
 
+    // 아래 두 쿼리는 Redis 풀을 쓸 수 없을 때만 쓴다 (UnusedTopicPicker)
     @Query(value = "SELECT * FROM topics WHERE room_id = :roomId AND used_date IS NULL ORDER BY RAND() LIMIT 1",
             nativeQuery = true)
     Optional<Topic> findRandomUnused(@Param("roomId") Long roomId);

@@ -1,4 +1,4 @@
-# 테스트용 (@ActiveProfiles("test")). 개발용 MySQL·RabbitMQ 를 건드리지 않고, Docker 없이도 돈다.
+# 테스트용 (@ActiveProfiles("test")). 개발용 MySQL·RabbitMQ·Redis 를 건드리지 않고, Docker 없이도 돈다.
 spring:
   datasource:
     # 메모리 DB(H2)를 MySQL 호환 모드로 쓴다. 테스트가 끝나면 사라진다.
@@ -9,6 +9,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+
+  data:
+    redis:
+      # 일부러 닫힌 포트를 적어 개발용 Redis 에 연결되지 않게 한다. 주제 뽑기는 Redis 를 못 쓰면 DB 에서 고르므로 테스트는 그 경로로 돈다.
+      # (Redis 풀 자체는 TopicPoolRepositoryTest 가 실제 Redis 로 확인한다)
+      port: 1
 
   rabbitmq:
     listener:

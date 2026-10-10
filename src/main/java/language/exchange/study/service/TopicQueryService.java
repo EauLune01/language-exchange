@@ -34,6 +34,7 @@ public class TopicQueryService {
 
     private final TopicRepository topicRepository;
     private final QuestionRepository questionRepository;
+    private final UnusedTopicPicker unusedTopicPicker;
     private final TopicUsedPublisher topicUsedPublisher;
     private final RoomQueryService roomQueryService;
 
@@ -41,7 +42,7 @@ public class TopicQueryService {
     public TopicResult getTopic(Long roomId) {
         RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
 
-        Topic picked = topicRepository.findRandomUnused(roomId)
+        Topic picked = unusedTopicPicker.pick(roomId, null)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC));
 
         topicUsedPublisher.publish(picked.getId(), LocalDate.now());

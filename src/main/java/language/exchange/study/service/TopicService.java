@@ -37,6 +37,7 @@ public class TopicService {
 
     private final TopicRepository topicRepository;
     private final QuestionRepository questionRepository;
+    private final UnusedTopicPicker unusedTopicPicker;
     private final TopicCreatePublisher topicCreatePublisher;
     private final TopicUsedPublisher topicUsedPublisher;
     private final RoomQueryService roomQueryService;
@@ -71,8 +72,8 @@ public class TopicService {
         topics.forEach(topic -> topicCreatePublisher.publish(TopicCreateEvent.of(roomId, topic)));
     }
 
-    /** Consumer가 호출합니다. {lang, text}를 그 방의 A/B 칸으로 옮겨 저장합니다. */
-    public void createTopic(Long roomId, TopicCreateCommand command) {
+    /** Consumer가 호출합니다. {lang, text}를 그 방의 A/B 칸으로 옮겨 저장하고, 만든 주제의 id를 돌려줍니다. */
+    public Long createTopic(Long roomId, TopicCreateCommand command) {
         RoomLanguageResult languages = roomQueryService.getLanguages(roomId);
         validate(command, languages);
 
@@ -90,6 +91,7 @@ public class TopicService {
                         textOf(questions.get(i).getContents(), languages.getLanguageB())))
                 .toList();
         questionRepository.saveAll(questionEntities);
+        return topic.getId();
     }
 
     public void markAsUsed(Long topicId, LocalDate usedDate) {
@@ -107,7 +109,7 @@ public class TopicService {
         // 다른 방의 주제는 없는 주제와 똑같이 404 (존재 여부를 숨긴다)
         Topic passed = topicRepository.findByIdAndRoomId(topicId, roomId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.TOPIC_NOT_FOUND));
-        Topic picked = topicRepository.findRandomUnusedExcept(roomId, topicId)
+        Topic picked = unusedTopicPicker.pick(roomId, topicId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NO_AVAILABLE_TOPIC));
 
         // ponytail: 뽑자마자 패스해서 사용 처리(큐)보다 먼저 실행되면 패스한 주제가 뒤늦게 사용 처리된다.

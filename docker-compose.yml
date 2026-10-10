@@ -41,6 +41,23 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    container_name: exchange-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    # 로그인 세션이 들어 있다: 재시작해도 남도록 AOF 를 켜고, 메모리가 차도 임의로 지우지 않게 한다
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 volumes:
   mysql-data:
   rabbitmq-data:
+  redis-data:

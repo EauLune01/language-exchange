@@ -55,6 +55,7 @@ flowchart LR
 - **Spring Data JPA & QueryDSL 5.1**: "아직 안 쓴 주제 우선 → 이름순" 정렬을 `CASE` 식으로 작성했습니다. 목록은 `Slice`로 조회해 `count` 쿼리 없이 `hasNext`만 판단합니다.
 - **Spring Validation**: 요청 DTO에서 필수값과 형식을 검증합니다.
 - **Spring AMQP (RabbitMQ)**: 등록/사용 처리를 비동기화하고, JSON 메시지 컨버터와 재시도·DLQ 구성을 적용했습니다.
+- **Redis**: 로그인 세션을 Hash로 저장하고(Spring Session), 방마다 아직 안 쓴 주제를 Set으로 들고 있다가 `SPOP`으로 뽑아 같은 주제가 두 번 뽑히지 않게 합니다.
 - **SpringDoc OpenAPI**: Swagger UI로 API 문서를 자동화했습니다.
 - **MySQL 8**
 
@@ -82,7 +83,7 @@ flowchart LR
 | 그 밖의 요청 | 로그인하지 않으면 `401` (`errorCode: UNAUTHORIZED`). 화면은 `401`을 받으면 `enter.html`로 이동합니다. |
 | CSRF | 비활성 + `SameSite=Lax` (외부 공개 전에 재검토) |
 
-세션은 서버 메모리에 있어서 **서버를 재시작하면 다시 로그인**해야 합니다.
+세션은 Redis에 있어서(Spring Session) **서버를 재시작해도 로그인이 유지**됩니다.
 
 ---
 
@@ -108,7 +109,7 @@ flowchart LR
 | 13 | `GET` | `/api/stats` | 방의 학습 통계 | 필요 | `200` / `401` |
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
-- 모든 API는 `Content-Type: application/json`을 사용하고, 로그인 후에는 세션 쿠키(`JSESSIONID`)가 자동으로 함께 전송됩니다.
+- 모든 API는 `Content-Type: application/json`을 사용하고, 로그인 후에는 세션 쿠키(`SESSION`)가 자동으로 함께 전송됩니다.
 - 로그인이 필요한 API를 로그인 없이 부르면 모두 `401 UNAUTHORIZED`입니다. 아래 상세 설명에서는 중복을 피하려고 생략했습니다.
 - 모든 `roomId`는 세션에서만 꺼냅니다. 클라이언트가 보낸 값은 받지 않고, URI에도 방 번호가 없습니다.
 - 다른 방의 `topicId`는 존재 여부를 숨기려고 `404`로 응답합니다. 다른 방의 `questionId`에 메모를 저장하려 할 때도 같습니다.
@@ -820,7 +821,7 @@ MYSQL_PASSWORD=
 
 ```bash
 docker compose up -d
-docker compose ps        # 둘 다 healthy 가 될 때까지 대기
+docker compose ps        # 모두 healthy 가 될 때까지 대기
 ```
 
 **3. 애플리케이션 실행**
@@ -843,7 +844,7 @@ docker compose ps        # 둘 다 healthy 가 될 때까지 대기
 |---|---|---|
 | `dev` (기본) | `./gradlew bootRun` | 정적 파일 캐시 끔, SQL 로그 출력 |
 | `prod` | `SPRING_PROFILES_ACTIVE=prod` | 세션 쿠키 `Secure` (HTTPS 전제) |
-| `test` | 테스트 | 메모리 DB(H2, MySQL 모드), 큐에 연결하지 않음 |
+| `test` | 테스트 | 메모리 DB(H2, MySQL 모드), 큐와 Redis에 연결하지 않음 |
 
 ### 테스트
 
