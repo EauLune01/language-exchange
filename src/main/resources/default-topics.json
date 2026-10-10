@@ -532,5 +532,361 @@
         ]
       }
     ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "여행"
+      },
+      {
+        "lang": "JA",
+        "text": "旅行"
+      },
+      {
+        "lang": "EN",
+        "text": "Travel"
+      },
+      {
+        "lang": "ZH",
+        "text": "旅行"
+      },
+      {
+        "lang": "ES",
+        "text": "Viajes"
+      },
+      {
+        "lang": "FR",
+        "text": "Voyages"
+      },
+      {
+        "lang": "AR",
+        "text": "السفر"
+      },
+      {
+        "lang": "VI",
+        "text": "Du lịch"
+      },
+      {
+        "lang": "TH",
+        "text": "การท่องเที่ยว"
+      },
+      {
+        "lang": "IT",
+        "text": "Viaggi"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "꼭 가보고 싶은 나라/도시가 있나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "ぜひ行ってみたい国や都市はありますか？"
+          },
+          {
+            "lang": "EN",
+            "text": "Is there a country or city you really want to visit?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你有特别想去的国家或城市吗？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Hay algún país o ciudad que quieras visitar sin falta?"
+          },
+          {
+            "lang": "FR",
+            "text": "Y a-t-il un pays ou une ville que vous voulez absolument visiter ?"
+          },
+          {
+            "lang": "AR",
+            "text": "هل هناك بلد أو مدينة تودّ زيارتها بشدّة؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn có đất nước hay thành phố nào nhất định muốn đến không?"
+          },
+          {
+            "lang": "TH",
+            "text": "มีประเทศหรือเมืองที่อยากไปให้ได้ไหม"
+          },
+          {
+            "lang": "IT",
+            "text": "C'è un paese o una città che vuoi assolutamente visitare?"
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "최근에 가장 기억에 남은 여행지가 있나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "最近、一番印象に残った旅行先はどこですか？"
+          },
+          {
+            "lang": "EN",
+            "text": "Is there a place you traveled to recently that left the strongest impression on you?"
+          },
+          {
+            "lang": "ZH",
+            "text": "最近有没有让你印象最深的旅行地？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Hay algún lugar al que hayas viajado hace poco y que recuerdes especialmente?"
+          },
+          {
+            "lang": "FR",
+            "text": "Y a-t-il un endroit où vous avez voyagé récemment et qui vous a particulièrement marqué ?"
+          },
+          {
+            "lang": "AR",
+            "text": "هل هناك مكان سافرت إليه مؤخرًا وبقي في ذاكرتك أكثر من غيره؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Gần đây có nơi nào bạn đi du lịch mà để lại ấn tượng sâu đậm nhất không?"
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วงนี้มีที่เที่ยวไหนที่ประทับใจที่สุดไหม"
+          },
+          {
+            "lang": "IT",
+            "text": "C'è un posto in cui hai viaggiato di recente che ti è rimasto più impresso?"
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "혼자 여행 가기와 친구들과 같이 여행 가는 것 중 어떤 것을 더 좋아하나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "一人旅と友達と一緒に旅行するのと、どちらのほうが好きですか？"
+          },
+          {
+            "lang": "EN",
+            "text": "Which do you prefer: traveling alone or traveling with friends?"
+          },
+          {
+            "lang": "ZH",
+            "text": "一个人旅行和跟朋友一起旅行，你更喜欢哪一种？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Qué prefieres: viajar solo o viajar con amigos?"
+          },
+          {
+            "lang": "FR",
+            "text": "Que préférez-vous : voyager seul ou voyager avec des amis ?"
+          },
+          {
+            "lang": "AR",
+            "text": "أيهما تفضّل: السفر وحدك أم السفر مع الأصدقاء؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn thích đi du lịch một mình hay đi cùng bạn bè hơn?"
+          },
+          {
+            "lang": "TH",
+            "text": "ระหว่างเที่ยวคนเดียวกับเที่ยวกับเพื่อน คุณชอบแบบไหนมากกว่ากัน"
+          },
+          {
+            "lang": "IT",
+            "text": "Preferisci viaggiare da solo o con gli amici?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "일상/취미"
+      },
+      {
+        "lang": "JA",
+        "text": "日常/趣味"
+      },
+      {
+        "lang": "EN",
+        "text": "Daily life/Hobbies"
+      },
+      {
+        "lang": "ZH",
+        "text": "日常/爱好"
+      },
+      {
+        "lang": "ES",
+        "text": "Vida diaria/Aficiones"
+      },
+      {
+        "lang": "FR",
+        "text": "Quotidien/Loisirs"
+      },
+      {
+        "lang": "AR",
+        "text": "الحياة اليومية/الهوايات"
+      },
+      {
+        "lang": "VI",
+        "text": "Thường ngày/Sở thích"
+      },
+      {
+        "lang": "TH",
+        "text": "ชีวิตประจำวัน/งานอดิเรก"
+      },
+      {
+        "lang": "IT",
+        "text": "Vita quotidiana/Hobby"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "당신의 취미는 무엇인가요?"
+          },
+          {
+            "lang": "JA",
+            "text": "あなたの趣味は何ですか？"
+          },
+          {
+            "lang": "EN",
+            "text": "What are your hobbies?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你的爱好是什么？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Cuáles son tus aficiones?"
+          },
+          {
+            "lang": "FR",
+            "text": "Quels sont vos loisirs ?"
+          },
+          {
+            "lang": "AR",
+            "text": "ما هي هواياتك؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Sở thích của bạn là gì?"
+          },
+          {
+            "lang": "TH",
+            "text": "งานอดิเรกของคุณคืออะไร"
+          },
+          {
+            "lang": "IT",
+            "text": "Quali sono i tuoi hobby?"
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "당신은 평일에 주로 무엇을 하나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "平日は主に何をしていますか？"
+          },
+          {
+            "lang": "EN",
+            "text": "What do you usually do on weekdays?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你平日一般做什么？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Qué sueles hacer entre semana?"
+          },
+          {
+            "lang": "FR",
+            "text": "Que faites-vous en général en semaine ?"
+          },
+          {
+            "lang": "AR",
+            "text": "ماذا تفعل عادةً في أيام الأسبوع؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Ngày thường bạn hay làm gì?"
+          },
+          {
+            "lang": "TH",
+            "text": "วันธรรมดาคุณมักจะทำอะไร"
+          },
+          {
+            "lang": "IT",
+            "text": "Che cosa fai di solito nei giorni feriali?"
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "당신은 주말에 무엇을 하며 시간을 보내나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "週末はどんなことをして過ごしていますか？"
+          },
+          {
+            "lang": "EN",
+            "text": "How do you spend your weekends?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你周末都做些什么来度过？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Cómo pasas los fines de semana?"
+          },
+          {
+            "lang": "FR",
+            "text": "Comment passez-vous vos week-ends ?"
+          },
+          {
+            "lang": "AR",
+            "text": "كيف تقضي عطلة نهاية الأسبوع؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Cuối tuần bạn thường làm gì?"
+          },
+          {
+            "lang": "TH",
+            "text": "วันหยุดสุดสัปดาห์คุณใช้เวลาทำอะไร"
+          },
+          {
+            "lang": "IT",
+            "text": "Come passi i fine settimana?"
+          }
+        ]
+      }
+    ]
   }
 ]

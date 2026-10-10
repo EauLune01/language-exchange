@@ -758,6 +758,14 @@ a {
     line-height: 1.1;
 }
 
+.congrats-card {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 0 16px;
+    border-radius: var(--radius-md);
+}
+
 .congrats-message {
     margin: 0 0 6px;
     line-height: 1.6;

@@ -4,6 +4,7 @@
  *  - 방금 뽑은 주제가 마음에 안 들면 패스하고 다시 뽑을 수 있어요. 패스한 주제는 안 쓴 주제로 돌아가서 나중에 다시 나올 수 있고, 진행바는 그대로예요.
  *  - 마지막으로 뽑은 주제는 새로고침하거나 다른 기기에서 열어도 카드에 그대로 나와요. 다음 주제를 뽑을 때까지 사라지지 않습니다.
  *  - 펫: 방의 두 언어 조합에 맞는 동물(pet.js)을 보여줘요. 목표 횟수를 다 채우면 100레벨이고, 뽑아서 레벨이 오르면 창으로 알려 줍니다.
+ *  - 공유 카드: 100레벨이 됐을 때와 달이 바뀌고 처음 들어왔을 때(지난달 요약), 같은 창에 공유할 이미지(share-card.js)를 같이 보여줘요.
  */
 (function () {
     'use strict';
@@ -27,9 +28,13 @@
         congrats: $('pet-congrats-modal'),
         congratsEmoji: $('congrats-emoji'),
         congratsMessage: $('congrats-message'),
+        congratsCard: $('congrats-card'),
+        congratsShare: $('congrats-share'),
+        congratsClose: $('congrats-close'),
     };
 
     let weeklyTopic = null;
+    let cardFile = null; // 창에 보이는 공유 카드의 이미지 파일
 
     function fillTopic(topic) {
         setLocalizedText(els.nameA, topic.names[0]);
@@ -74,12 +79,74 @@
         return true;
     }
 
-    function openPetDialog(pet, key, params) {
+    /** card = { headline, sub, note } 를 주면 이모지 대신 공유 카드를 그려서 보여주고 공유 버튼을 꺼냅니다. */
+    async function openPetDialog(pet, key, params, card) {
         els.congratsEmoji.textContent = pet.emoji;
         i18nSet(els.congratsMessage, key, params);
+        els.congratsEmoji.hidden = false;
+        els.congratsCard.hidden = true;
+        els.congratsShare.hidden = true;
+        els.congratsClose.className = 'primary';
         if (!els.congrats.open) {
             els.congrats.showModal();
         }
+        if (!card) {
+            return;
+        }
+
+        try {
+            await drawShareCard(els.congratsCard, { emoji: pet.emoji, ...card });
+            cardFile = await shareCardFile(els.congratsCard);
+        } catch (drawError) {
+            return; // 카드를 못 그리면 이모지와 문구만 보여줍니다.
+        }
+        els.congratsEmoji.hidden = true;
+        els.congratsCard.hidden = false;
+        els.congratsShare.hidden = false;
+        els.congratsClose.className = 'secondary';
+    }
+
+    function roomPet() {
+        const [langA, langB] = roomInfo.members.map((member) => member.language);
+        return { pet: getPet(langA, langB), name: getPetName(langA, langB, i18nLang) };
+    }
+
+    /**
+     * 지난달 요약: 달이 바뀌고 이 기기에서 처음 들어왔을 때 한 번, 지난달에 한 번이라도 이야기했으면 보여줍니다.
+     * 지난달 횟수는 통계 API 의 월별 횟수(오래된 달 → 이번 달)에서 끝에서 두 번째 값이에요.
+     */
+    async function showMonthlyRecap() {
+        if (!roomInfo) {
+            return;
+        }
+        const today = new Date();
+        const key = `exchange:monthly-recap:${roomInfo.loginId}:${today.getFullYear()}-${today.getMonth() + 1}`;
+        let stats;
+        try {
+            if (localStorage.getItem(key)) {
+                return;
+            }
+            stats = await apiGet('/api/stats');
+            if (els.congrats.open) {
+                return; // 다른 알림이 떠 있으면 다음에 들어왔을 때 보여줍니다.
+            }
+            localStorage.setItem(key, '1');
+        } catch (error) {
+            return; // 저장이 막힌 브라우저에서는 열 때마다 뜨지 않게 아예 보여주지 않습니다.
+        }
+
+        const lastMonth = stats.monthly[stats.monthly.length - 2];
+        if (!lastMonth || lastMonth.count < 1) {
+            return;
+        }
+        const [year, month] = lastMonth.month.split('-').map(Number);
+        const monthLabel = new Intl.DateTimeFormat(i18nLocale(), { year: 'numeric', month: 'long' })
+            .format(new Date(year, month - 1, 1));
+        openPetDialog(roomPet().pet, 'share.monthly.message', { month: monthLabel, count: lastMonth.count }, {
+            headline: monthLabel,
+            sub: t('share.monthly.sub', { count: lastMonth.count }),
+            note: stats.weekStreak > 1 ? t('share.streak', { weeks: stats.weekStreak }) : '',
+        });
     }
 
     /**
@@ -90,9 +157,7 @@
         if (!roomInfo || roomInfo.studiedCount < 1) {
             return;
         }
-        const [langA, langB] = roomInfo.members.map((member) => member.language);
-        const pet = getPet(langA, langB);
-        const name = getPetName(langA, langB, i18nLang);
+        const { pet, name } = roomPet();
         const level = getPetLevel(roomInfo.studiedCount, roomInfo.goal);
 
         els.petEmoji.textContent = pet.emoji;
@@ -115,7 +180,12 @@
             openPetDialog(pet, 'stats.levelUp', { name, from, to: level });
         } else if (level >= PET_MAX_LEVEL && claimCongrats()) {
             // 방금 100레벨이 됐거나, 이미 100레벨인데 이 기기에서 아직 축하한 적이 없을 때
-            openPetDialog(pet, 'stats.congrats', congratsParams);
+            const today = new Intl.DateTimeFormat(i18nLocale(), { dateStyle: 'long' }).format(new Date());
+            openPetDialog(pet, 'stats.congrats', congratsParams, {
+                headline: t('share.max.title'),
+                sub: name,
+                note: `${t('share.max.sub', { goal: roomInfo.goal })} · ${today}`,
+            });
         }
     }
 
@@ -181,6 +251,8 @@
     els.drawButton.addEventListener('click', drawTopic);
     els.passButton.addEventListener('click', passTopic);
 
+    els.congratsShare.addEventListener('click', () => shareCard(cardFile));
+
     els.card.addEventListener('click', () => {
         if (weeklyTopic) {
             openQuestions({ ...weeklyTopic, used: true }); // 방금 뽑은 주제 = 사용한 주제
@@ -192,6 +264,7 @@
         renderPet();
         await restoreTopic();
         els.drawButton.hidden = false;
+        showMonthlyRecap();
     });
 
     // 펫 이름은 화면 언어를 따라갑니다.

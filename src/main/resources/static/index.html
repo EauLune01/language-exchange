@@ -110,17 +110,21 @@
     </div>
 </dialog>
 
-<!-- 펫 레벨 업 알림 · 100레벨 달성 축하 (문구는 home.js 가 채웁니다) -->
+<!-- 펫 레벨 업 알림 · 100레벨 달성 축하 · 지난달 요약 (문구는 home.js 가 채웁니다) -->
 <dialog id="pet-congrats-modal" class="congrats-dialog">
     <form method="dialog" class="congrats-content">
         <p id="congrats-emoji" class="congrats-emoji" aria-hidden="true"></p>
+        <!-- 100레벨 달성·지난달 요약일 때만 이모지 대신 공유 카드(share-card.js)를 보여줍니다 -->
+        <canvas id="congrats-card" class="congrats-card" aria-hidden="true" hidden></canvas>
         <p id="congrats-message" class="congrats-message"></p>
-        <button type="submit" class="primary" data-i18n="sheet.close"></button>
+        <button type="button" id="congrats-share" class="primary" data-i18n="share.button" hidden></button>
+        <button type="submit" id="congrats-close" class="primary" data-i18n="sheet.close"></button>
     </form>
 </dialog>
 
 <script src="js/common.js"></script>
 <script src="js/pet.js"></script>
+<script src="js/share-card.js"></script>
 <script src="js/sheet.js"></script>
 <script src="js/home.js"></script>
 </body>
