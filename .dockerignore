@@ -7,6 +7,9 @@ out
 *.env
 .env*
 docs
+# 서버에만 있는 폴더. certbot/conf 는 root 소유라 빌드 컨텍스트에 들어가면 권한 오류로 빌드가 실패한다
+certbot
+nginx
 *.md
 .idea
 *.iml

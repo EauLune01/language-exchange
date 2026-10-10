@@ -25,13 +25,15 @@ jobs:
       - name: Build jar
         run: ./gradlew bootJar --no-daemon
 
-      - name: Copy jar to server
+      # 이미지를 만드는 데 필요한 파일은 전부 여기서 보낸다. 서버의 저장소는 git pull 하지 않는다:
+      # docker-compose.yml 과 nginx.conf 를 서버에서 직접 고쳐 쓰기 때문에 pull 이 매번 충돌로 실패했다.
+      - name: Copy jar and Docker files to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: build/libs/*.jar
+          source: "build/libs/*.jar,Dockerfile,.dockerignore"
           target: language-exchange
 
       - name: Deploy via SSH
@@ -42,8 +44,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 30m
           script: |
+            set -e   # 빌드가 실패하면 배포도 실패로 끝나게 한다 (없으면 옛 이미지로 조용히 다시 뜬다)
             cd ~/language-exchange
-            git pull origin main
             docker compose build app
             docker compose up -d
             docker image prune -f
