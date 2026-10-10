@@ -1,4 +1,4 @@
-package language.exchange.study.note.dto.command;
+package language.exchange.note.dto.command;
 
 import language.exchange.room.domain.Language;
 import lombok.AccessLevel;

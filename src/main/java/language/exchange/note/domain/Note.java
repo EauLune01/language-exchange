@@ -1,4 +1,4 @@
-package language.exchange.study.note.domain;
+package language.exchange.note.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

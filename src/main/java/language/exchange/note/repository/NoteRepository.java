@@ -1,6 +1,6 @@
-package language.exchange.study.note.repository;
+package language.exchange.note.repository;
 
-import language.exchange.study.note.domain.Note;
+import language.exchange.note.domain.Note;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

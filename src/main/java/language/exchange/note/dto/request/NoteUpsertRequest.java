@@ -1,8 +1,8 @@
-package language.exchange.study.note.dto.request;
+package language.exchange.note.dto.request;
 
 import jakarta.validation.constraints.Size;
 import language.exchange.room.domain.Language;
-import language.exchange.study.note.dto.command.NoteUpsertCommand;
+import language.exchange.note.dto.command.NoteUpsertCommand;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

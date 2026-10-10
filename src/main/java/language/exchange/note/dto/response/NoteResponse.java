@@ -1,6 +1,6 @@
-package language.exchange.study.note.dto.response;
+package language.exchange.note.dto.response;
 
-import language.exchange.study.note.dto.result.NoteResult;
+import language.exchange.note.dto.result.NoteResult;
 import lombok.Builder;
 import lombok.Getter;
 

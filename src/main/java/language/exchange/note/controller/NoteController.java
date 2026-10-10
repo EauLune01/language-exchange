@@ -1,4 +1,4 @@
-package language.exchange.study.note.controller;
+package language.exchange.note.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,11 +8,11 @@ import jakarta.validation.Valid;
 import language.exchange.global.config.security.RoomPrincipal;
 import language.exchange.global.dto.response.ApiResponse;
 import language.exchange.room.domain.Language;
-import language.exchange.study.note.dto.request.NoteUpsertRequest;
-import language.exchange.study.note.dto.response.NoteResponse;
-import language.exchange.study.note.dto.result.NoteResult;
-import language.exchange.study.note.service.NoteQueryService;
-import language.exchange.study.note.service.NoteService;
+import language.exchange.note.dto.request.NoteUpsertRequest;
+import language.exchange.note.dto.response.NoteResponse;
+import language.exchange.note.dto.result.NoteResult;
+import language.exchange.note.service.NoteQueryService;
+import language.exchange.note.service.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

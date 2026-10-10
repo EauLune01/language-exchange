@@ -1,4 +1,4 @@
-package language.exchange.study.note.dto.result;
+package language.exchange.note.dto.result;
 
 import lombok.AccessLevel;
 import lombok.Getter;

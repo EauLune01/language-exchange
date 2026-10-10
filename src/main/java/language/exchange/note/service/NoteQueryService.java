@@ -1,12 +1,12 @@
-package language.exchange.study.note.service;
+package language.exchange.note.service;
 
 import language.exchange.global.exception.BusinessException;
 import language.exchange.global.exception.ErrorCode;
 import language.exchange.room.domain.Language;
 import language.exchange.room.service.RoomQueryService;
-import language.exchange.study.note.domain.Note;
-import language.exchange.study.note.dto.result.NoteResult;
-import language.exchange.study.note.repository.NoteRepository;
+import language.exchange.note.domain.Note;
+import language.exchange.note.dto.result.NoteResult;
+import language.exchange.note.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

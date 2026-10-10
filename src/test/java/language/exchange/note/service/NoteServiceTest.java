@@ -1,4 +1,4 @@
-package language.exchange.study.note.service;
+package language.exchange.note.service;
 
 import language.exchange.global.exception.BusinessException;
 import language.exchange.global.exception.ErrorCode;
@@ -9,7 +9,7 @@ import language.exchange.room.service.RoomService;
 import language.exchange.study.dto.command.LocalizedTextCommand;
 import language.exchange.study.dto.command.QuestionCreateCommand;
 import language.exchange.study.dto.command.TopicCreateCommand;
-import language.exchange.study.note.dto.command.NoteUpsertCommand;
+import language.exchange.note.dto.command.NoteUpsertCommand;
 import language.exchange.study.publisher.TopicCreatePublisher;
 import language.exchange.study.publisher.TopicUsedPublisher;
 import language.exchange.study.service.TopicQueryService;
