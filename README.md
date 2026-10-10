@@ -24,7 +24,7 @@
 - **단일 애플리케이션 구조**: Spring Boot 한 개가 REST API와 화면(HTML/CSS/JS)을 함께 제공합니다. 별도의 프론트 서버나 빌드 과정이 없습니다.
 - **방 단위 인증**: 방 아이디/비밀번호로 로그인하면 서버 세션에 방이 기록됩니다. 모든 API는 세션의 방을 기준으로 동작하고, URI에는 방 번호가 들어가지 않습니다.
 - **비동기 쓰기 구조**: 주제 등록과 "뽑은 주제 사용 처리"는 RabbitMQ를 거쳐 처리합니다. API는 검증만 마치고 `202 Accepted`로 즉시 응답하고, 실제 저장은 Consumer가 담당합니다.
-- **실패 대비**: Consumer가 실패하면 최대 3회까지 시도하고, 모두 실패하면 DLQ(Dead Letter Queue)로 보내 메시지가 유실되지 않게 합니다.
+- **실패 대비**: Consumer가 실패하면 최대 3회까지 시도하고, 모두 실패하면 DLQ(Dead Letter Queue)로 보냅니다. DLQ에 온 메시지는 다시 처리하지 않고 본문 전체를 에러 로그로 남겨, 실패를 알아차리고 원인을 고친 뒤 다시 요청할 수 있게 합니다.
 - **단일 RDB**: MySQL에 방(`rooms`), 주제(`topics`), 질문(`questions`), 질문 메모(`notes`)를 저장합니다. 여러 언어를 함께 저장하므로 `utf8mb4`를 사용합니다.
 
 ```mermaid
@@ -644,6 +644,7 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
 | `topic.exchange` | `topic.used.queue` | `topic.used` | `topic.used.dlq` | `GET /api/topics/weekly` | 뽑힌 주제의 사용 날짜(`used_date`) 기록 |
 
 - Consumer는 2초 → 4초 간격으로 **최대 3회** 시도하고, 모두 실패하면 DLQ(`topic.dlx`)로 이동합니다.
+- DLQ의 메시지는 `TopicDlqConsumer`가 꺼내 **에러 로그로만** 남깁니다 (큐 이름 + 메시지 본문). 자동으로 다시 처리하지 않으며, 로그를 따로 저장하는 테이블도 없습니다.
 - Consumer는 같은 메시지가 두 번 와도 결과가 같도록 작성했습니다(멱등).
 
 ---
@@ -730,6 +731,7 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
     - 여러 개 등록은 주제 1개당 메시지 1개로 나누어, 한 주제가 실패해도 나머지는 저장됩니다. 큐에 넣기 전에 전체 입력을 먼저 검증합니다.
 6. **재시도와 DLQ**
     - Consumer는 2초 → 4초 간격으로 최대 3회 시도하고, 모두 실패하면 DLQ(`topic.create.dlq`, `topic.used.dlq`)로 이동합니다.
+    - 이미 3번 실패한 메시지는 바로 다시 해도 실패하므로 DLQ에서는 재처리하지 않고, 본문 전체를 에러 로그로 남겨 실패를 알 수 있게만 합니다.
 7. **일관된 코드 컨벤션**
     - `Request → Command → Result → Response` DTO 계층 분리, `Service`(쓰기) / `QueryService`(조회, `readOnly`) 분리, 엔티티는 `create()` 정적 팩토리로 생성, 공통 응답 `ApiResponse` / `SliceResponse`를 사용합니다.
 
