@@ -10,7 +10,7 @@
 - **10개 언어**: 한국어, 일본어, 영어, 중국어(간체), 스페인어, 프랑스어, 아랍어, 베트남어, 태국어, 이탈리아어. 방을 만들 때 각자 **배우고 싶은 언어**를 고르면 그 두 언어가 방의 언어가 됩니다.
 - **주제와 질문은 방의 두 언어로** 짝지어 저장하고, 화면에서는 두 언어를 나란히 보여주거나 토글로 바꿔 봅니다.
 - **기본 추천 주제**: 방을 만들 때 체크 하나로 미리 준비된 주제와 질문을 방의 두 언어로 채워 넣을 수 있어, 직접 등록하지 않아도 바로 첫 주제를 뽑을 수 있습니다. 주제는 10개 언어 모두로 준비되어 있어 어떤 언어 조합의 방에서도 쓸 수 있습니다.
-- 주제는 아직 안 쓴 주제 중에서 무작위로 뽑습니다. 주 단위 제한은 없고, 뽑을 때마다 학습 횟수가 1씩 늘어 방을 만들 때 정한 **목표 횟수**(25/50/75/100)까지의 진행바가 채워집니다.
+- 주제는 아직 안 쓴 주제 중에서 무작위로 뽑습니다. 두 사람이 각자의 기기에서 동시에 눌러도 같은 주제가 겹치지 않습니다. 주 단위 제한은 없고, 뽑을 때마다 학습 횟수가 1씩 늘어 방을 만들 때 정한 **목표 횟수**(25/50/75/100)까지의 진행바가 채워집니다.
 - 뽑은 주제가 지금은 어렵거나 내키지 않으면 **패스**하고 다시 뽑을 수 있습니다. 패스한 주제는 사라지지 않고 안 쓴 주제로 돌아가 나중에 다시 뽑히며, 학습 횟수는 늘지 않습니다.
 - 지금까지 이야기한 주제는 **회차별 학습 기록**으로 다시 볼 수 있고, **통계** 화면에서 총 회차·이번 달 횟수·주제 진행·월별 그래프로 돌아볼 수 있습니다.
 - 이미 뽑아서 이야기한 주제의 질문마다 **메모**를 남길 수 있습니다. 메모는 방 × 질문 × 언어 단위라, 같은 질문이어도 두 언어의 메모가 따로 저장됩니다.
@@ -22,22 +22,27 @@
 ## 🏛️ System Architecture Overview
 
 - **단일 애플리케이션 구조**: Spring Boot 한 개가 REST API와 화면(HTML/CSS/JS)을 함께 제공합니다. 별도의 프론트 서버나 빌드 과정이 없습니다.
-- **방 단위 인증**: 방 아이디/비밀번호로 로그인하면 서버 세션에 방이 기록됩니다. 모든 API는 세션의 방을 기준으로 동작하고, URI에는 방 번호가 들어가지 않습니다.
+- **방 단위 인증**: 방 아이디/비밀번호로 로그인하면 서버 세션에 방이 기록됩니다. 세션은 Redis에 저장해(Spring Session) 서버를 재시작하거나 재배포해도 로그인이 유지됩니다. 모든 API는 세션의 방을 기준으로 동작하고, URI에는 방 번호가 들어가지 않습니다.
 - **비동기 쓰기 구조**: 주제 등록과 "뽑은 주제 사용 처리"는 RabbitMQ를 거쳐 처리합니다. API는 검증만 마치고 `202 Accepted`로 즉시 응답하고, 실제 저장은 Consumer가 담당합니다.
+- **Redis 주제 풀**: 방마다 아직 안 쓴 주제 id를 Redis Set으로 들고 있다가 `SPOP`으로 뽑습니다. 사용 날짜는 큐를 거쳐 나중에 DB에 기록되므로 DB만 보고 고르면 연달아 뽑을 때 같은 주제가 겹칠 수 있는데, 풀에서는 꺼내는 순간 빠지므로 겹치지 않습니다. 기록의 기준은 DB이고, Redis가 응답하지 않으면 DB에서 직접 고릅니다.
 - **실패 대비**: Consumer가 실패하면 최대 3회까지 시도하고, 모두 실패하면 DLQ(Dead Letter Queue)로 보냅니다. DLQ에 온 메시지는 다시 처리하지 않고 본문 전체를 에러 로그로 남겨, 실패를 알아차리고 원인을 고친 뒤 다시 요청할 수 있게 합니다.
 - **단일 RDB**: MySQL에 방(`rooms`), 주제(`topics`), 질문(`questions`), 질문 메모(`notes`)를 저장합니다. 여러 언어를 함께 저장하므로 `utf8mb4`를 사용합니다.
 
 ```mermaid
 flowchart LR
-    A["브라우저 화면"] -->|"POST /api/rooms · /api/auth/login"| S["세션 (방)"]
-    S -. "useDefaultTopics: 기본 추천 주제 (default-topics.json)" .-> C
+    A["브라우저 화면"] -->|"POST /api/rooms · /api/auth/login"| R["RoomController · AuthController"]
+    R -->|"세션 저장 (Spring Session)"| S[("Redis 세션")]
+    R -. "useDefaultTopics: 기본 추천 주제 (default-topics.json)" .-> C
     A -->|"POST /api/topics → 202"| B["TopicController"]
     B -->|"방의 언어 검증 후 발행 (roomId 포함)"| C[("topic.create.queue")]
     C --> D["TopicCreateConsumer"]
     D -->|"주제 + 질문 3개 (한 트랜잭션)"| E[("MySQL")]
+    D -->|"저장한 주제 id 를 풀에 추가"| P[("Redis 안 쓴 주제 풀")]
     C -. "3회 실패" .-> F[("topic.create.dlq")]
 
     A -->|"GET /api/topics/weekly · POST /api/topics/{id}/pass"| B
+    B -->|"SPOP 으로 주제 id 뽑기 (Lua)"| P
+    E -. "풀이 없으면 안 쓴 주제 id 로 채움" .-> P
     B -->|"패스한 주제는 바로 안 쓴 주제로"| E
     B -->|"뽑힌 주제 사용 날짜 처리 요청"| G[("topic.used.queue")]
     G --> H["TopicUsedConsumer"]
@@ -55,7 +60,7 @@ flowchart LR
 - **Spring Data JPA & QueryDSL 5.1**: "아직 안 쓴 주제 우선 → 이름순" 정렬을 `CASE` 식으로 작성했습니다. 목록은 `Slice`로 조회해 `count` 쿼리 없이 `hasNext`만 판단합니다.
 - **Spring Validation**: 요청 DTO에서 필수값과 형식을 검증합니다.
 - **Spring AMQP (RabbitMQ)**: 등록/사용 처리를 비동기화하고, JSON 메시지 컨버터와 재시도·DLQ 구성을 적용했습니다.
-- **Redis**: 로그인 세션을 Hash로 저장하고(Spring Session), 방마다 아직 안 쓴 주제를 Set으로 들고 있다가 `SPOP`으로 뽑아 같은 주제가 두 번 뽑히지 않게 합니다.
+- **Redis 7 (Spring Data Redis, Spring Session)**: 로그인 세션을 Hash로 저장하고, 방마다 아직 안 쓴 주제 id를 Set으로 들고 있다가 `SPOP`으로 뽑아 같은 주제가 두 번 뽑히지 않게 합니다. 뽑기·패스·풀 채우기는 Lua 스크립트로 묶어 한 덩어리로 실행합니다.
 - **SpringDoc OpenAPI**: Swagger UI로 API 문서를 자동화했습니다.
 - **MySQL 8**
 
@@ -67,8 +72,11 @@ flowchart LR
 - **언어별 모티프**: 10개 언어마다 그 문화의 꽃·문양을 직접 그린 SVG로 두고, 두 언어가 만나는 의미로 **겹치는 두 송이**를 상징으로 사용했습니다.
 
 ### Infra
-- **Docker Compose**: MySQL과 RabbitMQ(관리 콘솔 포함)를 한 번에 실행합니다.
+- **Docker Compose**: MySQL, RabbitMQ(관리 콘솔 포함), Redis를 한 번에 실행합니다. Redis는 AOF를 켜고 `maxmemory-policy noeviction`으로 실행해, 재시작해도 로그인 세션이 남고 메모리가 차도 임의로 지워지지 않습니다.
 - **환경 변수**: `.env` 파일을 `spring.config.import`로 불러와 DB 계정 정보를 코드 밖에서 관리합니다.
+- **배포**: `main`에 push하면 GitHub Actions가 jar를 빌드해 서버로 보내고, 서버에서 Docker 이미지를 만들어 다시 띄웁니다(`.github/workflows/deploy.yml`, `Dockerfile`). 서버 메모리가 작아 컴파일은 서버에서 하지 않습니다.
+- **nginx**: 앱 앞에서 HTTPS를 처리하고 HTTP는 HTTPS로 돌려보냅니다(`nginx/nginx.conf`). 재배포로 앱 컨테이너의 IP가 바뀌어도 따라가도록 주소를 10초마다 다시 조회합니다.
+- **JVM 시작 시간**: 서버 CPU가 작아 JIT 컴파일을 C1까지만 씁니다(`-XX:TieredStopAtLevel=1`). CPU 0.25개로 제한해 잰 시작 시간이 75~80초에서 32~35초로 줄었고, 대신 오래 돌 때의 최고 처리 속도는 낮아집니다.
 
 ---
 
@@ -83,7 +91,11 @@ flowchart LR
 | 그 밖의 요청 | 로그인하지 않으면 `401` (`errorCode: UNAUTHORIZED`). 화면은 `401`을 받으면 `enter.html`로 이동합니다. |
 | CSRF | 비활성 + `SameSite=Lax` (외부 공개 전에 재검토) |
 
-세션은 Redis에 있어서(Spring Session) **서버를 재시작해도 로그인이 유지**됩니다.
+세션은 Redis에 있어서(Spring Session) **서버를 재시작하거나 재배포해도 로그인이 유지**됩니다.
+
+- 세션 하나가 Redis Hash 하나입니다(키 `auth:session:sessions:{sessionId}`). 30일 동안 요청이 없으면 만료됩니다.
+- 로그인하지 않은 요청에는 세션을 만들지 않습니다. Spring Security의 `requestCache`를 꺼서, `401`로 끝나는 요청마다 Redis에 빈 세션이 쌓이지 않습니다.
+- 세션에 직렬화되는 `RoomPrincipal`은 `serialVersionUID`를 고정해, 클래스를 다시 컴파일한 배포에서도 기존 로그인이 풀리지 않습니다.
 
 ---
 
@@ -369,6 +381,8 @@ flowchart LR
 
 - 주 단위 제한이 없어서 부를 때마다 새 주제가 뽑힙니다. (경로의 `weekly`는 이전 규칙의 이름을 그대로 둔 것입니다.)
 - 뽑은 횟수는 `GET /api/rooms`의 `studiedCount`로 확인합니다.
+- 주제는 Redis의 **안 쓴 주제 풀**에서 `SPOP`으로 꺼냅니다. 꺼낸 주제는 그 순간 풀에서 빠지므로, 두 기기에서 동시에 누르거나 연달아 눌러도 같은 주제가 두 번 나오지 않습니다. (Key Design Points 7번)
+- Redis가 응답하지 않으면 DB에서 직접 고릅니다. 이때만, 사용 처리가 끝나기 전에 다시 뽑으면 같은 주제가 나올 수 있습니다.
 
 **Response `200 OK`**
 
@@ -399,6 +413,7 @@ flowchart LR
 - 패스한 주제는 사라지지 않습니다. 나중에 다시 뽑힐 수 있고, 적어 둔 메모도 그대로 남습니다.
 - 하나를 되돌리고 하나를 뽑으므로 `studiedCount`는 그대로입니다.
 - 대신 뽑을 주제가 없으면 아무것도 바뀌지 않습니다.
+- 풀에서는 "패스한 주제를 빼고 뽑은 뒤, 다른 주제가 뽑혔을 때만 패스한 주제를 되돌려 놓기"를 Lua 스크립트 하나로 실행합니다. 그래서 패스한 주제가 바로 다시 뽑히지 않습니다.
 
 **Response `200 OK`** — 7번과 같은 형태 (`message`: "주제 패스 성공")
 
@@ -641,12 +656,13 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
 
 | Exchange | Queue | Routing Key | DLQ | 발행하는 API | 처리 내용 |
 |---|---|---|---|---|---|
-| `topic.exchange` | `topic.create.queue` | `topic.create` | `topic.create.dlq` | `POST /api/topics`, `POST /api/topics/bulk-create` | 주제 1개 + 질문 3개를 한 트랜잭션으로 저장 (메시지에 `roomId` 포함) |
-| `topic.exchange` | `topic.used.queue` | `topic.used` | `topic.used.dlq` | `GET /api/topics/weekly` | 뽑힌 주제의 사용 날짜(`used_date`) 기록 |
+| `topic.exchange` | `topic.create.queue` | `topic.create` | `topic.create.dlq` | `POST /api/topics`, `POST /api/topics/bulk-create`, `POST /api/rooms`(`useDefaultTopics`) | 주제 1개 + 질문 3개를 한 트랜잭션으로 저장하고(메시지에 `roomId` 포함), 저장한 주제 id를 Redis 풀에 추가 |
+| `topic.exchange` | `topic.used.queue` | `topic.used` | `topic.used.dlq` | `GET /api/topics/weekly`, `POST /api/topics/{topicId}/pass` | 뽑힌 주제의 사용 날짜(`used_date`) 기록 |
 
 - Consumer는 2초 → 4초 간격으로 **최대 3회** 시도하고, 모두 실패하면 DLQ(`topic.dlx`)로 이동합니다.
 - DLQ의 메시지는 `TopicDlqConsumer`가 꺼내 **에러 로그로만** 남깁니다 (큐 이름 + 메시지 본문). 자동으로 다시 처리하지 않으며, 로그를 따로 저장하는 테이블도 없습니다.
-- Consumer는 같은 메시지가 두 번 와도 결과가 같도록 작성했습니다(멱등).
+- 사용 날짜 기록은 같은 메시지가 두 번 와도 결과가 같습니다(멱등). 이미 날짜가 있으면 바꾸지 않습니다.
+- 주제를 저장한 뒤 Redis 풀에 넣다가 실패해도 예외를 던지지 않습니다. 던지면 재시도가 같은 주제를 한 번 더 만들기 때문입니다. 풀에서 빠진 주제는 풀이 비었을 때 DB에서 다시 읽힙니다.
 
 ---
 
@@ -657,7 +673,7 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
 | 페이지 | 파일 | 설명 |
 |---|---|---|
 | 들어가기 | `enter.html` | **로그인 / 방 만들기** 탭. 방 만들기에서는 방 아이디·비밀번호와 두 사람의 이름·국적·배우고 싶은 언어, 목표 횟수(25/50/75/100, 기본 50)를 한 화면에 입력합니다. 서로 다른 두 언어를 고르면 그 조합의 펫을 바로 미리 보여주고, 목표 횟수 아래에 펫이 자라는 방식을 안내합니다. |
-| 홈 | `index.html` | 주제 뽑기. 버튼을 누를 때마다 새 주제가 뽑히고 헤더의 진행바가 올라갑니다. 카드를 누르면 질문이 열립니다. 마지막으로 뽑은 주제는 새로고침하거나 다른 기기에서 열어도 다음 주제를 뽑을 때까지 카드에 그대로 나옵니다(학습 기록의 마지막 한 건을 읽습니다). 카드 아래에 방의 펫과 레벨이 나오고, 뽑아서 레벨이 오르면 창으로 알려 줍니다. |
+| 홈 | `index.html` | 주제 뽑기. 버튼을 누를 때마다 새 주제가 뽑히고 헤더의 진행바가 올라갑니다. 카드를 누르면 질문이 열립니다. 방금 뽑은 주제에는 **패스하고 다시 뽑기** 버튼이 나옵니다(진행바와 펫은 그대로). 마지막으로 뽑은 주제는 새로고침하거나 다른 기기에서 열어도 다음 주제를 뽑을 때까지 카드에 그대로 나옵니다(학습 기록의 마지막 한 건을 읽습니다). 카드 아래에 방의 펫과 레벨이 나오고, 뽑아서 레벨이 오르면 창으로 알려 줍니다. |
 | 전체 주제 | `topics.html` | 등록된 모든 주제. "아직 안 쓴 주제 / 사용한 주제" 그룹으로 나뉘며 `더 보기`로 이어서 불러옵니다. |
 | 학습 기록 | `history.html` | 1회차부터 지금까지 이야기한 주제 목록. 이번 주 기록은 강조됩니다. |
 | 통계 | `stats.html` | 숫자 타일 4개(총 회차와 목표, 이번 달과 지난달, 연속으로 이어온 주, 함께한 날), 등록한 주제 중 이야기한 주제의 진행 막대, 최근 6개월 월별 막대그래프(이번 달 강조). |
@@ -668,6 +684,7 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
 - **질문 시트**: 주제를 누르면 질문 3개가 열리고, 방의 두 언어 토글로 언어를 바꿉니다. 마지막으로 고른 언어는 방별로 브라우저에 기억됩니다.
 - **질문 메모**: **사용한 주제**(홈에서 방금 뽑은 주제, 학습 기록, 전체 주제의 "사용한 주제")에서만 나옵니다. 아직 안 쓴 주제는 질문만 보여줍니다. 질문을 누르면 그 아래에 줄 공책 모양의 메모 칸이 열리고, 다시 누르면 닫힙니다. 메모는 지금 고른 언어의 것을 불러오고 **저장** 버튼으로 저장합니다(2000자까지, 빈 내용은 저장 불가). 언어 토글을 바꾸면 같은 질문의 그 언어 메모로 바뀌고, 저장하지 않은 내용도 페이지를 벗어나기 전까지는 남아 있습니다.
 - **펫**: 홈의 뽑기 카드 아래와 방 만들기의 미리보기에 방의 두 언어 조합에 맞는 동물이 나옵니다(`js/pet.js`, 45가지 조합, 두 언어의 순서와 무관). 동물과 이모지는 조합마다 서로 다릅니다. 서버에 따로 저장하는 값 없이 학습 횟수와 목표 횟수로 레벨(0~100)을 계산해서, 목표를 다 채우면 100레벨입니다(목표 25회면 한 번에 4레벨, 50회면 2레벨, 75회면 1~2레벨, 100회면 1레벨). 한 번이라도 뽑아야 나타나고, 주제를 뽑아 레벨이 오르면 "레벨 업" 창으로 알려 줍니다. 100레벨이 되면 축하 창이 뜹니다(이미 100레벨인 방은 그 기기에서 한 번). 이름은 화면 언어를 따라갑니다.
+- **공유 카드**: 100레벨이 됐을 때와, 달이 바뀌고 처음 들어왔을 때(지난달에 한 번 이상 이야기했다면 그 달의 요약) 뜨는 창에 공유용 이미지가 함께 나옵니다(`js/share-card.js`). 라이브러리 없이 Canvas에 방의 두 언어 모티프와 보조 색으로 4:5(1080×1350) 한 장을 그립니다. 휴대폰에서는 공유 시트가 열리고, 파일 공유가 안 되는 브라우저에서는 PNG로 내려받습니다.
 - **통계 그래프**: 차트 라이브러리 없이 HTML/CSS로 그립니다. 막대마다 값을 숫자로도 적어 색에만 의존하지 않고, 달 이름과 숫자 모양은 `Intl`이 화면 언어에 맞춥니다.
 - **입력 검증**: 빈 칸이 있으면 전송하지 않고 해당 칸을 표시합니다. 글자 수는 DB 컬럼 길이(255자)에 맞춰 제한했습니다.
 
@@ -733,7 +750,19 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
 6. **재시도와 DLQ**
     - Consumer는 2초 → 4초 간격으로 최대 3회 시도하고, 모두 실패하면 DLQ(`topic.create.dlq`, `topic.used.dlq`)로 이동합니다.
     - 이미 3번 실패한 메시지는 바로 다시 해도 실패하므로 DLQ에서는 재처리하지 않고, 본문 전체를 에러 로그로 남겨 실패를 알 수 있게만 합니다.
-7. **일관된 코드 컨벤션**
+7. **안 쓴 주제 풀 (Redis Set)**
+    - **문제**: 뽑힌 주제의 사용 날짜는 큐를 거쳐 나중에 DB에 기록됩니다. DB만 보고 고르면(`ORDER BY RAND() LIMIT 1`) 기록되기 전에 다시 뽑을 때 같은 주제가 또 나올 수 있고, 뽑을 때마다 방의 안 쓴 주제를 전부 정렬해야 했습니다.
+    - **해결**: 방마다 안 쓴 주제 id를 Redis Set(`topics:{roomId}:unused`)으로 들고 `SPOP`으로 꺼냅니다. 꺼내는 순간 풀에서 빠지므로 동시에 뽑아도 겹치지 않고, 뽑기는 `SPOP` 한 번과 PK 조회 한 번으로 끝납니다.
+    - **기록의 기준은 DB**: 풀은 DB에서 언제든 다시 만들 수 있는 사본입니다. 풀이 없으면 처음 뽑을 때 DB의 안 쓴 주제 id로 채우고, 새 주제가 저장되면 Consumer가 풀에 넣습니다. 7일 동안 아무도 뽑지 않은 방의 풀은 만료되고(뽑을 때마다 연장), 다음에 뽑을 때 다시 채워집니다.
+    - **"다 썼음"과 "아직 안 읽어 옴"의 구분**: Redis는 빈 Set을 키째로 지우므로, 읽어 왔다는 표시 키(`topics:{roomId}:unused-ready`)를 따로 둡니다.
+    - **방금 뽑힌 주제**: 사용 날짜가 기록되기 전에는 DB에서 아직 안 쓴 주제로 보입니다. 그 사이에 풀을 다시 채워도 되살아나지 않도록, 방금 뽑힌 id를 `topics:{roomId}:drawn`에 10분 동안 들고 있다가 채울 때 제외합니다.
+    - **Lua 스크립트**: 뽑기(표시 확인 → `SPOP` → 뽑힌 주제 기록 → TTL 연장), 패스(패스한 주제를 빼고 뽑은 뒤, 다른 주제가 뽑혔을 때만 풀로 되돌림), 채우기(다른 요청이 먼저 채웠으면 아무것도 하지 않음)는 여러 명령이 한 덩어리로 실행돼야 해서 스크립트로 묶었습니다.
+    - **Redis 장애 대비**: Redis가 응답하지 않으면(타임아웃 2초) DB에서 직접 고르는 방식으로 뽑습니다. 풀이 비었는데 DB에 안 쓴 주제가 남아 있으면 다음에 뽑을 때 DB에서 다시 읽고, 풀에 남아 있던 id가 이미 쓴 주제이거나 없는 주제이면 버리고 다시 뽑습니다.
+8. **세션 외부화 (Spring Session + Redis)**
+    - 세션을 서버 메모리가 아니라 Redis Hash에 둡니다. `main`에 push할 때마다 앱이 다시 떠도 30일짜리 로그인이 끊기지 않습니다.
+    - 로그인하지 않은 요청에 세션이 생기지 않도록 `requestCache`를 끄고, 세션에 들어가는 `RoomPrincipal`의 `serialVersionUID`를 고정했습니다.
+    - Redis는 AOF와 `noeviction`으로 실행해, Redis를 재시작해도 세션이 남고 메모리가 차도 세션이 임의로 지워지지 않습니다.
+9. **일관된 코드 컨벤션**
     - `Request → Command → Result → Response` DTO 계층 분리, `Service`(쓰기) / `QueryService`(조회, `readOnly`) 분리, 엔티티는 `create()` 정적 팩토리로 생성, 공통 응답 `ApiResponse` / `SliceResponse`를 사용합니다.
 
 ---
@@ -742,7 +771,10 @@ API 응답과 별개로 서버 안에서 오가는 메시지입니다.
 
 ```
 exchange
-├── docker-compose.yml           # MySQL, RabbitMQ
+├── docker-compose.yml           # MySQL, RabbitMQ, Redis (로컬 개발용)
+├── Dockerfile                   # 앱 이미지 (jar 는 이미지 밖에서 빌드)
+├── nginx/nginx.conf             # HTTPS, 앱으로 프록시
+├── .github/workflows/deploy.yml # main 에 push 하면 배포
 ├── .env.example                 # 환경 변수 예시 (실제 .env는 커밋하지 않음)
 ├── build.gradle
 └── src
@@ -751,27 +783,28 @@ exchange
     │   │   ├── ExchangeApplication.java
     │   │   ├── global
     │   │   │   ├── config           # documentation, querydsl, rabbitmq, security
-    │   │   │   ├── constants        # StudyConstants, RabbitMQConstants
+    │   │   │   ├── constants        # StudyConstants, RabbitMQConstants, RedisKeyConstants
     │   │   │   ├── domain           # BaseTimeEntity
     │   │   │   ├── dto/response     # ApiResponse, SliceResponse
     │   │   │   ├── exception        # ErrorCode, BusinessException, GlobalExceptionHandler
     │   │   │   └── util             # SliceUtil
     │   │   ├── auth                 # 로그인·로그아웃 (AuthController, AuthService)
     │   │   ├── room                 # 방 만들기·방 정보 (Room, Language, RoomService, RoomQueryService)
+    │   │   ├── note                 # 질문 메모 (controller / domain / dto / repository / service)
     │   │   └── study                # 주제·질문
     │   │       ├── controller       # TopicController, StatsController
     │   │       ├── domain           # Topic, Question
     │   │       ├── dto              # request / command / result / response
-    │   │       ├── repository       # TopicRepository (+ QueryDSL custom/impl), QuestionRepository
-    │   │       ├── service          # TopicService(쓰기), TopicQueryService(조회), StatsQueryService(통계)
+    │   │       ├── repository       # TopicRepository (+ QueryDSL custom/impl), QuestionRepository, TopicPoolRepository(Redis 안 쓴 주제 풀)
+    │   │       ├── service          # TopicService(쓰기), TopicQueryService(조회), StatsQueryService(통계), UnusedTopicPicker(풀에서 뽑기, 안 되면 DB)
     │   │       ├── event            # 큐로 보내는 메시지 객체
     │   │       ├── publisher        # 메시지 발행
-    │   │       ├── consumer         # 메시지 수신·처리
-    │   │       └── note             # 질문 메모 (controller / domain / dto / repository / service)
+    │   │       └── consumer         # 메시지 수신·처리 (등록, 사용 처리, DLQ)
     │   └── resources
     │       ├── application.yml      # 공통 설정
     │       ├── application-dev.yml  # 개발용 (기본)
     │       ├── application-prod.yml # 배포용
+    │       ├── default-topics.json  # 기본 추천 주제 (10개 언어)
     │       └── static
     │           ├── enter.html / index.html / topics.html / history.html / stats.html / register.html
     │           ├── favicon.svg
@@ -784,9 +817,11 @@ exchange
     │               ├── i18n/        # 언어별 사전 10개
     │               ├── sheet.js     # 질문 시트, 질문 메모
     │               ├── pet.js       # 언어 조합별 펫 (동물, 화면 언어별 이름)
+    │               ├── share-card.js # 공유 카드 (Canvas)
     │               └── enter.js / home.js / topics.js / history.js / stats.js / register.js
     └── test
-        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, NoteServiceTest, StatsQueryServiceTest
+        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, TopicPassTest, DefaultTopicsTest,
+        │                            # TopicPoolRepositoryTest(실제 Redis), NoteServiceTest, StatsQueryServiceTest
         └── resources/application-test.yml
 ```
 
@@ -801,6 +836,17 @@ exchange
 
 - `Question`이 `Topic`을 참조하는 **단방향** 연관관계입니다. `Topic`은 다른 도메인인 방을 엔티티가 아니라 `room_id` 값으로만 참조합니다. `Note`도 같은 도메인인 `Question`은 연관관계로, 방은 `room_id` 값으로만 참조합니다.
 - 국적은 ISO 3166-1 alpha-2 국가 코드로 저장하고, 화면에서는 `Intl.DisplayNames`로 화면 언어의 나라 이름을 보여줍니다.
+
+### Redis 키
+
+| 키 | 타입 | TTL | 내용 |
+|---|---|---|---|
+| `auth:session:sessions:{sessionId}` | Hash | 30일 | 로그인 세션 (Spring Session) |
+| `topics:{roomId}:unused` | Set | 7일 (뽑거나 등록할 때마다 연장) | 그 방의 아직 안 쓴 주제 id |
+| `topics:{roomId}:unused-ready` | String | 7일 (뽑을 때마다 연장) | 풀을 DB에서 읽어 왔다는 표시. 없으면 다음에 뽑을 때 DB에서 다시 읽음 |
+| `topics:{roomId}:drawn` | Set | 10분 | 방금 뽑혀서 사용 날짜가 아직 DB에 기록되지 않았을 수 있는 주제 id |
+
+- Redis에만 있는 데이터는 로그인 세션뿐입니다. 주제 풀은 DB에서 다시 만들 수 있어서, 키가 지워져도 다음에 뽑을 때 복구됩니다.
 
 ---
 
@@ -817,7 +863,7 @@ MYSQL_USER=
 MYSQL_PASSWORD=
 ```
 
-**2. MySQL, RabbitMQ 실행**
+**2. MySQL, RabbitMQ, Redis 실행**
 
 ```bash
 docker compose up -d
@@ -843,8 +889,8 @@ docker compose ps        # 모두 healthy 가 될 때까지 대기
 | 프로파일 | 언제 | 차이 |
 |---|---|---|
 | `dev` (기본) | `./gradlew bootRun` | 정적 파일 캐시 끔, SQL 로그 출력 |
-| `prod` | `SPRING_PROFILES_ACTIVE=prod` | 세션 쿠키 `Secure` (HTTPS 전제) |
-| `test` | 테스트 | 메모리 DB(H2, MySQL 모드), 큐와 Redis에 연결하지 않음 |
+| `prod` | `SPRING_PROFILES_ACTIVE=prod` (Docker 이미지의 기본값) | 세션 쿠키 `Secure` (HTTPS 전제) |
+| `test` | 테스트 | 메모리 DB(H2, MySQL 모드), 큐와 Redis에 연결하지 않음 (주제 뽑기는 DB에서 고르는 경로로 실행) |
 
 ### 테스트
 
@@ -852,7 +898,9 @@ docker compose ps        # 모두 healthy 가 될 때까지 대기
 ./gradlew clean test
 ```
 
-Docker 없이 실행됩니다. 방 격리(다른 방의 주제·기록이 보이지도 뽑히지도 않는지), 방 만들기 규칙(언어·국적·목표 횟수), 비밀번호 해시, 질문 메모(저장·수정, 방·언어별 분리, 안 쓴 주제에는 저장 불가), 통계(월별 집계, 연속 주, 방 분리)를 확인합니다.
+Docker 없이 실행됩니다. 방 격리(다른 방의 주제·기록이 보이지도 뽑히지도 않는지), 방 만들기 규칙(언어·국적·목표 횟수), 비밀번호 해시, 기본 추천 주제(방의 두 언어로만 등록 요청), 주제 패스, 질문 메모(저장·수정, 방·언어별 분리, 안 쓴 주제에는 저장 불가), 통계(월별 집계, 연속 주, 방 분리)를 확인합니다.
+
+Redis 풀(`TopicPoolRepositoryTest`)만은 Lua 스크립트를 확인해야 해서 **실제 Redis**를 씁니다. `localhost:6379`에 Redis가 없으면 건너뛰므로, 같이 돌리려면 `docker compose up -d redis`를 먼저 실행합니다. 개발용 데이터와 섞이지 않게 15번 DB를 쓰고 끝나면 지웁니다. 16개 스레드가 동시에 뽑아도 같은 주제가 두 번 나오지 않는지, 패스한 주제가 풀로 돌아가는지, 풀을 다시 읽어 와도 방금 뽑힌 주제가 되살아나지 않는지, 모든 키에 TTL이 있는지를 확인합니다.
 
 ### 스키마를 바꿨을 때
 
@@ -862,16 +910,17 @@ Docker 없이 실행됩니다. 방 격리(다른 방의 주제·기록이 보이
 docker compose down -v && docker compose up -d
 ```
 
-> **이전 버전(방 계정이 없던 `main`)에서 넘어올 때도 한 번은 초기화해야 합니다.** 테이블 구조가 달라져서(`rooms` 추가, `topics.room_id`, `name_ko/name_ja` → `name_a/name_b` 등) 예전 DB로는 실행되지 않습니다. 위 명령은 저장된 주제·질문을 모두 지웁니다.
+> **이전 버전(방 계정이 없던 `main`)에서 넘어올 때도 한 번은 초기화해야 합니다.** 테이블 구조가 달라져서(`rooms` 추가, `topics.room_id`, `name_ko/name_ja` → `name_a/name_b` 등) 예전 DB로는 실행되지 않습니다. 위 명령은 저장된 주제·질문을 모두 지웁니다. Redis 볼륨도 같이 지워져서 로그인 세션과 주제 풀도 사라집니다(다시 로그인하면 됩니다).
 
 ---
 
 ## 📝 Notes
 
-- **주제를 아주 짧은 간격으로 연달아 뽑으면** 같은 주제가 다시 뽑힐 수 있습니다 (사용 처리가 비동기라서). 사용 처리는 멱등이라 학습 횟수는 한 번만 올라가지만, 화면의 진행바는 새로 열기 전까지 하나 더 올라가 보일 수 있습니다.
+- 주제는 Redis 풀에서 꺼내므로 연달아 뽑아도 같은 주제가 나오지 않습니다. 다만 **Redis가 응답하지 않는 동안**에는 DB에서 고르기 때문에, 아주 짧은 간격으로 연달아 뽑으면 같은 주제가 다시 뽑힐 수 있습니다 (사용 처리가 비동기라서). 사용 처리는 멱등이라 학습 횟수는 한 번만 올라가지만, 화면의 진행바는 새로 열기 전까지 하나 더 올라가 보일 수 있습니다.
+- **주제를 뽑자마자 바로 패스하면** 드물게 패스한 주제가 뒤늦게 사용한 주제로 기록될 수 있습니다 (패스가 큐의 사용 처리보다 먼저 실행된 경우). 사람이 누르는 속도로는 일어나기 어렵습니다.
 - 방 비밀번호는 복구할 수 없고, 방 정보(이름·국적·언어)와 주제를 수정·삭제하는 기능은 아직 없습니다. 메모도 내용을 고칠 수는 있지만 지우는 기능은 없습니다.
 - **주제를 뽑자마자 메모를 저장하면** 드물게 `403 TOPIC_NOT_USED`로 실패할 수 있습니다 (사용 처리가 비동기라 아직 반영되지 않은 순간). 적던 내용은 남아 있으므로 다시 저장하면 됩니다.
-- 외부에 공개하기 전에 필요한 일: 비밀번호 변경, 로그인 시도 제한, CSRF 재검토, HTTPS와 쿠키 `Secure`, 세션 저장소, 번역 원어민 검수.
+- 외부에 공개하기 전에 필요한 일: 비밀번호 변경, 로그인 시도 제한, CSRF 재검토, 번역 원어민 검수. (HTTPS와 쿠키 `Secure`, 세션 저장소는 적용했습니다.)
 
 ## About
 

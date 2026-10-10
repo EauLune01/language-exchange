@@ -10,7 +10,7 @@
 - **10言語**：韓国語、日本語、英語、中国語（簡体字）、スペイン語、フランス語、アラビア語、ベトナム語、タイ語、イタリア語。ルーム作成時にそれぞれが**学びたい言語**を選ぶと、その2言語がルームの言語になります。
 - **トピックと質問はルームの2言語**をペアにして保存し、画面では2言語を並べて表示するか、トグルで切り替えて見ます。
 - **おすすめトピック**：ルーム作成時にチェックを1つ入れるだけで、あらかじめ用意されたトピックと質問をルームの2言語で登録できます。自分で登録しなくても、すぐに最初のトピックを引けます。トピックは10言語すべてで用意されているので、どの言語の組み合わせのルームでも使えます。
-- トピックは、まだ使っていないものの中からランダムに引きます。週ごとの制限はなく、引くたびに学習回数が1つ増え、ルーム作成時に決めた**目標回数**（25/50/75/100）までの進捗バーが伸びます。
+- トピックは、まだ使っていないものの中からランダムに引きます。2人がそれぞれの端末で同時に押しても、同じトピックが重なることはありません。週ごとの制限はなく、引くたびに学習回数が1つ増え、ルーム作成時に決めた**目標回数**（25/50/75/100）までの進捗バーが伸びます。
 - 引いたトピックが今は難しい、または気が乗らないときは、**パス**して引き直せます。パスしたトピックは消えずに未使用に戻り、あとでまた引かれます。学習回数は増えません。
 - これまで話したトピックは**回ごとの学習記録**として見返せ、**統計**画面では合計回数・今月の回数・トピックの進み具合・月ごとのグラフでふり返れます。
 - すでに引いて話したトピックの質問ごとに**メモ**を残せます。メモはルーム × 質問 × 言語の単位なので、同じ質問でも2つの言語のメモは別々に保存されます。
@@ -22,22 +22,27 @@
 ## 🏛️ System Architecture Overview
 
 - **単一アプリケーション構成**：Spring Boot 1つがREST APIと画面（HTML/CSS/JS）を一緒に提供します。別のフロントサーバーやビルド工程はありません。
-- **ルーム単位の認証**：ルームID/パスワードでログインすると、サーバーセッションにルームが記録されます。すべてのAPIはセッションのルームを基準に動作し、URIにルーム番号は含まれません。
+- **ルーム単位の認証**：ルームID/パスワードでログインすると、サーバーセッションにルームが記録されます。セッションはRedisに保存するので（Spring Session）、サーバーを再起動・再デプロイしてもログインが維持されます。すべてのAPIはセッションのルームを基準に動作し、URIにルーム番号は含まれません。
 - **非同期書き込み構成**：トピック登録と「引いたトピックの使用済み処理」はRabbitMQを経由して処理します。APIは検証だけ行って`202 Accepted`で即座に応答し、実際の保存はConsumerが担当します。
+- **Redisのトピックプール**：ルームごとに未使用のトピックidをRedis Setで持ち、`SPOP`で引きます。使用日はキューを経由してあとからDBに記録されるため、DBだけを見て選ぶと続けて引いたときに同じトピックが重なることがありますが、プールでは取り出した瞬間に抜けるので重なりません。記録の基準はDBで、Redisが応答しないときはDBから直接選びます。
 - **障害対策**：Consumerが失敗した場合は最大3回まで試行し、すべて失敗したらDLQ（Dead Letter Queue）に送ります。DLQに届いたメッセージは再処理せず、本文全体をエラーログに残して、失敗に気づき、原因を直してから再リクエストできるようにします。
 - **単一RDB**：MySQLにルーム（`rooms`）、トピック（`topics`）、質問（`questions`）、質問メモ（`notes`）を保存します。複数の言語を一緒に保存するため`utf8mb4`を使います。
 
 ```mermaid
 flowchart LR
-    A["ブラウザ画面"] -->|"POST /api/rooms · /api/auth/login"| S["セッション (ルーム)"]
-    S -. "useDefaultTopics: おすすめトピック (default-topics.json)" .-> C
+    A["ブラウザ画面"] -->|"POST /api/rooms · /api/auth/login"| R["RoomController · AuthController"]
+    R -->|"セッション保存 (Spring Session)"| S[("Redis セッション")]
+    R -. "useDefaultTopics: おすすめトピック (default-topics.json)" .-> C
     A -->|"POST /api/topics → 202"| B["TopicController"]
     B -->|"ルームの言語を検証して発行 (roomId を含む)"| C[("topic.create.queue")]
     C --> D["TopicCreateConsumer"]
     D -->|"トピック + 質問3つ (1トランザクション)"| E[("MySQL")]
+    D -->|"保存したトピック id をプールに追加"| P[("Redis 未使用トピックプール")]
     C -. "3回失敗" .-> F[("topic.create.dlq")]
 
     A -->|"GET /api/topics/weekly · POST /api/topics/{id}/pass"| B
+    B -->|"SPOP でトピック id を引く (Lua)"| P
+    E -. "プールがなければ未使用トピック id で埋める" .-> P
     B -->|"パスしたトピックはすぐ未使用に"| E
     B -->|"引いたトピックの使用日の記録を要求"| G[("topic.used.queue")]
     G --> H["TopicUsedConsumer"]
@@ -55,7 +60,7 @@ flowchart LR
 - **Spring Data JPA & QueryDSL 5.1**：「まだ使っていないトピックを優先 → 名前順」のソートを`CASE`式で記述しました。一覧は`Slice`で取得し、`count`クエリなしで`hasNext`だけを判定します。
 - **Spring Validation**：リクエストDTOで必須値と形式を検証します。
 - **Spring AMQP (RabbitMQ)**：登録/使用処理を非同期化し、JSONメッセージコンバーターとリトライ・DLQ構成を適用しました。
-- **Redis**：ログインセッションをHashで保存し（Spring Session）、ルームごとに未使用のトピックをSetで持って`SPOP`で引くことで、同じトピックが二度引かれないようにしています。
+- **Redis 7 (Spring Data Redis, Spring Session)**：ログインセッションをHashで保存し、ルームごとに未使用のトピックidをSetで持って`SPOP`で引くことで、同じトピックが二度引かれないようにしています。引く・パス・プールを埋める処理は、Luaスクリプトにまとめてひとかたまりで実行します。
 - **SpringDoc OpenAPI**：Swagger UIでAPIドキュメントを自動化しました。
 - **MySQL 8**
 
@@ -67,8 +72,11 @@ flowchart LR
 - **言語別モチーフ**：10言語それぞれに、その文化の花・文様を手描きしたSVGを用意し、2つの言語が出会う意味として**重なる2輪の花**をシンボルにしました。
 
 ### Infra
-- **Docker Compose**：MySQLとRabbitMQ（管理コンソール付き）を一度に起動します。
+- **Docker Compose**：MySQL、RabbitMQ（管理コンソール付き）、Redisを一度に起動します。RedisはAOFを有効にして`maxmemory-policy noeviction`で起動するので、再起動してもログインセッションが残り、メモリがいっぱいになっても勝手に削除されません。
 - **環境変数**：`.env`ファイルを`spring.config.import`で読み込み、DBの認証情報をコードの外で管理します。
+- **デプロイ**：`main`にpushすると、GitHub Actionsがjarをビルドしてサーバーに送り、サーバーでDockerイメージを作って起動し直します（`.github/workflows/deploy.yml`、`Dockerfile`）。サーバーのメモリが小さいため、コンパイルはサーバーでは行いません。
+- **nginx**：アプリの前段でHTTPSを処理し、HTTPはHTTPSへリダイレクトします（`nginx/nginx.conf`）。再デプロイでアプリのコンテナIPが変わっても追従できるよう、アドレスを10秒ごとに引き直します。
+- **JVMの起動時間**：サーバーのCPUが小さいため、JITコンパイルはC1までしか使いません（`-XX:TieredStopAtLevel=1`）。CPUを0.25個に制限して測った起動時間が75〜80秒から32〜35秒に短くなり、その代わり長時間動かしたときの最高処理速度は下がります。
 
 ---
 
@@ -83,7 +91,11 @@ flowchart LR
 | それ以外のリクエスト | ログインしていなければ`401`（`errorCode: UNAUTHORIZED`）。画面は`401`を受け取ると`enter.html`へ移動します。 |
 | CSRF | 無効 + `SameSite=Lax`（外部公開の前に再検討） |
 
-セッションはRedisにあるため（Spring Session）、**サーバーを再起動してもログインが維持**されます。
+セッションはRedisにあるため（Spring Session）、**サーバーを再起動・再デプロイしてもログインが維持**されます。
+
+- セッション1つがRedis Hash 1つです（キー `auth:session:sessions:{sessionId}`）。30日間リクエストがなければ期限切れになります。
+- ログインしていないリクエストにはセッションを作りません。Spring Securityの`requestCache`を無効にして、`401`で終わるリクエストのたびにRedisに空のセッションが溜まらないようにしています。
+- セッションにシリアライズされる`RoomPrincipal`は`serialVersionUID`を固定しているので、クラスを再コンパイルしたデプロイでも既存のログインが切れません。
 
 ---
 
@@ -369,6 +381,8 @@ flowchart LR
 
 - 週ごとの制限はないので、呼ぶたびに新しいトピックが引かれます。（パスの`weekly`は以前のルールの名前をそのまま残したものです。）
 - 引いた回数は`GET /api/rooms`の`studiedCount`で確認します。
+- トピックはRedisの**未使用トピックプール**から`SPOP`で取り出します。取り出したトピックはその瞬間にプールから抜けるので、2台の端末で同時に押しても、続けて押しても、同じトピックが二度出ることはありません。（Key Design Points 7番）
+- Redisが応答しないときはDBから直接選びます。このときだけ、使用済み処理が終わる前にもう一度引くと同じトピックが出ることがあります。
 
 **Response `200 OK`**
 
@@ -399,6 +413,7 @@ flowchart LR
 - パスしたトピックは消えません。あとでまた引かれることがあり、書いておいたメモもそのまま残ります。
 - 1つ戻して1つ引くので、`studiedCount`は変わりません。
 - 代わりに引けるトピックがなければ、何も変わりません。
+- プールでは「パスしたトピックを除いて引き、別のトピックが引けたときだけパスしたトピックを戻す」をLuaスクリプト1つで実行します。そのため、パスしたトピックがすぐにまた引かれることはありません。
 
 **Response `200 OK`** — 7番と同じ形（`message`: "주제 패스 성공"）
 
@@ -641,12 +656,13 @@ APIのレスポンスとは別に、サーバー内部でやり取りされる�
 
 | Exchange | Queue | Routing Key | DLQ | 発行するAPI | 処理内容 |
 |---|---|---|---|---|---|
-| `topic.exchange` | `topic.create.queue` | `topic.create` | `topic.create.dlq` | `POST /api/topics`, `POST /api/topics/bulk-create` | トピック1つ + 質問3つを1トランザクションで保存（メッセージに`roomId`を含む） |
-| `topic.exchange` | `topic.used.queue` | `topic.used` | `topic.used.dlq` | `GET /api/topics/weekly` | 引いたトピックの使用日（`used_date`）を記録 |
+| `topic.exchange` | `topic.create.queue` | `topic.create` | `topic.create.dlq` | `POST /api/topics`, `POST /api/topics/bulk-create`, `POST /api/rooms`（`useDefaultTopics`） | トピック1つ + 質問3つを1トランザクションで保存し（メッセージに`roomId`を含む）、保存したトピックidをRedisプールに追加 |
+| `topic.exchange` | `topic.used.queue` | `topic.used` | `topic.used.dlq` | `GET /api/topics/weekly`, `POST /api/topics/{topicId}/pass` | 引いたトピックの使用日（`used_date`）を記録 |
 
 - Consumerは2秒 → 4秒の間隔で**最大3回**試行し、すべて失敗したらDLQ（`topic.dlx`）へ移動します。
 - DLQのメッセージは`TopicDlqConsumer`が取り出して**エラーログにだけ**残します（キュー名 + メッセージ本文）。自動での再処理は行わず、ログを別に保存するテーブルもありません。
-- Consumerは、同じメッセージが2回届いても結果が同じになるように作ってあります（冪等）。
+- 使用日の記録は、同じメッセージが2回届いても結果が同じです（冪等）。すでに日付があれば変更しません。
+- トピックを保存したあと、Redisプールへの追加に失敗しても例外は投げません。投げるとリトライが同じトピックをもう1つ作ってしまうためです。プールから漏れたトピックは、プールが空になったときにDBから読み直されます。
 
 ---
 
@@ -657,7 +673,7 @@ APIのレスポンスとは別に、サーバー内部でやり取りされる�
 | ページ | ファイル | 説明 |
 |---|---|---|
 | 入口 | `enter.html` | **ログイン / ルーム作成**タブ。ルーム作成では、ルームID・パスワードと2人の名前・国籍・学びたい言語、目標回数（25/50/75/100、初期値50）を1画面で入力します。異なる2つの言語を選ぶと、その組み合わせのペットをすぐにプレビューし、目標回数の下でペットの育ち方を案内します。 |
-| ホーム | `index.html` | トピックを引きます。ボタンを押すたびに新しいトピックが引かれ、ヘッダーの進捗バーが伸びます。カードを押すと質問が開きます。最後に引いたトピックは、再読み込みしたり別の端末で開いたりしても、次のトピックを引くまでカードにそのまま表示されます（学習記録の最後の1件を読みます）。カードの下にルームのペットとレベルが表示され、引いてレベルが上がるとダイアログで知らせます。 |
+| ホーム | `index.html` | トピックを引きます。ボタンを押すたびに新しいトピックが引かれ、ヘッダーの進捗バーが伸びます。カードを押すと質問が開きます。引いたばかりのトピックには**パスして引き直す**ボタンが表示されます（進捗バーとペットはそのまま）。最後に引いたトピックは、再読み込みしたり別の端末で開いたりしても、次のトピックを引くまでカードにそのまま表示されます（学習記録の最後の1件を読みます）。カードの下にルームのペットとレベルが表示され、引いてレベルが上がるとダイアログで知らせます。 |
 | 全トピック | `topics.html` | 登録されたすべてのトピック。「まだ使っていないトピック / 使ったトピック」のグループに分かれ、`もっと見る`で続きを読み込みます。 |
 | 学習記録 | `history.html` | 第1回からこれまでに話したトピックの一覧。今週の記録は強調されます。 |
 | 統計 | `stats.html` | 数字タイル4つ（合計回数と目標、今月と先月、連続で続けた週、一緒に過ごした日数）、登録したトピックのうち話したトピックの進捗バー、直近6か月の月ごとの棒グラフ（今月を強調）。 |
@@ -668,6 +684,7 @@ APIのレスポンスとは別に、サーバー内部でやり取りされる�
 - **質問シート**：トピックを押すと質問3つが開き、ルームの2言語のトグルで言語を切り替えます。最後に選んだ言語はルームごとにブラウザに記憶されます。
 - **質問メモ**：**使用済みのトピック**（ホームで引いたばかりのトピック、学習記録、全トピックの「使ったテーマ」）でだけ表示されます。まだ使っていないトピックでは質問だけを表示します。質問を押すと、その下に罫線ノート風のメモ欄が開き、もう一度押すと閉じます。メモは今選んでいる言語のものを読み込み、**保存**ボタンで保存します（2000文字まで、空の内容は保存不可）。言語トグルを切り替えると同じ質問のその言語のメモに変わり、保存していない内容もページを離れるまでは残ります。
 - **ペット**：ホームのカードの下とルーム作成のプレビューに、ルームの2言語の組み合わせに合った動物が表示されます（`js/pet.js`、45通りの組み合わせ、2言語の順番は無関係）。動物と絵文字は組み合わせごとにすべて異なります。サーバーに別途保存する値はなく、学習回数と目標回数からレベル（0〜100）を計算し、目標を達成するとレベル100になります（目標25回なら1回で4レベル、50回なら2レベル、75回なら1〜2レベル、100回なら1レベル）。1回でも引くと現れ、トピックを引いてレベルが上がると「レベルアップ」のダイアログで知らせます。レベル100になるとお祝いのダイアログが表示されます（すでにレベル100のルームでは、その端末で1回）。名前は画面言語に合わせます。
+- **シェアカード**：レベル100になったときと、月が変わって最初に開いたとき（先月に1回以上話していれば、その月のまとめ）に出るダイアログに、シェア用の画像が一緒に表示されます（`js/share-card.js`）。ライブラリを使わず、Canvasにルームの2言語のモチーフと補助色で4:5（1080×1350）の1枚を描きます。スマートフォンでは共有シートが開き、ファイル共有ができないブラウザではPNGをダウンロードします。
 - **統計グラフ**：チャートライブラリを使わず、HTML/CSSで描きます。棒ごとに値を数字でも表示して色だけに頼らず、月の名前と数字の書式は`Intl`が画面言語に合わせます。
 - **入力検証**：空欄があれば送信せず、該当の欄を表示します。文字数はDBカラムの長さ（255文字）に合わせて制限しました。
 
@@ -733,7 +750,19 @@ APIのレスポンスとは別に、サーバー内部でやり取りされる�
 6. **リトライとDLQ**
     - Consumerは2秒 → 4秒の間隔で最大3回試行し、すべて失敗したらDLQ（`topic.create.dlq`, `topic.used.dlq`）へ移動します。
     - すでに3回失敗したメッセージはすぐにやり直しても失敗するため、DLQでは再処理せず、本文全体をエラーログに残して失敗に気づけるようにだけします。
-7. **一貫したコードコンベンション**
+7. **未使用トピックプール（Redis Set）**
+    - **問題**：引いたトピックの使用日は、キューを経由してあとからDBに記録されます。DBだけを見て選ぶと（`ORDER BY RAND() LIMIT 1`）、記録される前にもう一度引いたときに同じトピックがまた出ることがあり、引くたびにルームの未使用トピックをすべてソートする必要もありました。
+    - **解決**：ルームごとに未使用のトピックidをRedis Set（`topics:{roomId}:unused`）で持ち、`SPOP`で取り出します。取り出した瞬間にプールから抜けるので同時に引いても重ならず、引く処理は`SPOP` 1回とPK検索1回で終わります。
+    - **記録の基準はDB**：プールは、DBからいつでも作り直せるコピーです。プールがなければ最初に引くときにDBの未使用トピックidで埋め、新しいトピックが保存されるとConsumerがプールに入れます。7日間だれも引かなかったルームのプールは期限切れになり（引くたびに延長）、次に引くときにまた埋められます。
+    - **「使い切った」と「まだ読み込んでいない」の区別**：Redisは空のSetをキーごと削除するので、読み込み済みを示すキー（`topics:{roomId}:unused-ready`）を別に持ちます。
+    - **引いたばかりのトピック**：使用日が記録されるまでは、DB上ではまだ未使用に見えます。その間にプールを埋め直しても復活しないように、引いたばかりのidを`topics:{roomId}:drawn`に10分間持っておき、埋めるときに除外します。
+    - **Luaスクリプト**：引く（読み込み済みの確認 → `SPOP` → 引いたトピックの記録 → TTL延長）、パス（パスしたトピックを除いて引き、別のトピックが引けたときだけプールに戻す）、埋める（別のリクエストが先に埋めていれば何もしない）は、複数のコマンドをひとかたまりで実行する必要があるため、スクリプトにまとめました。
+    - **Redis障害への備え**：Redisが応答しなければ（タイムアウト2秒）、DBから直接選ぶ方式で引きます。プールが空なのにDBに未使用トピックが残っていれば、次に引くときにDBから読み直し、プールに残っていたidがすでに使用済みのトピックや存在しないトピックであれば、捨てて引き直します。
+8. **セッションの外部化（Spring Session + Redis）**
+    - セッションをサーバーのメモリではなくRedis Hashに置きます。`main`にpushするたびにアプリが起動し直しても、30日間のログインは切れません。
+    - ログインしていないリクエストでセッションが作られないように`requestCache`を無効にし、セッションに入る`RoomPrincipal`の`serialVersionUID`を固定しました。
+    - RedisはAOFと`noeviction`で起動するので、Redisを再起動してもセッションが残り、メモリがいっぱいになってもセッションが勝手に削除されません。
+9. **一貫したコードコンベンション**
     - `Request → Command → Result → Response`のDTO階層分離、`Service`（書き込み）/ `QueryService`（取得、`readOnly`）の分離、エンティティは`create()`静的ファクトリで生成、共通レスポンス`ApiResponse` / `SliceResponse`を使います。
 
 ---
@@ -742,7 +771,10 @@ APIのレスポンスとは別に、サーバー内部でやり取りされる�
 
 ```
 exchange
-├── docker-compose.yml           # MySQL, RabbitMQ
+├── docker-compose.yml           # MySQL, RabbitMQ, Redis (ローカル開発用)
+├── Dockerfile                   # アプリのイメージ (jar はイメージの外でビルド)
+├── nginx/nginx.conf             # HTTPS、アプリへのプロキシ
+├── .github/workflows/deploy.yml # main に push するとデプロイ
 ├── .env.example                 # 環境変数の例 (実際の .env はコミットしない)
 ├── build.gradle
 └── src
@@ -751,27 +783,28 @@ exchange
     │   │   ├── ExchangeApplication.java
     │   │   ├── global
     │   │   │   ├── config           # documentation, querydsl, rabbitmq, security
-    │   │   │   ├── constants        # StudyConstants, RabbitMQConstants
+    │   │   │   ├── constants        # StudyConstants, RabbitMQConstants, RedisKeyConstants
     │   │   │   ├── domain           # BaseTimeEntity
     │   │   │   ├── dto/response     # ApiResponse, SliceResponse
     │   │   │   ├── exception        # ErrorCode, BusinessException, GlobalExceptionHandler
     │   │   │   └── util             # SliceUtil
     │   │   ├── auth                 # ログイン・ログアウト (AuthController, AuthService)
     │   │   ├── room                 # ルーム作成・ルーム情報 (Room, Language, RoomService, RoomQueryService)
+    │   │   ├── note                 # 質問メモ (controller / domain / dto / repository / service)
     │   │   └── study                # トピック・質問
     │   │       ├── controller       # TopicController, StatsController
     │   │       ├── domain           # Topic, Question
     │   │       ├── dto              # request / command / result / response
-    │   │       ├── repository       # TopicRepository (+ QueryDSL custom/impl), QuestionRepository
-    │   │       ├── service          # TopicService(書き込み), TopicQueryService(取得), StatsQueryService(統計)
+    │   │       ├── repository       # TopicRepository (+ QueryDSL custom/impl), QuestionRepository, TopicPoolRepository(Redis 未使用トピックプール)
+    │   │       ├── service          # TopicService(書き込み), TopicQueryService(取得), StatsQueryService(統計), UnusedTopicPicker(プールから引く、だめなら DB)
     │   │       ├── event            # キューに送るメッセージオブジェクト
     │   │       ├── publisher        # メッセージ発行
-    │   │       ├── consumer         # メッセージ受信・処理
-    │   │       └── note             # 質問メモ (controller / domain / dto / repository / service)
+    │   │       └── consumer         # メッセージ受信・処理 (登録、使用済み処理、DLQ)
     │   └── resources
     │       ├── application.yml      # 共通設定
     │       ├── application-dev.yml  # 開発用 (デフォルト)
     │       ├── application-prod.yml # 本番用
+    │       ├── default-topics.json  # おすすめトピック (10言語)
     │       └── static
     │           ├── enter.html / index.html / topics.html / history.html / stats.html / register.html
     │           ├── favicon.svg
@@ -784,9 +817,11 @@ exchange
     │               ├── i18n/        # 言語別辞書 10個
     │               ├── sheet.js     # 質問シート、質問メモ
     │               ├── pet.js       # 言語の組み合わせごとのペット（動物、画面言語ごとの名前）
+    │               ├── share-card.js # シェアカード (Canvas)
     │               └── enter.js / home.js / topics.js / history.js / stats.js / register.js
     └── test
-        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, NoteServiceTest, StatsQueryServiceTest
+        ├── java/language/exchange   # RoomServiceTest, TopicRoomIsolationTest, TopicPassTest, DefaultTopicsTest,
+        │                            # TopicPoolRepositoryTest(実際の Redis), NoteServiceTest, StatsQueryServiceTest
         └── resources/application-test.yml
 ```
 
@@ -801,6 +836,17 @@ exchange
 
 - `Question`が`Topic`を参照する**単方向**の関連です。`Topic`は別ドメインであるルームを、エンティティではなく`room_id`の値だけで参照します。`Note`も、同じドメインの`Question`は関連で、ルームは`room_id`の値だけで参照します。
 - 国籍はISO 3166-1 alpha-2の国コードで保存し、画面では`Intl.DisplayNames`で画面言語の国名を表示します。
+
+### Redisのキー
+
+| キー | 型 | TTL | 内容 |
+|---|---|---|---|
+| `auth:session:sessions:{sessionId}` | Hash | 30日 | ログインセッション（Spring Session） |
+| `topics:{roomId}:unused` | Set | 7日（引く・登録するたびに延長） | そのルームの未使用トピックid |
+| `topics:{roomId}:unused-ready` | String | 7日（引くたびに延長） | プールをDBから読み込み済みであることを示す。なければ次に引くときにDBから読み直す |
+| `topics:{roomId}:drawn` | Set | 10分 | 引いたばかりで、使用日がまだDBに記録されていない可能性のあるトピックid |
+
+- Redisにしかないデータはログインセッションだけです。トピックプールはDBから作り直せるので、キーが消えても次に引くときに復旧します。
 
 ---
 
@@ -817,7 +863,7 @@ MYSQL_USER=
 MYSQL_PASSWORD=
 ```
 
-**2. MySQL、RabbitMQを起動**
+**2. MySQL、RabbitMQ、Redisを起動**
 
 ```bash
 docker compose up -d
@@ -843,8 +889,8 @@ docker compose ps        # すべてがhealthyになるまで待つ
 | プロファイル | いつ | 違い |
 |---|---|---|
 | `dev`（デフォルト） | `./gradlew bootRun` | 静的ファイルのキャッシュ無効、SQLログ出力 |
-| `prod` | `SPRING_PROFILES_ACTIVE=prod` | セッションCookieに`Secure`（HTTPS前提） |
-| `test` | テスト | インメモリDB（H2、MySQLモード）、キューとRedisには接続しない |
+| `prod` | `SPRING_PROFILES_ACTIVE=prod`（Dockerイメージのデフォルト） | セッションCookieに`Secure`（HTTPS前提） |
+| `test` | テスト | インメモリDB（H2、MySQLモード）、キューとRedisには接続しない（トピックを引く処理はDBから選ぶ経路で実行） |
 
 ### テスト
 
@@ -852,7 +898,9 @@ docker compose ps        # すべてがhealthyになるまで待つ
 ./gradlew clean test
 ```
 
-Dockerなしで実行できます。ルームの分離（他のルームのトピック・記録が見えず、引かれもしないか）、ルーム作成のルール（言語・国籍・目標回数）、パスワードのハッシュ、質問メモ（保存・更新、ルーム・言語ごとの分離、未使用トピックには保存不可）、統計（月ごとの集計、連続週、ルームの分離）を確認します。
+Dockerなしで実行できます。ルームの分離（他のルームのトピック・記録が見えず、引かれもしないか）、ルーム作成のルール（言語・国籍・目標回数）、パスワードのハッシュ、おすすめトピック（ルームの2言語だけで登録リクエスト）、トピックのパス、質問メモ（保存・更新、ルーム・言語ごとの分離、未使用トピックには保存不可）、統計（月ごとの集計、連続週、ルームの分離）を確認します。
+
+Redisプール（`TopicPoolRepositoryTest`）だけは、Luaスクリプトを確認する必要があるため**実際のRedis**を使います。`localhost:6379`にRedisがなければスキップされるので、一緒に実行するには先に`docker compose up -d redis`を実行します。開発用のデータと混ざらないように15番のDBを使い、終わったら削除します。16スレッドが同時に引いても同じトピックが二度出ないこと、パスしたトピックがプールに戻ること、プールを読み直しても引いたばかりのトピックが復活しないこと、すべてのキーにTTLがあることを確認します。
 
 ### スキーマを変更したとき
 
@@ -862,16 +910,17 @@ Dockerなしで実行できます。ルームの分離（他のルームのト�
 docker compose down -v && docker compose up -d
 ```
 
-> **以前のバージョン（ルームアカウントがなかった`main`）から移行するときも、一度は初期化が必要です。** テーブル構造が変わったため（`rooms`の追加、`topics.room_id`、`name_ko/name_ja` → `name_a/name_b` など）、古いDBでは起動しません。上のコマンドは、保存されたトピック・質問をすべて削除します。
+> **以前のバージョン（ルームアカウントがなかった`main`）から移行するときも、一度は初期化が必要です。** テーブル構造が変わったため（`rooms`の追加、`topics.room_id`、`name_ko/name_ja` → `name_a/name_b` など）、古いDBでは起動しません。上のコマンドは、保存されたトピック・質問をすべて削除します。Redisのボリュームも一緒に消えるので、ログインセッションとトピックプールもなくなります（ログインし直せば大丈夫です）。
 
 ---
 
 ## 📝 Notes
 
-- **ごく短い間隔で続けてトピックを引くと**、同じトピックがもう一度引かれることがあります（使用済み処理が非同期のため）。使用済み処理は冪等なので学習回数は1回しか増えませんが、画面の進捗バーは開き直すまで1つ多く表示されることがあります。
+- **トピックを引いた直後にすぐパスすると**、まれにパスしたトピックがあとから使用済みとして記録されることがあります（パスがキューの使用済み処理より先に実行された場合）。人が押す速さではまず起きません。
+- トピックはRedisプールから取り出すので、続けて引いても同じトピックは出ません。ただし**Redisが応答しない間**はDBから選ぶため、ごく短い間隔で続けて引くと、同じトピックがもう一度引かれることがあります（使用済み処理が非同期のため）。使用済み処理は冪等なので学習回数は1回しか増えませんが、画面の進捗バーは開き直すまで1つ多く表示されることがあります。
 - ルームのパスワードは復旧できず、ルーム情報（名前・国籍・言語）やトピックを編集・削除する機能はまだありません。メモも内容の書き換えはできますが、削除する機能はありません。
 - **トピックを引いた直後にメモを保存すると**、まれに`403 TOPIC_NOT_USED`で失敗することがあります（使用済み処理が非同期で、まだ反映されていない瞬間）。書いた内容は残っているので、もう一度保存すれば大丈夫です。
-- 外部に公開する前に必要なこと：パスワード変更、ログイン試行の制限、CSRFの再検討、HTTPSとCookieの`Secure`、セッションストア、翻訳のネイティブチェック。
+- 外部に公開する前に必要なこと：パスワード変更、ログイン試行の制限、CSRFの再検討、翻訳のネイティブチェック。（HTTPSとCookieの`Secure`、セッションストアは適用済みです。）
 
 ## About
 
