@@ -1,6 +1,7 @@
 /* 메인 페이지: 주제 뽑기
  *  - 뽑기 버튼을 누를 때마다 아직 안 쓴 주제 중 하나가 뽑혀요. (주에 한 번 제한은 없어요)
  *  - 뽑으면 헤더의 진행바도 한 칸 올라가요.
+ *  - 방금 뽑은 주제가 마음에 안 들면 패스하고 다시 뽑을 수 있어요. 패스한 주제는 안 쓴 주제로 돌아가서 나중에 다시 나올 수 있고, 진행바는 그대로예요.
  *  - 마지막으로 뽑은 주제는 새로고침하거나 다른 기기에서 열어도 카드에 그대로 나와요. 다음 주제를 뽑을 때까지 사라지지 않습니다.
  *  - 펫: 방의 두 언어 조합에 맞는 동물(pet.js)을 보여줘요. 목표 횟수를 다 채우면 100레벨이고, 뽑아서 레벨이 오르면 창으로 알려 줍니다.
  */
@@ -16,6 +17,7 @@
         hint: $('weekly-hint'),
         message: $('weekly-message'),
         drawButton: $('draw-button'),
+        passButton: $('pass-button'),
         petSection: $('pet-section'),
         petEmoji: $('pet-emoji'),
         petName: $('pet-name'),
@@ -137,13 +139,19 @@
         }
     }
 
+    function setButtonsDisabled(disabled) {
+        els.drawButton.disabled = disabled;
+        els.passButton.disabled = disabled;
+    }
+
     async function drawTopic() {
-        els.drawButton.disabled = true;
+        setButtonsDisabled(true);
         hideMessage(els.message);
 
         try {
             const topic = await apiGet('/api/topics/weekly');
             await revealTopic(topic, true);
+            els.passButton.hidden = false; // 복원한 카드(이미 이야기했을 수 있는 주제)에는 패스가 없어요.
             // 사용 처리는 서버에서 비동기로 되므로, 진행바는 다시 읽지 않고 여기서 하나 올립니다.
             if (roomInfo) {
                 roomInfo.studiedCount += 1;
@@ -153,10 +161,25 @@
         } catch (error) {
             showApiError(els.message, error); // 남은 주제가 없으면 error.NO_AVAILABLE_TOPIC
         }
-        els.drawButton.disabled = false;
+        setButtonsDisabled(false);
+    }
+
+    /** 카드의 주제를 안 쓴 주제로 되돌리고 다른 주제를 뽑습니다. 학습 횟수는 그대로라 진행바와 펫은 건드리지 않아요. */
+    async function passTopic() {
+        setButtonsDisabled(true);
+        hideMessage(els.message);
+
+        try {
+            const topic = await apiPost(`/api/topics/${weeklyTopic.id}/pass`);
+            await revealTopic(topic, true);
+        } catch (error) {
+            showApiError(els.message, error); // 대신 뽑을 주제가 없으면 error.NO_AVAILABLE_TOPIC (카드는 그대로)
+        }
+        setButtonsDisabled(false);
     }
 
     els.drawButton.addEventListener('click', drawTopic);
+    els.passButton.addEventListener('click', passTopic);
 
     els.card.addEventListener('click', () => {
         if (weeklyTopic) {

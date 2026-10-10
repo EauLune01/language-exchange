@@ -1,0 +1,536 @@
+[
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "도시"
+      },
+      {
+        "lang": "JA",
+        "text": "都市"
+      },
+      {
+        "lang": "EN",
+        "text": "City"
+      },
+      {
+        "lang": "ZH",
+        "text": "城市"
+      },
+      {
+        "lang": "ES",
+        "text": "Ciudad"
+      },
+      {
+        "lang": "FR",
+        "text": "Ville"
+      },
+      {
+        "lang": "AR",
+        "text": "المدينة"
+      },
+      {
+        "lang": "VI",
+        "text": "Thành phố"
+      },
+      {
+        "lang": "TH",
+        "text": "เมือง"
+      },
+      {
+        "lang": "IT",
+        "text": "Città"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "내가 사는 도시에 대해 설명해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "私が住んでいる街について説明してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about the city you live in."
+          },
+          {
+            "lang": "ZH",
+            "text": "请介绍一下你居住的城市。"
+          },
+          {
+            "lang": "ES",
+            "text": "Háblanos de la ciudad donde vives."
+          },
+          {
+            "lang": "FR",
+            "text": "Parlez-nous de la ville où vous habitez."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن المدينة التي تعيش فيها."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy giới thiệu về thành phố bạn đang sống."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าเกี่ยวกับเมืองที่คุณอาศัยอยู่"
+          },
+          {
+            "lang": "IT",
+            "text": "Parlaci della città in cui vivi."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "도시에서 겪었던 가장 기억에 남은 일을 말해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "街で経験した一番印象に残っていることを話してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about the most memorable thing that has happened to you in your city."
+          },
+          {
+            "lang": "ZH",
+            "text": "请说说你在这座城市里最难忘的一件事。"
+          },
+          {
+            "lang": "ES",
+            "text": "Cuéntanos lo más memorable que te ha pasado en tu ciudad."
+          },
+          {
+            "lang": "FR",
+            "text": "Racontez la chose la plus mémorable qui vous soit arrivée dans votre ville."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن أكثر شيء لا يُنسى حدث لك في مدينتك."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy kể về kỷ niệm đáng nhớ nhất của bạn ở thành phố này."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าเรื่องที่น่าจดจำที่สุดที่เคยเกิดขึ้นกับคุณในเมืองนี้"
+          },
+          {
+            "lang": "IT",
+            "text": "Raccontaci la cosa più memorabile che ti è successa nella tua città."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "외국인 친구가 우리 도시에 놀러온다고 합니다. 여행 코스를 짜주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "外国人の友達が私たちの街に遊びに来ることになりました。観光コースを考えてください。"
+          },
+          {
+            "lang": "EN",
+            "text": "A friend from abroad is coming to visit your city. Plan a sightseeing route for them."
+          },
+          {
+            "lang": "ZH",
+            "text": "有位外国朋友要来你的城市玩，请为他安排一条游览路线。"
+          },
+          {
+            "lang": "ES",
+            "text": "Un amigo extranjero viene a visitar tu ciudad. Prepárale una ruta turística."
+          },
+          {
+            "lang": "FR",
+            "text": "Un ami étranger vient visiter votre ville. Préparez-lui un itinéraire de visite."
+          },
+          {
+            "lang": "AR",
+            "text": "صديق أجنبي سيزور مدينتك. ضع له برنامجًا سياحيًا."
+          },
+          {
+            "lang": "VI",
+            "text": "Một người bạn nước ngoài sắp đến thành phố của bạn chơi. Hãy lên lịch trình tham quan cho bạn ấy."
+          },
+          {
+            "lang": "TH",
+            "text": "เพื่อนชาวต่างชาติจะมาเที่ยวเมืองของคุณ ช่วยวางแผนเส้นทางท่องเที่ยวให้หน่อย"
+          },
+          {
+            "lang": "IT",
+            "text": "Un amico straniero viene a visitare la tua città. Preparagli un itinerario turistico."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "공원"
+      },
+      {
+        "lang": "JA",
+        "text": "公園"
+      },
+      {
+        "lang": "EN",
+        "text": "Park"
+      },
+      {
+        "lang": "ZH",
+        "text": "公园"
+      },
+      {
+        "lang": "ES",
+        "text": "Parque"
+      },
+      {
+        "lang": "FR",
+        "text": "Parc"
+      },
+      {
+        "lang": "AR",
+        "text": "الحديقة"
+      },
+      {
+        "lang": "VI",
+        "text": "Công viên"
+      },
+      {
+        "lang": "TH",
+        "text": "สวนสาธารณะ"
+      },
+      {
+        "lang": "IT",
+        "text": "Parco"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "좋아하는 공원에 대해 설명해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "好きな公園について説明してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about a park you like."
+          },
+          {
+            "lang": "ZH",
+            "text": "请介绍一下你喜欢的公园。"
+          },
+          {
+            "lang": "ES",
+            "text": "Háblanos de un parque que te guste."
+          },
+          {
+            "lang": "FR",
+            "text": "Parlez-nous d'un parc que vous aimez."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن حديقة تحبها."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy giới thiệu về công viên mà bạn thích."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าเกี่ยวกับสวนสาธารณะที่คุณชอบ"
+          },
+          {
+            "lang": "IT",
+            "text": "Parlaci di un parco che ti piace."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "공원에 가면 주로 무엇을 하나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "公園に行ったら、主に何をしますか？"
+          },
+          {
+            "lang": "EN",
+            "text": "What do you usually do when you go to a park?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你去公园一般做什么？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Qué sueles hacer cuando vas a un parque?"
+          },
+          {
+            "lang": "FR",
+            "text": "Que faites-vous en général quand vous allez dans un parc ?"
+          },
+          {
+            "lang": "AR",
+            "text": "ماذا تفعل عادةً عندما تذهب إلى الحديقة؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn thường làm gì khi đến công viên?"
+          },
+          {
+            "lang": "TH",
+            "text": "เวลาไปสวนสาธารณะ คุณมักจะทำอะไร"
+          },
+          {
+            "lang": "IT",
+            "text": "Che cosa fai di solito quando vai al parco?"
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "최근에 공원에 간 경험을 말해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "最近公園に行った経験を話してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about a recent visit to a park."
+          },
+          {
+            "lang": "ZH",
+            "text": "请说说你最近一次去公园的经历。"
+          },
+          {
+            "lang": "ES",
+            "text": "Cuéntanos una visita reciente a un parque."
+          },
+          {
+            "lang": "FR",
+            "text": "Racontez une visite récente dans un parc."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن زيارة قمت بها مؤخرًا إلى حديقة."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy kể về một lần bạn đi công viên gần đây."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าประสบการณ์ที่ไปสวนสาธารณะเมื่อไม่นานมานี้"
+          },
+          {
+            "lang": "IT",
+            "text": "Raccontaci una tua visita recente a un parco."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "카페/음식점"
+      },
+      {
+        "lang": "JA",
+        "text": "カフェ/飲食店"
+      },
+      {
+        "lang": "EN",
+        "text": "Cafés/Restaurants"
+      },
+      {
+        "lang": "ZH",
+        "text": "咖啡馆/餐厅"
+      },
+      {
+        "lang": "ES",
+        "text": "Cafeterías/Restaurantes"
+      },
+      {
+        "lang": "FR",
+        "text": "Cafés/Restaurants"
+      },
+      {
+        "lang": "AR",
+        "text": "المقاهي/المطاعم"
+      },
+      {
+        "lang": "VI",
+        "text": "Quán cà phê/Quán ăn"
+      },
+      {
+        "lang": "TH",
+        "text": "คาเฟ่/ร้านอาหาร"
+      },
+      {
+        "lang": "IT",
+        "text": "Caffè/Ristoranti"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "내가 좋아하거나 자주 가는 카페에 대해 설명해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "私が好きな、またはよく行くカフェについて説明してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about a café you like or often go to."
+          },
+          {
+            "lang": "ZH",
+            "text": "请介绍一下你喜欢或常去的咖啡馆。"
+          },
+          {
+            "lang": "ES",
+            "text": "Háblanos de una cafetería que te guste o a la que vayas a menudo."
+          },
+          {
+            "lang": "FR",
+            "text": "Parlez-nous d'un café que vous aimez ou où vous allez souvent."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن مقهى تحبه أو تذهب إليه كثيرًا."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy giới thiệu về quán cà phê mà bạn thích hoặc hay đến."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าเกี่ยวกับคาเฟ่ที่คุณชอบหรือไปบ่อย"
+          },
+          {
+            "lang": "IT",
+            "text": "Parlaci di un caffè che ti piace o dove vai spesso."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "친구한테 소개해주고 싶은 맛집 하나를 알려주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "友達に紹介したい、おいしいお店を一つ教えてください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about one great place to eat that you would like to recommend to a friend."
+          },
+          {
+            "lang": "ZH",
+            "text": "请推荐一家你想介绍给朋友的好吃的店。"
+          },
+          {
+            "lang": "ES",
+            "text": "Recomiéndanos un buen sitio para comer que te gustaría enseñar a un amigo."
+          },
+          {
+            "lang": "FR",
+            "text": "Recommandez une bonne adresse que vous aimeriez faire découvrir à un ami."
+          },
+          {
+            "lang": "AR",
+            "text": "أخبرنا عن مطعم لذيذ تودّ أن تعرّف صديقك به."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy giới thiệu một quán ăn ngon mà bạn muốn chỉ cho bạn bè."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยแนะนำร้านอร่อยสักร้านที่อยากพาเพื่อนไป"
+          },
+          {
+            "lang": "IT",
+            "text": "Consigliaci un buon posto dove mangiare che vorresti far conoscere a un amico."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "카페에 가면 주로 무엇을 하나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "カフェに行ったら、主に何をしますか？"
+          },
+          {
+            "lang": "EN",
+            "text": "What do you usually do when you go to a café?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你去咖啡馆一般做什么？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Qué sueles hacer cuando vas a una cafetería?"
+          },
+          {
+            "lang": "FR",
+            "text": "Que faites-vous en général quand vous allez dans un café ?"
+          },
+          {
+            "lang": "AR",
+            "text": "ماذا تفعل عادةً عندما تذهب إلى المقهى؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn thường làm gì khi đến quán cà phê?"
+          },
+          {
+            "lang": "TH",
+            "text": "เวลาไปคาเฟ่ คุณมักจะทำอะไร"
+          },
+          {
+            "lang": "IT",
+            "text": "Che cosa fai di solito quando vai in un caffè?"
+          }
+        ]
+      }
+    ]
+  }
+]

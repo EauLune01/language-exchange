@@ -87,6 +87,20 @@ public class TopicController {
                 ApiResponse.success(200, "주제 조회 성공", TopicResponse.from(result)));
     }
 
+    @Operation(summary = "주제 패스하고 다시 뽑기", description = "뽑은 주제를 안 쓴 주제로 되돌리고, 그 주제를 뺀 나머지 안 쓴 주제 중 1개를 랜덤으로 뽑아 반환합니다. 패스한 주제는 사라지지 않고 나중에 다시 뽑힐 수 있으며, 학습 횟수는 그대로입니다. 대신 뽑을 주제가 없으면 아무것도 바뀌지 않습니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "패스 성공, 새로 뽑은 주제 반환"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "주제를 찾을 수 없음 또는 다른 방의 주제 (TOPIC_NOT_FOUND), 대신 뽑을 주제 없음 (NO_AVAILABLE_TOPIC)")
+    })
+    @PostMapping("/{topicId}/pass")
+    public ResponseEntity<ApiResponse<TopicResponse>> passTopic(
+            @AuthenticationPrincipal RoomPrincipal principal,
+            @PathVariable("topicId") Long topicId) {
+        TopicResult result = topicService.passTopic(principal.getRoomId(), topicId);
+        return ResponseEntity.ok(
+                ApiResponse.success(200, "주제 패스 성공", TopicResponse.from(result)));
+    }
+
     @Operation(summary = "전체 주제 목록 조회", description = "사용 여부와 관계없이 전체 주제를 Slice 형태로 조회합니다. 정렬은 고정이며(아직 안 쓴 주제 먼저, 같은 그룹 안에서는 방의 첫 번째 언어(A) 주제명 순) sort 파라미터는 무시됩니다. usedDate가 null이면 아직 사용하지 않은 주제입니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공")

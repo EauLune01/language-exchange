@@ -15,6 +15,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, TopicReposi
 
     boolean existsByIdAndRoomId(Long id, Long roomId);
 
+    Optional<Topic> findByIdAndRoomId(Long id, Long roomId);
+
     long countByRoomIdAndUsedDateIsNotNull(Long roomId);
 
     long countByRoomId(Long roomId);
@@ -26,4 +28,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long>, TopicReposi
     @Query(value = "SELECT * FROM topics WHERE room_id = :roomId AND used_date IS NULL ORDER BY RAND() LIMIT 1",
             nativeQuery = true)
     Optional<Topic> findRandomUnused(@Param("roomId") Long roomId);
+
+    @Query(value = "SELECT * FROM topics WHERE room_id = :roomId AND used_date IS NULL AND id <> :excludedId ORDER BY RAND() LIMIT 1",
+            nativeQuery = true)
+    Optional<Topic> findRandomUnusedExcept(@Param("roomId") Long roomId, @Param("excludedId") Long excludedId);
 }

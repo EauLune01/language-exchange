@@ -34,6 +34,9 @@ public class RoomCreateRequest {
     @NotNull(message = "목표 횟수는 필수입니다.")
     private Integer goal;
 
+    // true 면 방을 만든 직후 기본 추천 주제를 등록한다 (생략하면 false)
+    private boolean useDefaultTopics;
+
     public RoomCreateCommand toCommand() {
         return RoomCreateCommand.of(loginId, password, members.get(0).toCommand(), members.get(1).toCommand(), goal);
     }

@@ -55,4 +55,9 @@ public class Topic extends BaseTimeEntity {
             this.usedDate = date;
         }
     }
+
+    // 패스: 안 쓴 주제로 되돌려서 나중에 다시 뽑힐 수 있게 한다
+    public void pass() {
+        this.usedDate = null;
+    }
 }

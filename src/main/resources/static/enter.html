@@ -133,6 +133,18 @@
                     </div>
                     <p class="form-row-hint" data-i18n="room.goal.petHint"></p>
                 </div>
+
+                <!-- 기본 추천 주제: 서버의 default-topics.json 에서 방의 두 언어로 등록됩니다 -->
+                <div class="form-row form-row--goal">
+                    <div class="form-row-name" data-i18n="enter.create.defaultTopics"></div>
+                    <div class="goal-options">
+                        <label>
+                            <input type="checkbox" name="useDefaultTopics" checked>
+                            <span data-i18n="enter.create.defaultTopicsUse"></span>
+                        </label>
+                    </div>
+                    <p class="form-row-hint" data-i18n="enter.create.defaultTopicsHint"></p>
+                </div>
             </section>
 
             <div class="message" role="alert" hidden></div>
