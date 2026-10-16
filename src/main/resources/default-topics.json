@@ -888,5 +888,895 @@
         ]
       }
     ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "SNS"
+      },
+      {
+        "lang": "JA",
+        "text": "SNS"
+      },
+      {
+        "lang": "EN",
+        "text": "Social Media"
+      },
+      {
+        "lang": "ZH",
+        "text": "社交媒体"
+      },
+      {
+        "lang": "ES",
+        "text": "Redes sociales"
+      },
+      {
+        "lang": "FR",
+        "text": "Réseaux sociaux"
+      },
+      {
+        "lang": "AR",
+        "text": "وسائل التواصل الاجتماعي"
+      },
+      {
+        "lang": "VI",
+        "text": "Mạng xã hội"
+      },
+      {
+        "lang": "TH",
+        "text": "โซเชียลมีเดีย"
+      },
+      {
+        "lang": "IT",
+        "text": "Social network"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "좋아하거나 자주 사용하는 SNS가 있나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "好きな、またはよく使うSNSはありますか。"
+          },
+          {
+            "lang": "EN",
+            "text": "Is there a social media platform you like or use often?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你有喜欢或经常使用的社交媒体吗？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Hay alguna red social que te guste o que uses a menudo?"
+          },
+          {
+            "lang": "FR",
+            "text": "Y a-t-il un réseau social que vous aimez ou utilisez souvent ?"
+          },
+          {
+            "lang": "AR",
+            "text": "هل هناك منصة تواصل اجتماعي تحبها أو تستخدمها كثيرًا؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn có mạng xã hội nào yêu thích hoặc hay dùng không?"
+          },
+          {
+            "lang": "TH",
+            "text": "มีโซเชียลมีเดียที่คุณชอบหรือใช้บ่อยไหม"
+          },
+          {
+            "lang": "IT",
+            "text": "C'è un social network che ti piace o che usi spesso?"
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "최근에 읽은 SNS 게시물 중 기억에 남는 것을 이야기해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "最近読んだSNSの投稿の中で、印象に残っているものについて教えてください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about a memorable social media post you read recently."
+          },
+          {
+            "lang": "ZH",
+            "text": "请说说你最近在社交媒体上看到的印象深刻的帖子。"
+          },
+          {
+            "lang": "ES",
+            "text": "Cuéntanos sobre alguna publicación en redes sociales que hayas leído recientemente y que te haya llamado la atención."
+          },
+          {
+            "lang": "FR",
+            "text": "Parlez-nous d'une publication sur les réseaux sociaux que vous avez lue récemment et qui vous a marqué."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن منشور على وسائل التواصل الاجتماعي قرأته مؤخرًا وبقي في ذاكرتك."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy kể về một bài đăng trên mạng xã hội mà bạn đọc gần đây và còn nhớ."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าถึงโพสต์บนโซเชียลมีเดียที่คุณอ่านเมื่อเร็ว ๆ นี้และยังจำได้"
+          },
+          {
+            "lang": "IT",
+            "text": "Parlaci di un post sui social che hai letto di recente e che ti è rimasto impresso."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "평소에 SNS를 어떻게 활용하는지 이야기해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "普段SNSをどのように活用しているか教えてください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us how you usually use social media."
+          },
+          {
+            "lang": "ZH",
+            "text": "请说说你平时是怎么使用社交媒体的。"
+          },
+          {
+            "lang": "ES",
+            "text": "Cuéntanos cómo usas normalmente las redes sociales."
+          },
+          {
+            "lang": "FR",
+            "text": "Racontez-nous comment vous utilisez habituellement les réseaux sociaux."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن كيفية استخدامك لوسائل التواصل الاجتماعي عادةً."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy kể về cách bạn thường sử dụng mạng xã hội."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าว่าปกติคุณใช้โซเชียลมีเดียอย่างไร"
+          },
+          {
+            "lang": "IT",
+            "text": "Raccontaci come usi di solito i social network."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "악기 연주"
+      },
+      {
+        "lang": "JA",
+        "text": "楽器演奏"
+      },
+      {
+        "lang": "EN",
+        "text": "Playing Instruments"
+      },
+      {
+        "lang": "ZH",
+        "text": "乐器演奏"
+      },
+      {
+        "lang": "ES",
+        "text": "Tocar instrumentos"
+      },
+      {
+        "lang": "FR",
+        "text": "Jouer d'un instrument"
+      },
+      {
+        "lang": "AR",
+        "text": "العزف على الآلات الموسيقية"
+      },
+      {
+        "lang": "VI",
+        "text": "Chơi nhạc cụ"
+      },
+      {
+        "lang": "TH",
+        "text": "การเล่นดนตรี"
+      },
+      {
+        "lang": "IT",
+        "text": "Suonare strumenti"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "연주할 수 있는 악기가 있나요? 없으면 배워보고 싶은 악기에 대해 설명해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "演奏できる楽器はありますか。なければ、習ってみたい楽器について説明してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Can you play any instruments? If not, tell us about an instrument you'd like to learn."
+          },
+          {
+            "lang": "ZH",
+            "text": "你会演奏什么乐器吗？如果不会，请介绍一下你想学的乐器。"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Sabes tocar algún instrumento? Si no, háblanos de un instrumento que te gustaría aprender."
+          },
+          {
+            "lang": "FR",
+            "text": "Savez-vous jouer d'un instrument ? Sinon, parlez-nous d'un instrument que vous aimeriez apprendre."
+          },
+          {
+            "lang": "AR",
+            "text": "هل تجيد العزف على آلة موسيقية؟ إن لم يكن، فحدّثنا عن آلة تودّ تعلّمها."
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn có chơi được nhạc cụ nào không? Nếu không, hãy kể về nhạc cụ bạn muốn học."
+          },
+          {
+            "lang": "TH",
+            "text": "คุณเล่นเครื่องดนตรีอะไรได้บ้างไหม ถ้าไม่ได้ ช่วยเล่าถึงเครื่องดนตรีที่อยากลองเรียน"
+          },
+          {
+            "lang": "IT",
+            "text": "Sai suonare qualche strumento? Se no, parlaci di uno strumento che vorresti imparare."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "가장 기억에 남는 악기 연주 경험에 대해 이야기해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "一番印象に残っている楽器演奏の経験について教えてください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about your most memorable experience playing an instrument."
+          },
+          {
+            "lang": "ZH",
+            "text": "请说说你最难忘的一次乐器演奏经历。"
+          },
+          {
+            "lang": "ES",
+            "text": "Cuéntanos tu experiencia más memorable tocando un instrumento."
+          },
+          {
+            "lang": "FR",
+            "text": "Racontez-nous votre expérience la plus mémorable en jouant d'un instrument."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن أكثر تجربة عزف على آلة موسيقية لا تُنسى بالنسبة لك."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy kể về trải nghiệm chơi nhạc cụ đáng nhớ nhất của bạn."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าประสบการณ์การเล่นเครื่องดนตรีที่น่าจดจำที่สุดของคุณ"
+          },
+          {
+            "lang": "IT",
+            "text": "Raccontaci la tua esperienza più memorabile suonando uno strumento."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "사람들 앞에서 악기를 연주해본 경험이 있나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "人前で楽器を演奏したことはありますか。"
+          },
+          {
+            "lang": "EN",
+            "text": "Have you ever played an instrument in front of other people?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你有在别人面前演奏乐器的经历吗？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Alguna vez has tocado un instrumento delante de otras personas?"
+          },
+          {
+            "lang": "FR",
+            "text": "Avez-vous déjà joué d'un instrument devant d'autres personnes ?"
+          },
+          {
+            "lang": "AR",
+            "text": "هل سبق لك أن عزفت على آلة موسيقية أمام الناس؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn đã từng chơi nhạc cụ trước mặt mọi người chưa?"
+          },
+          {
+            "lang": "TH",
+            "text": "คุณเคยเล่นเครื่องดนตรีต่อหน้าคนอื่นไหม"
+          },
+          {
+            "lang": "IT",
+            "text": "Hai mai suonato uno strumento davanti ad altre persone?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "외식/음식"
+      },
+      {
+        "lang": "JA",
+        "text": "外食/食べ物"
+      },
+      {
+        "lang": "EN",
+        "text": "Eating Out/Food"
+      },
+      {
+        "lang": "ZH",
+        "text": "外出就餐/美食"
+      },
+      {
+        "lang": "ES",
+        "text": "Comer fuera/Comida"
+      },
+      {
+        "lang": "FR",
+        "text": "Restaurants/Cuisine"
+      },
+      {
+        "lang": "AR",
+        "text": "تناول الطعام في الخارج/الطعام"
+      },
+      {
+        "lang": "VI",
+        "text": "Ăn ngoài/Ẩm thực"
+      },
+      {
+        "lang": "TH",
+        "text": "การกินข้าวนอกบ้าน/อาหาร"
+      },
+      {
+        "lang": "IT",
+        "text": "Mangiare fuori/Cibo"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "자주 가는 식당에 대해 설명해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "よく行くお店について説明してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about a restaurant you often go to."
+          },
+          {
+            "lang": "ZH",
+            "text": "请介绍一下你经常去的餐厅。"
+          },
+          {
+            "lang": "ES",
+            "text": "Háblanos de un restaurante al que vas a menudo."
+          },
+          {
+            "lang": "FR",
+            "text": "Parlez-nous d'un restaurant où vous allez souvent."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن مطعم تذهب إليه كثيرًا."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy giới thiệu về một quán ăn bạn hay đến."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าเกี่ยวกับร้านอาหารที่คุณไปบ่อย"
+          },
+          {
+            "lang": "IT",
+            "text": "Parlaci di un ristorante dove vai spesso."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "당신의 나라의 전통 음식에 대해 설명해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "あなたの国の伝統料理について説明してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us about a traditional dish from your country."
+          },
+          {
+            "lang": "ZH",
+            "text": "请介绍一下你们国家的传统美食。"
+          },
+          {
+            "lang": "ES",
+            "text": "Háblanos de la comida tradicional de tu país."
+          },
+          {
+            "lang": "FR",
+            "text": "Parlez-nous de la cuisine traditionnelle de votre pays."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عن الطعام التقليدي في بلدك."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy giới thiệu về món ăn truyền thống của đất nước bạn."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าเกี่ยวกับอาหารพื้นเมืองของประเทศคุณ"
+          },
+          {
+            "lang": "IT",
+            "text": "Parlaci del cibo tradizionale del tuo paese."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "도전해보고 싶은 나라의 음식이 있나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "挑戦してみたい国の料理はありますか。"
+          },
+          {
+            "lang": "EN",
+            "text": "Is there a country's cuisine you'd like to try?"
+          },
+          {
+            "lang": "ZH",
+            "text": "有没有你想尝试的其他国家的美食？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Hay alguna comida de otro país que te gustaría probar?"
+          },
+          {
+            "lang": "FR",
+            "text": "Y a-t-il une cuisine d'un pays que vous aimeriez essayer ?"
+          },
+          {
+            "lang": "AR",
+            "text": "هل هناك مطبخ من بلد ما تودّ تجربته؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Có món ăn của nước nào mà bạn muốn thử không?"
+          },
+          {
+            "lang": "TH",
+            "text": "มีอาหารของประเทศไหนที่คุณอยากลองไหม"
+          },
+          {
+            "lang": "IT",
+            "text": "C'è la cucina di qualche paese che vorresti provare?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "집"
+      },
+      {
+        "lang": "JA",
+        "text": "家"
+      },
+      {
+        "lang": "EN",
+        "text": "Home"
+      },
+      {
+        "lang": "ZH",
+        "text": "家"
+      },
+      {
+        "lang": "ES",
+        "text": "Casa"
+      },
+      {
+        "lang": "FR",
+        "text": "Logement"
+      },
+      {
+        "lang": "AR",
+        "text": "المنزل"
+      },
+      {
+        "lang": "VI",
+        "text": "Nhà"
+      },
+      {
+        "lang": "TH",
+        "text": "บ้าน"
+      },
+      {
+        "lang": "IT",
+        "text": "Casa"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "당신은 어디에 살고 있나요? 당신의 집과 동네에 대해 설명해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "あなたはどこに住んでいますか。あなたの家と町について説明してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Where do you live? Tell us about your home and neighborhood."
+          },
+          {
+            "lang": "ZH",
+            "text": "你住在哪里？请介绍一下你的家和社区。"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Dónde vives? Háblanos de tu casa y tu barrio."
+          },
+          {
+            "lang": "FR",
+            "text": "Où habitez-vous ? Parlez-nous de votre logement et de votre quartier."
+          },
+          {
+            "lang": "AR",
+            "text": "أين تعيش؟ حدّثنا عن منزلك وحيّك."
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn đang sống ở đâu? Hãy giới thiệu về ngôi nhà và khu phố của bạn."
+          },
+          {
+            "lang": "TH",
+            "text": "คุณอาศัยอยู่ที่ไหน ช่วยเล่าเกี่ยวกับบ้านและละแวกบ้านของคุณ"
+          },
+          {
+            "lang": "IT",
+            "text": "Dove vivi? Parlaci della tua casa e del tuo quartiere."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "이전에 살았던 집과 현재 사는 집의 모습을 비교해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "以前住んでいた家と今住んでいる家の様子を比較してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Compare the home you used to live in with the one you live in now."
+          },
+          {
+            "lang": "ZH",
+            "text": "请比较一下你以前住的房子和现在住的房子。"
+          },
+          {
+            "lang": "ES",
+            "text": "Compara la casa donde vivías antes con la casa donde vives ahora."
+          },
+          {
+            "lang": "FR",
+            "text": "Comparez le logement où vous viviez avant avec celui où vous vivez maintenant."
+          },
+          {
+            "lang": "AR",
+            "text": "قارن بين المنزل الذي كنت تعيش فيه سابقًا والمنزل الذي تعيش فيه الآن."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy so sánh ngôi nhà bạn từng sống với ngôi nhà hiện tại."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเปรียบเทียบบ้านที่คุณเคยอยู่กับบ้านที่อยู่ตอนนี้"
+          },
+          {
+            "lang": "IT",
+            "text": "Confronta la casa in cui vivevi prima con quella in cui vivi ora."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "당신은 미래에 어디에 살고 싶나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "あなたは将来どこに住みたいですか。"
+          },
+          {
+            "lang": "EN",
+            "text": "Where would you like to live in the future?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你将来想住在哪里？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Dónde te gustaría vivir en el futuro?"
+          },
+          {
+            "lang": "FR",
+            "text": "Où aimeriez-vous vivre à l'avenir ?"
+          },
+          {
+            "lang": "AR",
+            "text": "أين تودّ أن تعيش في المستقبل؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Trong tương lai, bạn muốn sống ở đâu?"
+          },
+          {
+            "lang": "TH",
+            "text": "ในอนาคตคุณอยากอาศัยอยู่ที่ไหน"
+          },
+          {
+            "lang": "IT",
+            "text": "Dove ti piacerebbe vivere in futuro?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "names": [
+      {
+        "lang": "KO",
+        "text": "건강"
+      },
+      {
+        "lang": "JA",
+        "text": "健康"
+      },
+      {
+        "lang": "EN",
+        "text": "Health"
+      },
+      {
+        "lang": "ZH",
+        "text": "健康"
+      },
+      {
+        "lang": "ES",
+        "text": "Salud"
+      },
+      {
+        "lang": "FR",
+        "text": "Santé"
+      },
+      {
+        "lang": "AR",
+        "text": "الصحة"
+      },
+      {
+        "lang": "VI",
+        "text": "Sức khỏe"
+      },
+      {
+        "lang": "TH",
+        "text": "สุขภาพ"
+      },
+      {
+        "lang": "IT",
+        "text": "Salute"
+      }
+    ],
+    "questions": [
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "건강을 유지하기 위한 나의 활동을 설명해주세요."
+          },
+          {
+            "lang": "JA",
+            "text": "健康を維持するために行っている活動について説明してください。"
+          },
+          {
+            "lang": "EN",
+            "text": "Tell us what you do to stay healthy."
+          },
+          {
+            "lang": "ZH",
+            "text": "请介绍一下你为了保持健康所做的事情。"
+          },
+          {
+            "lang": "ES",
+            "text": "Cuéntanos qué haces para mantenerte sano."
+          },
+          {
+            "lang": "FR",
+            "text": "Parlez-nous de ce que vous faites pour rester en bonne santé."
+          },
+          {
+            "lang": "AR",
+            "text": "حدّثنا عمّا تفعله للحفاظ على صحتك."
+          },
+          {
+            "lang": "VI",
+            "text": "Hãy kể về những việc bạn làm để giữ gìn sức khỏe."
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วยเล่าว่าคุณทำอะไรเพื่อรักษาสุขภาพ"
+          },
+          {
+            "lang": "IT",
+            "text": "Raccontaci cosa fai per mantenerti in salute."
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "최근에 건강에 이상이 생긴 경험이 있나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "最近、体調を崩した経験はありますか。"
+          },
+          {
+            "lang": "EN",
+            "text": "Have you had any health problems recently?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你最近有身体不舒服的经历吗？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Has tenido algún problema de salud recientemente?"
+          },
+          {
+            "lang": "FR",
+            "text": "Avez-vous eu des problèmes de santé récemment ?"
+          },
+          {
+            "lang": "AR",
+            "text": "هل تعرّضت لمشكلة صحية مؤخرًا؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Gần đây bạn có gặp vấn đề gì về sức khỏe không?"
+          },
+          {
+            "lang": "TH",
+            "text": "ช่วงนี้คุณเคยมีปัญหาสุขภาพบ้างไหม"
+          },
+          {
+            "lang": "IT",
+            "text": "Hai avuto qualche problema di salute di recente?"
+          }
+        ]
+      },
+      {
+        "contents": [
+          {
+            "lang": "KO",
+            "text": "좋아하는 운동이 있나요?"
+          },
+          {
+            "lang": "JA",
+            "text": "好きな運動はありますか。"
+          },
+          {
+            "lang": "EN",
+            "text": "Do you have a favorite sport or exercise?"
+          },
+          {
+            "lang": "ZH",
+            "text": "你有喜欢的运动吗？"
+          },
+          {
+            "lang": "ES",
+            "text": "¿Tienes algún deporte o ejercicio favorito?"
+          },
+          {
+            "lang": "FR",
+            "text": "Avez-vous un sport ou une activité physique préférée ?"
+          },
+          {
+            "lang": "AR",
+            "text": "هل لديك رياضة مفضّلة؟"
+          },
+          {
+            "lang": "VI",
+            "text": "Bạn có môn thể thao yêu thích nào không?"
+          },
+          {
+            "lang": "TH",
+            "text": "คุณมีกีฬาหรือการออกกำลังกายที่ชอบไหม"
+          },
+          {
+            "lang": "IT",
+            "text": "Hai uno sport o un'attività fisica preferita?"
+          }
+        ]
+      }
+    ]
   }
 ]
