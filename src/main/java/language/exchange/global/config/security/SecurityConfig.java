@@ -31,7 +31,7 @@ public class SecurityConfig {
                 // 401 은 JSON 으로 답하고 원래 요청으로 되돌려 보내지 않는다. 켜 두면 로그인 안 된 요청마다 세션이 Redis 에 생긴다
                 .requestCache(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/*.html", "/favicon.svg", "/css/**", "/js/**", "/img/**").permitAll()
+                        .requestMatchers("/", "/*.html", "/favicon.svg", "/robots.txt", "/sitemap.xml", "/css/**", "/js/**", "/img/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/rooms", "/api/auth/login").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())

@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /api/
+Disallow: /swagger-ui/
+
+Sitemap: https://sogang-language-exchange.duckdns.org/sitemap.xml
